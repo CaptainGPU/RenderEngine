@@ -3,8 +3,15 @@
 
 #include <iostream>
 
-#include "GL/glew.h"
-#include "GLFW/glfw3.h"
+#include <OpenGL/gl3.h>
+
+#include <GLFW/glfw3.h>
+//#include <glad/gl.h>
+#include <glm/glm.hpp>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
 
 const GLint WIDTH = 800, HEIGHT = 600;
 
@@ -153,15 +160,21 @@ int main()
 
     glfwMakeContextCurrent(mainWindow);
 
-    glewExperimental = GL_TRUE;
-
-    if (glewInit() != GLEW_OK)
-    {
-        printf("GLEW initialization failed!");
-        glfwDestroyWindow(mainWindow);
-        glfwTerminate();
-        return 1;
-    }
+//    glewExperimental = GL_TRUE;
+//
+//    if (glewInit() != GLEW_OK)
+//    {
+//        printf("GLEW initialization failed!");
+//        glfwDestroyWindow(mainWindow);
+//        glfwTerminate();
+//        return 1;
+//    }
+    
+    IMGUI_CHECKVERSION();
+      ImGui::CreateContext();
+      ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
+      ImGui_ImplOpenGL3_Init("#version 330 core");
+      ImGui::StyleColorsClassic();
 
     glViewport(0, 0, bufferWidth, bufferHeight);
 
@@ -183,7 +196,31 @@ int main()
 
         glBindVertexArray(0);
         glUseProgram(0);
+        
+        
+        ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+            static bool showDemo = false;
+            ImGui::Begin("Example");
+            if (ImGui::Button("Show/Hide ImGui demo"))
+              showDemo = !showDemo;
+            ImGui::End();
+            if (showDemo)
+              ImGui::ShowDemoWindow(&showDemo);
+
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(mainWindow);
     }
+    
+    ImGui_ImplOpenGL3_Shutdown();
+     ImGui_ImplGlfw_Shutdown();
+     ImGui::DestroyContext();
+    
+    glfwDestroyWindow(mainWindow);
+      glfwTerminate();
+      return 0;
 }
