@@ -172,7 +172,21 @@ if (IMPORT_IMGUI)
     )
 endif ()
 
-add_executable(${PROJECT_NAME} RenderEngine.cxx)
+## APP
+
+set(SOURCE_PATH "${PROJECT_SOURCE_DIR}/source")
+set(INCLUDE_PATH "${PROJECT_SOURCE_DIR}/include")
+
+file( GLOB_RECURSE Headers "${INCLUDE_PATH}/*.hxx" )
+file( GLOB_RECURSE Sources "${SOURCE_PATH}/*.cxx" )
+
+add_executable(${PROJECT_NAME} ${Headers} ${Sources})
+
+target_include_directories( ${PROJECT_NAME} PUBLIC ${INCLUDE_PATH} )
+
+source_group("Headers" FILES ${Headers})
+
+message(STATUS "${Headers}")
 
 find_package(OpenGL REQUIRED)
 

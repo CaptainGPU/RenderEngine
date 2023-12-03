@@ -3,10 +3,11 @@
 
 #include <iostream>
 
-#include <OpenGL/gl3.h>
+//#include <OpenGL/gl3.h>
 
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
-//#include <glad/gl.h>
+
 #include <glm/glm.hpp>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -159,6 +160,8 @@ int main()
     glfwGetFramebufferSize(mainWindow, &bufferWidth, &bufferHeight);
 
     glfwMakeContextCurrent(mainWindow);
+
+    int version = gladLoadGL(glfwGetProcAddress);
 
 //    glewExperimental = GL_TRUE;
 //
