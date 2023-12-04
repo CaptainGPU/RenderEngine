@@ -8,7 +8,7 @@ class Window
 public:
 	Window(int width, int height);
 	void frame();
-	bool isShouldClose();
+	bool shouldClose();
 	void close();
 
 private:

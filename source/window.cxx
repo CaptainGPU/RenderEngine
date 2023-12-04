@@ -27,7 +27,7 @@ void Window::frame()
 	glfwPollEvents();
 }
 
-bool Window::isShouldClose()
+bool Window::shouldClose()
 {
 	return !m_isValid || glfwWindowShouldClose(m_window);
 }

@@ -21,7 +21,7 @@ void Application::workStage()
 {
 	printf("Application work\n");
 
-	while (!m_window->isShouldClose())
+	while (!m_window->shouldClose())
 	{
 		m_window->frame();
 	}
