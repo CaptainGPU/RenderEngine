@@ -14,6 +14,9 @@ private:
 	void finalStage();
 
 private:
+    Application(const Application&) = delete;
+    Application& operator=(const Application&) = delete;
+
 	Window* m_window = nullptr;
 
 	int m_width;

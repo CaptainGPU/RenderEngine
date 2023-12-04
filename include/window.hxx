@@ -12,6 +12,9 @@ public:
 	void close();
 
 private:
+    Window(const Window&) = delete;
+    Window& operator=(const Window&) = delete;
+
 	int m_width;
 	int m_height;
 	bool m_isValid;
