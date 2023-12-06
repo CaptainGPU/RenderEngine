@@ -398,3 +398,5 @@ FodyWeavers.xsd
 *.sln.iml
 
 build/
+platform/
+generated/*.hxx

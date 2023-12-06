@@ -1,26 +1,52 @@
+//
+// Created by Eugene Karpenko @ CaptainGPU
+// https://twitter.com/CaptainGPU
+//
+
 #pragma once
 
-#define GLFW_INCLUDE_NONE
-//#include <GLFW/glfw3.h>
+#include "defines.hxx"
+
+#if CURRENT_PLATFORM == PLATFORM_WIN
 #include "glad/gl.h"
+#endif
+
+#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
+#include <emscripten.h>
+#include <GLES3/gl3.h>
+#endif
+
 #include <GLFW/glfw3.h>
 
-
+// The Window class, a container for displaying a scene frame, is used in the Application.
+// For platforms with windowed mode, it is a window, for other platforms it is a display
 class Window
 {
 public:
 	Window(int width, int height);
+
+	// Window update function
 	void frame();
+	
+	// The function allows you to find out whether the window has been closed,
+	// used to force the application to exit Application::workingStage
 	bool shouldClose();
+
+	// The function of closing the window, which releases resources
 	void close();
 
 private:
+	// Window width and height
 	int m_width;
 	int m_height;
+
+	// Window validity flag,
 	bool m_isValid;
 
+	// GLFW Window Implementation
 	GLFWwindow* m_window = nullptr;
 
+	// Window framebuffer width and height
 	GLint m_bufferWidth;
 	GLint m_bufferHeight;
 };

@@ -1,9 +1,16 @@
+//
+// Created by Eugene Karpenko @ CaptainGPU
+// https://twitter.com/CaptainGPU
+//
+
 #include "render.hxx"
 
 #include <iostream>
 
-static const char* vShader = "                                         \n\
-#version 330                                                           \n\
+// Temporary vertex shader code, TODO: Will be deleted
+
+static const char* vShader = "#version 300 es                                                          \n\
+precision highp float;\n\
 layout (location = 0) in vec3 pos;                                      \n\
                                                                        \n\
 out vec3 vertexColor;                                                      \n\
@@ -15,8 +22,9 @@ void main()                                                            \n\
     gl_Position = vec4(0.9f * pos.x, 0.9f * pos.y, pos.z, 1.0f);       \n\
 }";
 
-static const char* fShader = "                      \n\
-#version 330                                        \n\
+// Temporary fragment shader, TODO: Will be deleted
+static const char* fShader = "#version 300 es                                       \n\
+precision highp float;\n\
 in vec3 vertexColor;                                \n\
 out vec4 color;                                     \n\
                                                     \n\
@@ -26,21 +34,28 @@ void main()                                         \n\
 }                                                   \n\
 ";
 
+// Temporary variables, since all that Render can do now is display a triangle, TODO: Will be deleted
 GLuint Render::VAO;
 GLuint Render::VBO;
 GLuint Render::shader;
 
+// Render initialization function
 void Render::init()
 {
+	// Temporary code for creating the triangle and shaders to display it, TODO: Will be deleted
 	createTriangle();
 	compileShaders();
 }
 
+// Viewport size setting function
 void Render::setViewport(int x, int y, int width, int height)
 {
+	// Call OpenGL glViewport
 	glViewport(x, y, width, height);
 }
 
+// Temporary drawing function, TODO: Will be deleted
+// Displays triangle only
 void Render::draw()
 {
 	glClearColor(.0, .5, 1.0, 1.0);
@@ -56,6 +71,7 @@ void Render::draw()
 	glUseProgram(0);
 }
 
+// Temporary triangle creation function, TODO: Will be deleted
 void Render::createTriangle()
 {
 	GLfloat vertices[] = {
@@ -78,6 +94,7 @@ void Render::createTriangle()
 	glBindVertexArray(0);
 }
 
+// Temporary OpenGL shader creation function, TODO: Will be deleted
 void Render::addShader(GLuint program, const char* shaderCode, GLenum shaderType)
 {
 	GLuint theShader = glCreateShader(shaderType);
@@ -106,9 +123,10 @@ void Render::addShader(GLuint program, const char* shaderCode, GLenum shaderType
 	glAttachShader(program, theShader);
 }
 
+// Temporary OpenGL shaders compilations function, TODO: Will be deleted
 void Render::compileShaders()
 {
-	// make program
+	// Make program
 	shader = glCreateProgram();
 
 	if (!shader)
@@ -117,14 +135,14 @@ void Render::compileShaders()
 		return;
 	}
 
-	// add shader code to programm
+	// Фdd shader code to programm
 	addShader(shader, vShader, GL_VERTEX_SHADER);
 	addShader(shader, fShader, GL_FRAGMENT_SHADER);
 
 	GLint result = 0;
 	GLchar errorLog[128] = { 0 };
 
-	// compiling programm
+	// Compiling programm
 	glLinkProgram(shader);
 	glGetProgramiv(shader, GL_LINK_STATUS, &result);
 	if (!result)
@@ -134,7 +152,7 @@ void Render::compileShaders()
 		return;
 	}
 
-	// validation programm
+	// Validation programm
 	glValidateProgram(shader);
 	glGetProgramiv(shader, GL_VALIDATE_STATUS, &result);
 	if (!result)

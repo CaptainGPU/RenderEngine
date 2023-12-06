@@ -1,0 +1,15 @@
+//
+// Created by Eugene Karpenko @ CaptainGPU
+// https://twitter.com/CaptainGPU
+//
+
+// Header with all defines in project
+
+// Platform defines
+#define PLATFORM_WIN 1
+#define PLATFORM_MAC 2
+#define PLATFORM_EMSCRIPTEN 3
+
+// Identifier of the current platform for which compilation occurs
+// Set from CMAKE
+#define CURRENT_PLATFORM @CURRENT_PLATFORM_ID@
