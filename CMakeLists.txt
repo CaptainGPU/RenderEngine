@@ -6,9 +6,28 @@ project(RenderEngine VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# SELECT PLATFORM
+
+set(DEPLOY_PLATFORM "None" CACHE STRING "Platform to deploy CMake project")
+
+if (EMSCRIPTEN)
+    set(DEPLOY_PLATFORM "Emscripter")
+endif()
+
+if (${DEPLOY_PLATFORM} STREQUAL "None")
+    message( FATAL_ERROR "Not select Platform to deploy CMake project" )
+endif()
+
+if (${DEPLOY_PLATFORM} STREQUAL "Win")
+    set(CURRENT_PLATFORM_ID 1)
+elseif(${DEPLOY_PLATFORM} STREQUAL "Emscripten")
+endif()
+
+
+
 message(STATUS "-------------------------------------------------")
 
-message(STATUS "Hello, let's build a Render Engine for the Emscripten platform!")
+message(STATUS "Hello, let's build a Render Engine for the ${DEPLOY_PLATFORM} platform!")
 
 
 
@@ -215,8 +234,10 @@ if (IMPORT_IMGUI)
             ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
             ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.h
     )
-    #target_link_libraries(imgui PUBLIC glfw glad)
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DIMGUI_IMPL_OPENGL_LOADER_GLAD2")
+    if (NOT EMSCRIPTEN)
+        target_link_libraries(imgui PUBLIC glfw glad)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DIMGUI_IMPL_OPENGL_LOADER_GLAD2")
+    endif()
     target_include_directories(
             imgui
             PUBLIC
@@ -228,9 +249,9 @@ endif ()
 ## APP
 
 # ENGINE PATH
-set(ENGINE_SOURCE_PATH "${PROJECT_SOURCE_DIR}/../../source")
-set(ENGINE_INCLUDE_PATH "${PROJECT_SOURCE_DIR}/../../include")
-set(ENGINE_GENERATE_INCLUDE_PATH "${PROJECT_SOURCE_DIR}/../../generated")
+set(ENGINE_SOURCE_PATH "${PROJECT_SOURCE_DIR}/source")
+set(ENGINE_INCLUDE_PATH "${PROJECT_SOURCE_DIR}/include")
+set(ENGINE_GENERATE_INCLUDE_PATH "${PROJECT_SOURCE_DIR}/generated")
 
 # PLATFORM PATH
 set(SOURCE_PATH "${PROJECT_SOURCE_DIR}/source")
@@ -241,7 +262,6 @@ file( GLOB_RECURSE EngineSources "${ENGINE_SOURCE_PATH}/*.cxx" )
 file( GLOB_RECURSE EngineHeaders "${ENGINE_INCLUDE_PATH}/*.hXX" )
 
 # GENERATE engine defines.hxx
-set(CURRENT_PLATFORM_ID 3)
 configure_file("${ENGINE_GENERATE_INCLUDE_PATH}/defines.hxx.in" "${ENGINE_GENERATE_INCLUDE_PATH}/defines.hxx")
 
 list(APPEND EngineHeaders "${ENGINE_GENERATE_INCLUDE_PATH}/defines.hxx")
@@ -335,12 +355,12 @@ endforeach()
 if (EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-s USE_GLFW=3 -s FULL_ES3=1")
-
-    target_link_libraries(
-            ${PROJECT_NAME}
-            glm
-            imgui
-    )
 endif()
+
+target_link_libraries(
+    ${PROJECT_NAME}
+    imgui
+    glm
+)
 
 message(STATUS "-------------------------------------------------")
