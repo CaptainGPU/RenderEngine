@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(DEPLOY_PLATFORM "None" CACHE STRING "Platform to deploy CMake project")
 
 if (EMSCRIPTEN)
-    set(DEPLOY_PLATFORM "Emscripter")
+    set(DEPLOY_PLATFORM "Emscripten")
 endif()
 
 if (${DEPLOY_PLATFORM} STREQUAL "None")

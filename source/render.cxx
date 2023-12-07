@@ -10,7 +10,7 @@
 // Temporary vertex shader code, TODO: Will be deleted
 #if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
 
-static const char* vShader = "#version 330 es \n\
+static const char* vShader = "#version 300 es \n\
 precision highp float;\n\
 layout (location = 0) in vec3 pos;                                      \n\
                                                                        \n\
@@ -41,7 +41,7 @@ void main()                                                            \n\
 
 #if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
 // Temporary fragment shader, TODO: Will be deleted
-static const char* fShader = "#version 330 es\n\
+static const char* fShader = "#version 300 es\n\
 precision highp float;\n\
 in vec3 vertexColor;                                \n\
 out vec4 color;                                     \n\

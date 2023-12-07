@@ -55,7 +55,11 @@ Window::Window(int width, int height)
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGui_ImplGlfw_InitForOpenGL(m_window, true);
+#if (CURRENT_PLATFORM == PLATFORM_WIN || CURRENT_PLATFORM == PLATFORM_MAC)
 	ImGui_ImplOpenGL3_Init("#version 330 core");
+#else
+	ImGui_ImplOpenGL3_Init("#version 300 es");
+#endif
 	ImGui::StyleColorsClassic();
 
 	// Render Initialization
