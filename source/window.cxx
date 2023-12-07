@@ -25,6 +25,12 @@ Window::Window(int width, int height)
 		// If GLFW cannot be initialized, the window is invalid
 		m_isValid = false;
 	}
+    
+    // OpenGL GLFW context settings
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 	// Creating GLFW Window
 	m_window = glfwCreateWindow(m_width, m_height, "Промінь", nullptr, nullptr);
@@ -35,19 +41,13 @@ Window::Window(int width, int height)
 		m_isValid = false;
 	}
 
-	// OpenGL GLFW context settings
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-
 	glfwMakeContextCurrent(m_window);
 
 	// Getting framebuffer sizes
 	glfwGetFramebufferSize(m_window, &m_bufferWidth, &m_bufferHeight);
 
 	// GLAD initialization on WIN platform
-#if CURRENT_PLATFORM == PLATFORM_WIN
+#if (CURRENT_PLATFORM == PLATFORM_WIN || CURRENT_PLATFORM == PLATFORM_MAC)
 	int version = gladLoadGL(glfwGetProcAddress);
 #endif
 
@@ -55,7 +55,7 @@ Window::Window(int width, int height)
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGui_ImplGlfw_InitForOpenGL(m_window, true);
-	ImGui_ImplOpenGL3_Init("#version 300 es");
+	ImGui_ImplOpenGL3_Init("#version 330 core");
 	ImGui::StyleColorsClassic();
 
 	// Render Initialization

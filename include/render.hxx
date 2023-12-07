@@ -7,7 +7,7 @@
 
 #include "defines.hxx"
 
-#if CURRENT_PLATFORM == PLATFORM_WIN
+#if (CURRENT_PLATFORM == PLATFORM_WIN) || (CURRENT_PLATFORM == PLATFORM_MAC)
 #include "glad/gl.h"
 #endif
 

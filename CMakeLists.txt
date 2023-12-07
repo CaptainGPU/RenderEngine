@@ -20,7 +20,10 @@ endif()
 
 if (${DEPLOY_PLATFORM} STREQUAL "Win")
     set(CURRENT_PLATFORM_ID 1)
+elseif(${DEPLOY_PLATFORM} STREQUAL "MacOS")
+    set(CURRENT_PLATFORM_ID 2)
 elseif(${DEPLOY_PLATFORM} STREQUAL "Emscripten")
+    set(CURRENT_PLATFORM_ID 3)
 endif()
 
 
@@ -356,6 +359,8 @@ if (EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-s USE_GLFW=3 -s FULL_ES3=1")
 endif()
+
+find_package(OpenGL REQUIRED)
 
 target_link_libraries(
     ${PROJECT_NAME}

@@ -8,8 +8,9 @@
 #include <iostream>
 
 // Temporary vertex shader code, TODO: Will be deleted
+#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
 
-static const char* vShader = "#version 300 es                                                          \n\
+static const char* vShader = "#version 330 es \n\
 precision highp float;\n\
 layout (location = 0) in vec3 pos;                                      \n\
                                                                        \n\
@@ -22,8 +23,25 @@ void main()                                                            \n\
     gl_Position = vec4(0.9f * pos.x, 0.9f * pos.y, pos.z, 1.0f);       \n\
 }";
 
+#else
+
+static const char* vShader = "#version 330                                                          \n\
+precision highp float;\n\
+layout (location = 0) in vec3 pos;                                      \n\
+                                                                       \n\
+out vec3 vertexColor;                                                      \n\
+void main()                                                            \n\
+{                                                                      \n\
+    vertexColor = vec3(1.0, .0, .0);                               \n\
+    vec3 weights[3] = vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)); \n\
+    vertexColor = weights[gl_VertexID];         \n\
+    gl_Position = vec4(0.9f * pos.x, 0.9f * pos.y, pos.z, 1.0f);       \n\
+}";
+#endif
+
+#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
 // Temporary fragment shader, TODO: Will be deleted
-static const char* fShader = "#version 300 es                                       \n\
+static const char* fShader = "#version 330 es\n\
 precision highp float;\n\
 in vec3 vertexColor;                                \n\
 out vec4 color;                                     \n\
@@ -33,6 +51,21 @@ void main()                                         \n\
     color =  vec4(vertexColor, 1.0f);     \n\
 }                                                   \n\
 ";
+
+#else
+// Temporary fragment shader, TODO: Will be deleted
+static const char* fShader = "#version 330                                       \n\
+precision highp float;\n\
+in vec3 vertexColor;                                \n\
+out vec4 color;                                     \n\
+                                                    \n\
+void main()                                         \n\
+{                                                   \n\
+    color =  vec4(vertexColor, 1.0f);     \n\
+}                                                   \n\
+";
+
+#endif
 
 // Temporary variables, since all that Render can do now is display a triangle, TODO: Will be deleted
 GLuint Render::VAO;
@@ -134,6 +167,8 @@ void Render::compileShaders()
 		printf("Error: Creating shader program!\n");
 		return;
 	}
+    
+    glBindVertexArray(VAO);
 
 	// Фdd shader code to programm
 	addShader(shader, vShader, GL_VERTEX_SHADER);
