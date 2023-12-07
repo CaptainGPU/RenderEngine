@@ -34,6 +34,9 @@ void Application::initStage()
 
 	// Initializing the Window component
 	m_window = new Window(m_width, m_height);
+    
+    m_engine = new Engine();
+    m_engine->init();
 }
 
 // Part of Emscripten Loop code
@@ -42,14 +45,10 @@ void Application::initStage()
 // on the Emscripten application loop
 
 #if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
-void Application::emsk_workStage()
-{
-	m_window->frame();
-}
 
 void Application::emsk_loop()
 {
-	app->emsk_workStage();
+	app->simulate();
 }
 #endif
 
@@ -64,9 +63,15 @@ void Application::workStage()
 #else
 	while (!m_window->shouldClose())
 	{
-		m_window->frame();
+        simulate();
 	}
 #endif
+}
+
+void Application::simulate()
+{
+    m_window->frame();
+    m_engine->simulate();
 }
 
 // The stage when the application ends, in which the resources occupied by the engine components are released
@@ -75,6 +80,9 @@ void Application::finalStage()
 	// Clearing resources occupied by the Window
 	m_window->close();
 	delete m_window;
+    
+    m_engine->finish();
+    delete m_engine;
 
 	printf("Application say goodbye!\n");
 }

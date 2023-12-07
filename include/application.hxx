@@ -6,6 +6,7 @@
 #pragma once
 
 #include "window.hxx"
+#include "engine.hxx"
 
 // Application base class
 // An application has three main life stages:
@@ -25,7 +26,6 @@ public:
 #if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
 	static void emsk_loop();
 	static Application* app;
-	void emsk_workStage();
 #endif
 
 private:
@@ -33,12 +33,16 @@ private:
 	void initStage();
 	// The Stage of work in which the object logic is updated and the frame is rendered
 	void workStage();
+    
+    void simulate();
 	// The stage when the application ends, in which the resources occupied by the engine components are released
 	void finalStage();
 
 private:
 	// The concept of a window in an application acts as a display/screen/window in which the scene will be displayed.
 	Window* m_window = nullptr;
+    
+    Engine* m_engine = nullptr;
 
 	// Height and width parameters used to initialize the Window
 	int m_width;
