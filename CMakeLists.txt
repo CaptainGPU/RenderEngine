@@ -249,6 +249,19 @@ if (IMPORT_IMGUI)
     )
 endif ()
 
+##############################
+# GTest                      #
+##############################
+set(GTEST_VERSION 1.14.0 CACHE STRING "Google test version")
+FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG "v${GTEST_VERSION}"
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
 ## APP
 
 # ENGINE PATH
@@ -367,5 +380,15 @@ target_link_libraries(
     imgui
     glm
 )
+
+##############################
+# Tests                      #
+##############################
+add_executable(${PROJECT_NAME}_tests tests/application_test.cxx)
+target_include_directories(${PROJECT_NAME}_tests PRIVATE ${INCLUDE_PATH} )
+target_link_libraries(${PROJECT_NAME}_tests gtest gtest_main)
+
+enable_testing()
+add_test(NAME ${PROJECT_NAME}_tests COMMAND ${PROJECT_NAME}_tests)
 
 message(STATUS "-------------------------------------------------")
