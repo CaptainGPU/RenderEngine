@@ -3,6 +3,7 @@
 // https://twitter.com/CaptainGPU
 //
 #include "testScene.hxx"
+#include "testGameObject.hxx"
 
 
 TestScene::TestScene()
@@ -12,7 +13,12 @@ TestScene::TestScene()
 
 TestScene::~TestScene()
 {
-    
+}
+
+void TestScene::construct()
+{
+    TestGameObject* gameObject = new TestGameObject();
+    addGameObject(gameObject);
 }
 
 

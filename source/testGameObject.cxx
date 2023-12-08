@@ -4,8 +4,29 @@
 //
 #include "testGameObject.hxx"
 
+#include <imgui.h>
+
 
 TestGameObject::TestGameObject()
-:GameObject()
+:GameObject("TestGameObject")
 {
+    m_deltaTime = .0;
+}
+
+void TestGameObject::update(float deltaTime)
+{
+    GameObject::update(deltaTime);
+    m_deltaTime = deltaTime;
+}
+
+void TestGameObject::drawGUI()
+{
+    GameObject::drawGUI();
+    
+    ImGui::Begin("Example");
+    
+    ImGui::Text("RenderTime: %f(ms)", m_deltaTime);
+    ImGui::Text("FPS: %f", 1.0f / m_deltaTime);
+    
+    ImGui::End();
 }

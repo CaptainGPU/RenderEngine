@@ -10,6 +10,10 @@
 
 SceneManager::SceneManager()
 {
+}
+
+void SceneManager::run()
+{
     TestScene* scene = new TestScene();
     setScene(scene);
 }
@@ -24,6 +28,7 @@ void SceneManager::setScene(Scene* scene)
     
     m_scene = scene;
     
+    m_scene->construct();
     m_scene->startPlay();
 }
 
@@ -41,6 +46,14 @@ void SceneManager::simulate(float deltaTime)
     if (m_scene)
     {
         m_scene->simulate(deltaTime);
+    }
+}
+
+void SceneManager::drawGUI()
+{
+    if (m_scene)
+    {
+        m_scene->drawGUI();
     }
 }
 

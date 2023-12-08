@@ -13,4 +13,5 @@ public:
     ~TestScene();
     
     void startPlay() override;
+    void construct() override;
 };

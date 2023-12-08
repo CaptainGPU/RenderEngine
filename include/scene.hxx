@@ -19,9 +19,13 @@ public:
     virtual ~Scene() = default;
     void simulate(float deltaTime);
     void addGameObject(GameObject* gameObject);
+    void drawGUI();
     
+    virtual void construct();
     virtual void startPlay();
     virtual void endPlay();
+    
+    void finish();
 protected:
     std::vector<GameObject*> m_gameObjects;
     

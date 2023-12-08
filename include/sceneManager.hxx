@@ -11,9 +11,12 @@ class SceneManager
 public:
     SceneManager();
     
+    void run();
+    
     void setScene(Scene* scene);
     
     void simulate(float deltaTime);
+    void drawGUI();
     
     void finish();
     

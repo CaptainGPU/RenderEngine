@@ -77,14 +77,12 @@ void Window::frame()
 
 	// Render triangle
 	Render::draw();
+}
 
-	// Render UI
-	RenderGUI::starRender();
-	RenderGUI::frame();
-	RenderGUI::endRender();
-
-	// Swap Window framebuffer
-	glfwSwapBuffers(m_window);
+void Window::swap()
+{
+    // Swap Window framebuffer
+    glfwSwapBuffers(m_window);
 }
 
 // The function allows you to find out whether the window has been closed,

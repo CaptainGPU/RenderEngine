@@ -11,9 +11,38 @@ Scene::Scene(std::string name)
     m_name = name;
 }
 
+void Scene::construct()
+{
+}
+
 void Scene::simulate(float deltaTime)
 {
-    
+    for(size_t i = 0; i < m_gameObjects.size(); i++)
+    {
+        GameObject* gameObject = m_gameObjects[i];
+        
+        if (!gameObject)
+        {
+            continue;
+        }
+        
+        gameObject->update(deltaTime);
+    }
+}
+
+void Scene::drawGUI()
+{
+    for(size_t i = 0; i < m_gameObjects.size(); i++)
+    {
+        GameObject* gameObject = m_gameObjects[i];
+        
+        if (!gameObject)
+        {
+            continue;
+        }
+        
+        gameObject->drawGUI();
+    }
 }
 
 void Scene::addGameObject(GameObject* gameObject)
@@ -28,10 +57,45 @@ void Scene::addGameObject(GameObject* gameObject)
 
 void Scene::startPlay()
 {
-    printf("%s scene has start play\n", m_name.c_str());
+    printf("%s scene has start play!\n", m_name.c_str());
+    
+    for(size_t i = 0; i < m_gameObjects.size(); i++)
+    {
+        GameObject* gameObject = m_gameObjects[i];
+        
+        if (!gameObject)
+        {
+            continue;
+        }
+        
+        gameObject->startPlay();
+    }
 }
 
 void Scene::endPlay()
 {
+    for(size_t i = 0; i < m_gameObjects.size(); i++)
+    {
+        GameObject* gameObject = m_gameObjects[i];
+        
+        if (!gameObject)
+        {
+            continue;
+        }
+        
+        gameObject->endPlay();
+    }
+    
+    
     printf("%s scene has say goodbye!\n", m_name.c_str());
+}
+
+void Scene::finish()
+{
+    for(size_t i = 0; i < m_gameObjects.size(); i++)
+    {
+        GameObject* gameObject = m_gameObjects[i];
+        
+        delete gameObject;
+    }
 }

@@ -36,6 +36,7 @@ void Application::initStage()
 	m_window = new Window(m_width, m_height);
     
     m_engine = new Engine();
+    Engine::registreEngine(m_engine);
     m_engine->init();
 }
 
@@ -56,6 +57,8 @@ void Application::emsk_loop()
 void Application::workStage()
 {
 	printf("Application work\n");
+    
+    m_engine->run();
 
 // Part of Emscripten Loop code
 #if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
@@ -72,6 +75,8 @@ void Application::simulate()
 {
     m_window->frame();
     m_engine->simulate();
+    
+    m_window->swap();
 }
 
 // The stage when the application ends, in which the resources occupied by the engine components are released

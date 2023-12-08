@@ -11,6 +11,9 @@ class TestGameObject : public GameObject
 public:
     TestGameObject();
     
+    void drawGUI() override;
+    void update(float deltaTime) override;
+    
 private:
-
+    float m_deltaTime;
 };

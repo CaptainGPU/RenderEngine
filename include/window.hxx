@@ -27,6 +27,8 @@ public:
 
 	// Window update function
 	void frame();
+    
+    void swap();
 	
 	// The function allows you to find out whether the window has been closed,
 	// used to force the application to exit Application::workingStage
