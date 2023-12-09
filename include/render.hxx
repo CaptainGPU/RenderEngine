@@ -16,6 +16,8 @@
 #include <GLES3/gl3.h>
 #endif
 
+#include "vao.hxx"
+
 // Static class that contains basic rendering functions
 class Render
 {
@@ -31,6 +33,9 @@ public:
 
 
 	// Render functions
+
+	static void createVAO(VertexAttributeObject* attributeObject);
+	static void deleteVAO(VertexAttributeObject* attributeObject);
 
 	static void clearView(float r, float g, float b, float a);
 

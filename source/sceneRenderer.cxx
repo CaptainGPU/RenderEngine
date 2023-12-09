@@ -8,7 +8,8 @@
 #include "render.hxx"
 
 SceneRenderer::SceneRenderer()
-:Renderer("SceneRenderer")
+:Renderer("SceneRenderer"),
+m_meshVAO(nullptr)
 {
 }
 
@@ -34,6 +35,10 @@ void SceneRenderer::init()
     Renderer::init();
     m_renderPasses.resize(SceneRendererPasses::PASS_COUNT);
 
+    m_meshVAO = new MeshVAO();
+    m_meshVAO->init();
+    //Render::createVAO(m_meshVAO);
+
     for (size_t i = 0; i < SceneRendererPasses::PASS_COUNT; i++)
     {
         RenderPass* renderPass = nullptr;
@@ -54,5 +59,7 @@ void SceneRenderer::init()
 
 void SceneRenderer::finish()
 {
+    m_meshVAO->finish();
+    delete m_meshVAO;
     Renderer::finish();
 }

@@ -110,6 +110,20 @@ void Render::clearView(float r, float g, float b, float a)
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
+void Render::createVAO(VertexAttributeObject* attributeObject)
+{
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+
+	attributeObject->setOpenGLVAO(vao);
+}
+
+void Render::deleteVAO(VertexAttributeObject* attributeObject)
+{
+	GLuint vao = attributeObject->getOpenGLVAO();
+	glDeleteVertexArrays(1, &vao);
+}
+
 // Temporary triangle creation function, TODO: Will be deleted
 void Render::createTriangle()
 {
