@@ -61,7 +61,7 @@ Window::Window(int width, int height)
 	ImGui::StyleColorsClassic();
 
 	// Render Initialization
-	Render::init();
+	//Render::init();
 
 	// Set viewport to Window framebuffer size
 	Render::setViewport(0, 0, m_bufferWidth, m_bufferHeight);
@@ -72,9 +72,6 @@ void Window::frame()
 {
 	// GLFW event handling
 	glfwPollEvents();
-
-	// Render triangle
-	Render::draw();
 }
 
 void Window::swap()

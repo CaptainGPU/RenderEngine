@@ -4,6 +4,7 @@
 //
 #pragma once
 
+#include "renderInfo.hxx"
 #include "renderer.hxx"
 
 class RenderEngine
@@ -14,4 +15,5 @@ public:
     void finish();
 private:
     Renderer* m_renderer;
+    RenderInfo m_renderInfo;
 };

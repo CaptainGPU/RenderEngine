@@ -16,6 +16,7 @@ void RenderEngine::init()
 
 void RenderEngine::render()
 {
+    clearRenderInfo(m_renderInfo);
     m_renderer->render();
 }
 
@@ -23,6 +24,7 @@ void RenderEngine::finish()
 {
     if (m_renderer)
     {
+        m_renderer->finish();
         delete m_renderer;
         m_renderer = nullptr;
     }

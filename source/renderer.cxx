@@ -20,5 +20,11 @@ void Renderer::init()
 
 void Renderer::finish()
 {
+    for (size_t i = 0; i < m_renderPasses.size(); i++)
+    {
+        RenderPass* renderPass = m_renderPasses[i];
+        delete renderPass;
+    }
+
     printf("Renderer: %s say goodbye!\n", m_name.c_str());
 }

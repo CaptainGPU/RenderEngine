@@ -104,13 +104,19 @@ void Render::draw()
 	glUseProgram(0);
 }
 
+void Render::clearView(float r, float g, float b, float a)
+{
+	glClearColor(r, g, b, a);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
 // Temporary triangle creation function, TODO: Will be deleted
 void Render::createTriangle()
 {
 	GLfloat vertices[] = {
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f
+		-1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		0.0f, 1.0f, -1.0f
 	};
 
 	glGenVertexArrays(1, &VAO);

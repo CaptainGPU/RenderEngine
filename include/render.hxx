@@ -29,12 +29,18 @@ public:
 	// Temporary drawing function, TODO: Will be deleted
 	static void draw();
 
+
+	// Render functions
+
+	static void clearView(float r, float g, float b, float a);
+
 private:
 	// Temporary variables, since all that Render can do now is display a triangle, TODO: Will be deleted
 	static GLuint VBO;
 	static GLuint VAO;
 	static GLuint shader;
 
+public:
 	// Temporary triangle creation function, TODO: Will be deleted
 	static void createTriangle();
 	// Temporary OpenGL shader creation function, TODO: Will be deleted
