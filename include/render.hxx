@@ -47,7 +47,7 @@ public:
 	static void bindVAO(VertexAttributeObject* attributeObject);
 	static void unBindVAO();
 
-	static void createVBO(Mesh* mesh, VertexAttributeObject* attributeObject);
+	static void createVBO(Mesh* mesh);
 	static void deleteVBO(Mesh* mesh);
 
 	static void clearView(float r, float g, float b, float a);
@@ -63,21 +63,4 @@ public:
 	static void endRenderPass(RenderPass* renderPass);
 
 	static void drawMesh(Mesh* mesh);
-
-	//void createVertexShader();
-	//void createVertexShader();
-
-private:
-	// Temporary variables, since all that Render can do now is display a triangle, TODO: Will be deleted
-	/*static GLuint VBO;
-	static GLuint VAO;
-	static GLuint shader;*/
-
-public:
-	/*// Temporary triangle creation function, TODO: Will be deleted
-	static void createTriangle();
-	// Temporary OpenGL shader creation function, TODO: Will be deleted
-	static void addShader(GLuint program, const char* shaderCode, GLenum shaderType);
-	// Temporary OpenGL shaders compilations function, TODO: Will be deleted
-	static void compileShaders();*/
 };

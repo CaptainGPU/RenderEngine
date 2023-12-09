@@ -9,7 +9,7 @@ Mesh::Mesh():
 m_vao(nullptr),
 m_vbo(0)
 {
-
+    Render::createVBO(this);
 }
 
 VertexAttributeObject* Mesh::getVAO()

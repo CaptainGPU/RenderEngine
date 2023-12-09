@@ -6,20 +6,17 @@
 #include "render.hxx"
 
 RenderPass::RenderPass():
-m_passProgramm(nullptr),
-m_vao(nullptr)
+m_passProgramm(nullptr)
 {
 
 }
 
-void RenderPass::makeProgram(VertexAttributeObject* vao)
+void RenderPass::makeProgram()
 {
 	VertexShader* vShader = Render::createVertexShader();
 	FragmentShader* fShader = Render::createFragmentShader();
 
 	m_passProgramm = Render::createPassProgramm(vShader, fShader);
-
-	m_vao = vao;
 }
 
 void RenderPass::startRenderPass()
@@ -35,7 +32,3 @@ PassProgramm* RenderPass::getPassProgramm()
 	return m_passProgramm;
 }
 
-VertexAttributeObject* RenderPass::getVAO()
-{
-	return m_vao;
-}

@@ -67,43 +67,12 @@ void main()                                         \n\
 
 #endif
 
-// Temporary variables, since all that Render can do now is display a triangle, TODO: Will be deleted
-/*GLuint Render::VAO;
-GLuint Render::VBO;
-GLuint Render::shader;*/
-
-// Render initialization function
-/*void Render::init()
-{
-	glGenVertexArrays(1, &VAO);
-	// Temporary code for creating the triangle and shaders to display it, TODO: Will be deleted
-	createTriangle();
-	compileShaders();
-}*/
-
 // Viewport size setting function
 void Render::setViewport(int x, int y, int width, int height)
 {
 	// Call OpenGL glViewport
 	glViewport(x, y, width, height);
 }
-
-// Temporary drawing function, TODO: Will be deleted
-// Displays triangle only
-/*void Render::draw()
-{
-	glClearColor(.0, .5, 1.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glUseProgram(shader);
-
-	glBindVertexArray(VAO);
-
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	glBindVertexArray(0);
-	glUseProgram(0);
-}*/
 
 void Render::clearView(float r, float g, float b, float a)
 {
@@ -235,8 +204,6 @@ void Render::startRenderPass(RenderPass* renderPass)
 
 	usePassProgramm(programm);
 
-	bindVAO(renderPass->getVAO());
-
 }
 
 void Render::endRenderPass(RenderPass* renderPass)
@@ -248,7 +215,7 @@ void Render::endRenderPass(RenderPass* renderPass)
 void Render::drawMesh(Mesh* mesh)
 {
 	//glBindVertexArray(VAO);
-	//glBindVertexArray(mesh->getVAO()->getOpenGLVAO());
+    bindVAO(mesh->getVAO());
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
@@ -277,7 +244,7 @@ void Render::unBindVAO()
 	glBindVertexArray(0);
 }
 
-void Render::createVBO(Mesh* mesh, VertexAttributeObject* attributeObject)
+void Render::createVBO(Mesh* mesh)
 {
 	GLfloat vertices[] = {
 		-1.0f, -1.0f, -1.0f,
@@ -286,100 +253,29 @@ void Render::createVBO(Mesh* mesh, VertexAttributeObject* attributeObject)
 	};
 
 
-	VertexAttributeObject* vao = attributeObject;
-	VertexAttributeObject* vaoMesh = mesh->getVAO();
+    VertexAttributeObject* vao = new VertexAttributeObject();
+    vao->init();
 
-	if (!vaoMesh)
-	{
-		GLuint vbo1, vao1;
-		vao1 = vao->getOpenGLVAO();
+	
+    GLuint vbo1, vao1;
+    vao1 = vao->getOpenGLVAO();
 
-		Render::bindVAO(vao);
+    Render::bindVAO(vao);
 
-		glGenBuffers(1, &vbo1);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo1);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glGenBuffers(1, &vbo1);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo1);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-
-
-		mesh->set_OpenGL_VBO(vbo1);
-		mesh->setVAO(vao);
-	}
-
-	/*VertexAttributeObject* meshVAO = mesh->getVAO();
-
-	if (!attributeObject)
-	{
-		attributeObject = new VertexAttributeObject();
-
-		GLfloat vertices[] = {
-		-1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		0.0f, 1.0f, -1.0f
-		};
-
-		GLuint vbo, vao;
-
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
-
-		glGenBuffers(1, &vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(0);
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-
-		attributeObject->setOpenGLVAO(vao);
-		mesh->set_OpenGL_VBO(vbo);
-
-		mesh->setVAO(attributeObject);
-
-		return;
-	}*/
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
 
-	/*VertexAttributeObject* vao = mesh->getVAO();
-	if (vao || vao == attributeObject)
-	{
-		return;
-	}
-
-	vao = attributeObject;
-
-	//unBindVAO();
-
-	GLfloat vertices[] = {
-		-1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		0.0f, 1.0f, -1.0f
-	};
-
-	bindVAO(vao);
-
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-
-	glBindBuffer(1, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	unBindVAO();
-
-	mesh->setVAO(vao);
-	mesh->set_OpenGL_VBO(vbo);*/
+    mesh->set_OpenGL_VBO(vbo1);
+    mesh->setVAO(vao);
+	
 }
 
 void Render::deleteVBO(Mesh* mesh)
@@ -387,97 +283,3 @@ void Render::deleteVBO(Mesh* mesh)
 	GLuint vbo = mesh->get_OpenGL_VBO();
 	glDeleteBuffers(1, &vbo);
 }
-
-// Temporary triangle creation function, TODO: Will be deleted
-/*void Render::createTriangle()
-{
-	GLfloat vertices[] = {
-		-1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		0.0f, 1.0f, -1.0f
-	};
-
-	
-	glBindVertexArray(VAO);
-
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-}
-
-// Temporary OpenGL shader creation function, TODO: Will be deleted
-void Render::addShader(GLuint program, const char* shaderCode, GLenum shaderType)
-{
-	GLuint theShader = glCreateShader(shaderType);
-
-	const GLchar* code[1];
-	code[0] = shaderCode;
-
-	GLint codeLength[1];
-	codeLength[0] = strlen(shaderCode);
-
-	glShaderSource(theShader, 1, code, codeLength);
-	glCompileShader(theShader);
-
-	GLint result = 0;
-	GLchar errorLog[128] = { 0 };
-
-	// compile programm
-	glGetShaderiv(theShader, GL_COMPILE_STATUS, &result);
-	if (!result)
-	{
-		glGetShaderInfoLog(theShader, sizeof(errorLog), nullptr, errorLog);
-		printf("Error compiling the %d shader: %s\n", shaderType, errorLog);
-		return;
-	}
-
-	glAttachShader(program, theShader);
-}
-
-// Temporary OpenGL shaders compilations function, TODO: Will be deleted
-void Render::compileShaders()
-{
-	// Make program
-	shader = glCreateProgram();
-
-	if (!shader)
-	{
-		printf("Error: Creating shader program!\n");
-		return;
-	}
-    
-    glBindVertexArray(VAO);
-
-	// Фdd shader code to programm
-	addShader(shader, vShader, GL_VERTEX_SHADER);
-	addShader(shader, fShader, GL_FRAGMENT_SHADER);
-
-	GLint result = 0;
-	GLchar errorLog[128] = { 0 };
-
-	// Compiling programm
-	glLinkProgram(shader);
-	glGetProgramiv(shader, GL_LINK_STATUS, &result);
-	if (!result)
-	{
-		glGetProgramInfoLog(shader, sizeof(errorLog), nullptr, errorLog);
-		printf("Error linking program: %s\n", errorLog);
-		return;
-	}
-
-	// Validation programm
-	glValidateProgram(shader);
-	glGetProgramiv(shader, GL_VALIDATE_STATUS, &result);
-	if (!result)
-	{
-		glGetProgramInfoLog(shader, sizeof(errorLog), nullptr, errorLog);
-		printf("Error validation program: %s\n", errorLog);
-		return;
-	}
-}*/

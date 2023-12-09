@@ -7,7 +7,6 @@
 
 #include "renderer.hxx"
 #include "renderInfo.hxx"
-#include "meshVAO.hxx"
 
 enum SceneRendererPasses
 {
@@ -24,5 +23,4 @@ public:
     void init() override;
     void finish() override;
 private:
-    MeshVAO* m_meshVAO;
 };
