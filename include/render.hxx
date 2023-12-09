@@ -19,6 +19,13 @@
 #include "vao.hxx"
 #include "mesh.hxx"
 
+#include "vertexShader.hxx"
+#include "fragmentShader.hxx"
+
+#include "passProgramm.hxx"
+
+#include "renderPass.hxx"
+
 // Static class that contains basic rendering functions
 class Render
 {
@@ -45,17 +52,32 @@ public:
 
 	static void clearView(float r, float g, float b, float a);
 
+	static VertexShader* createVertexShader();
+	static FragmentShader* createFragmentShader();
+
+	static PassProgramm* createPassProgramm(VertexShader* vShader, FragmentShader* fShader);
+	static void usePassProgramm(PassProgramm* programm);
+	static void unUsePassProgramm();
+
+	static void startRenderPass(RenderPass* renderPass);
+	static void endRenderPass(RenderPass* renderPass);
+
+	static void drawMesh(Mesh* mesh);
+
+	//void createVertexShader();
+	//void createVertexShader();
+
 private:
 	// Temporary variables, since all that Render can do now is display a triangle, TODO: Will be deleted
-	static GLuint VBO;
+	/*static GLuint VBO;
 	static GLuint VAO;
-	static GLuint shader;
+	static GLuint shader;*/
 
 public:
-	// Temporary triangle creation function, TODO: Will be deleted
+	/*// Temporary triangle creation function, TODO: Will be deleted
 	static void createTriangle();
 	// Temporary OpenGL shader creation function, TODO: Will be deleted
 	static void addShader(GLuint program, const char* shaderCode, GLenum shaderType);
 	// Temporary OpenGL shaders compilations function, TODO: Will be deleted
-	static void compileShaders();
+	static void compileShaders();*/
 };

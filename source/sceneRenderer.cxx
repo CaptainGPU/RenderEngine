@@ -17,20 +17,38 @@ void SceneRenderer::render()
 {
     SceneManager* manager = Engine::get()->getSceneManager();
     Scene* scene = manager->getScene();
-    
+
     size_t numGameObject = scene->getGameObjectCount();
+
+    //Render::clearView(1.0, .0, .0, 1.0);
+    for (size_t i = 0; i < numGameObject; i++)
+    {
+        GameObject* gameObject = scene->getGameObject(i);
+        Mesh* mesh = gameObject->getMesh();
+        //mesh->setVAO(m_meshVAO);
+
+        Render::createVBO(mesh, m_meshVAO);
+    }
+
+    RenderPass* renderPass = m_renderPasses[SceneRendererPasses::TRIANGLE_PASS];
+
     
+    Render::startRenderPass(renderPass);
+
+    //Render::clearView(1.0, .0, .0, 1.0);
     for (size_t i = 0; i < numGameObject; i++)
     {
         GameObject* gameObject = scene->getGameObject(i);
         Mesh* mesh = gameObject->getMesh();
 
-        Render::createVBO(mesh, m_meshVAO);
-    }
-    
-    Render::clearView(1.0, .0, .0, 1.0);
+        //Render::createVBO(mesh, m_meshVAO);
 
-    Render::draw();
+        Render::drawMesh(mesh);
+    }
+
+    Render::endRenderPass(renderPass);
+    
+    //Render::draw();
 }
 
 void SceneRenderer::init()
@@ -40,7 +58,6 @@ void SceneRenderer::init()
 
     m_meshVAO = new MeshVAO();
     m_meshVAO->init();
-    //Render::createVAO(m_meshVAO);
 
     for (size_t i = 0; i < SceneRendererPasses::PASS_COUNT; i++)
     {
@@ -51,18 +68,21 @@ void SceneRenderer::init()
         if (pass == TRIANGLE_PASS)
         {
             renderPass = new RenderPass();
+            renderPass->makeProgram(m_meshVAO);
         }
 
         m_renderPasses[i] = renderPass;
     }
 
-    Render::createTriangle();
-    Render::compileShaders();
+    //Render::init();
 }
 
 void SceneRenderer::finish()
 {
-    m_meshVAO->finish();
-    delete m_meshVAO;
+    if (m_meshVAO)
+    {
+        m_meshVAO->finish();
+        delete m_meshVAO;
+    }
     Renderer::finish();
 }
