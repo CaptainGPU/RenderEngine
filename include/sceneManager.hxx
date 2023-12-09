@@ -20,6 +20,8 @@ public:
     
     void finish();
     
+    Scene* getScene();
+    
 private:
     void releaseScene();
     

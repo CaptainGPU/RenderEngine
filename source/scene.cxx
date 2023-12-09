@@ -45,6 +45,16 @@ void Scene::drawGUI()
     }
 }
 
+size_t Scene::getGameObjectCount()
+{
+    return m_gameObjects.size();
+}
+
+GameObject* Scene::getGameObject(size_t index)
+{
+    return m_gameObjects[index];
+}
+
 void Scene::addGameObject(GameObject* gameObject)
 {
     if (!gameObject) {

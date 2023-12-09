@@ -21,6 +21,9 @@ public:
     void addGameObject(GameObject* gameObject);
     void drawGUI();
     
+    size_t getGameObjectCount();
+    GameObject* getGameObject(size_t index);
+    
     virtual void construct();
     virtual void startPlay();
     virtual void endPlay();

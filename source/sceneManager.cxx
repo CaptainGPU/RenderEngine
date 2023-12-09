@@ -61,3 +61,8 @@ void SceneManager::finish()
 {
     releaseScene();
 }
+
+Scene* SceneManager::getScene()
+{
+    return m_scene;
+}

@@ -13,11 +13,15 @@ Engine* Engine::g_Engine;
 Engine::Engine()
 {
     m_deltaTime = .0;
+    g_Engine = this;
 }
 
 void Engine::init()
 {
     m_sceneManager = new SceneManager();
+    
+    m_renderEngine = new RenderEngine();
+    m_renderEngine->init();
 }
 
 void Engine::run()
@@ -28,8 +32,14 @@ void Engine::run()
 
 void Engine::finish()
 {
+    m_renderEngine->finish();
+    delete m_renderEngine;
+    m_renderEngine = nullptr;
+    
+    
     m_sceneManager->finish();
     delete m_sceneManager;
+    m_sceneManager = nullptr;
 }
 
 void Engine::calculateDeltaTime()
@@ -49,6 +59,8 @@ void Engine::simulate()
     calculateDeltaTime();
     
     m_sceneManager->simulate(m_deltaTime);
+    
+    m_renderEngine->render();
 
     // Render UI
     RenderGUI::starRender();
@@ -61,4 +73,14 @@ void Engine::simulate()
 void Engine::registreEngine(Engine* engine)
 {
     g_Engine = engine;
+}
+
+SceneManager* Engine::getSceneManager()
+{
+    return m_sceneManager;
+}
+
+Engine* Engine::get()
+{
+    return g_Engine;
 }

@@ -2,16 +2,14 @@
 // Created by Eugene Karpenko @ CaptainGPU
 // https://twitter.com/CaptainGPU
 //
+
 #pragma once
 
 #include "renderer.hxx"
 
-class RenderEngine
+class SceneRenderer : public Renderer
 {
 public:
-    void init();
-    void render();
-    void finish();
-private:
-    Renderer* m_renderer;
+    SceneRenderer();
+    void render() override;
 };
