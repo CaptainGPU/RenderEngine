@@ -17,6 +17,7 @@
 #endif
 
 #include "vao.hxx"
+#include "mesh.hxx"
 
 // Static class that contains basic rendering functions
 class Render
@@ -36,6 +37,11 @@ public:
 
 	static void createVAO(VertexAttributeObject* attributeObject);
 	static void deleteVAO(VertexAttributeObject* attributeObject);
+	static void bindVAO(VertexAttributeObject* attributeObject);
+	static void unBindVAO();
+
+	static void createVBO(Mesh* mesh, VertexAttributeObject* attributeObject);
+	static void deleteVBO(Mesh* mesh);
 
 	static void clearView(float r, float g, float b, float a);
 

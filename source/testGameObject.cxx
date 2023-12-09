@@ -11,6 +11,7 @@ TestGameObject::TestGameObject()
 :GameObject("TestGameObject")
 {
     m_deltaTime = .0;
+    m_mesh = new Mesh();
 }
 
 void TestGameObject::update(float deltaTime)

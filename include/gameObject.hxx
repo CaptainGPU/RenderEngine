@@ -4,6 +4,8 @@
 //
 #pragma once
 
+#include "mesh.hxx"
+
 #include <glm/glm.hpp>
 #include <string>
 
@@ -20,6 +22,8 @@ public:
     virtual void update(float deltaTime);
     
     virtual void drawGUI();
+
+    Mesh* getMesh();
     
 private:
     glm::vec3 m_position;
@@ -27,4 +31,7 @@ private:
     glm::vec3 m_rotation;
     
     std::string m_name;
+
+protected:
+    Mesh* m_mesh;
 };

@@ -124,6 +124,60 @@ void Render::deleteVAO(VertexAttributeObject* attributeObject)
 	glDeleteVertexArrays(1, &vao);
 }
 
+void Render::bindVAO(VertexAttributeObject* attributeObject)
+{
+	GLuint vao = attributeObject->getOpenGLVAO();
+	glBindVertexArray(vao);
+}
+
+void Render::unBindVAO()
+{
+	glBindVertexArray(0);
+}
+
+void Render::createVBO(Mesh* mesh, VertexAttributeObject* attributeObject)
+{
+	VertexAttributeObject* vao = mesh->getVAO();
+	if (vao || vao == attributeObject)
+	{
+		return;
+	}
+
+	vao = attributeObject;
+
+	unBindVAO();
+
+	GLfloat vertices[] = {
+		-1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		0.0f, 1.0f, -1.0f
+	};
+
+	bindVAO(vao);
+
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+
+	glBindBuffer(1, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	unBindVAO();
+
+	mesh->setVAO(vao);
+	mesh->set_OpenGL_VBO(vbo);
+}
+
+void Render::deleteVBO(Mesh* mesh)
+{
+	GLuint vbo = mesh->get_OpenGL_VBO();
+	glDeleteBuffers(1, &vbo);
+}
+
 // Temporary triangle creation function, TODO: Will be deleted
 void Render::createTriangle()
 {

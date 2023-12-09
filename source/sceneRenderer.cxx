@@ -23,6 +23,9 @@ void SceneRenderer::render()
     for (size_t i = 0; i < numGameObject; i++)
     {
         GameObject* gameObject = scene->getGameObject(i);
+        Mesh* mesh = gameObject->getMesh();
+
+        Render::createVBO(mesh, m_meshVAO);
     }
     
     Render::clearView(1.0, .0, .0, 1.0);
