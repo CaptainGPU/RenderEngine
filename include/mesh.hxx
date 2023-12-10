@@ -5,7 +5,6 @@
 #pragma once
 
 #include "vao.hxx"
-#include <glad/gl.h>
 
 class Mesh
 {

@@ -3,7 +3,14 @@
 // https://twitter.com/CaptainGPU
 //
 
-#include <glad/gl.h>
+#include "defines.hxx"
+#if (CURRENT_PLATFORM == PLATFORM_WIN) || (CURRENT_PLATFORM == PLATFORM_MAC)
+#include "glad/gl.h"
+#endif
+
+#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
+#include <GLES3/gl3.h>
+#endif
 
 class PassProgramm
 {
