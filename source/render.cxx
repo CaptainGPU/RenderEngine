@@ -185,6 +185,15 @@ PassProgramm* Render::createPassProgramm(VertexShader* vShader, FragmentShader* 
 	return programm;
 }
 
+void Render::deletePassProgramm(PassProgramm* programm)
+{
+    GLuint oglProgramm = programm->get_OpenGL_Programm();
+    glDeleteProgram(oglProgramm);
+    
+    programm->finish();
+    delete programm;
+}
+
 void Render::usePassProgramm(PassProgramm* programm)
 {
 	glUseProgram(programm->get_OpenGL_Programm());

@@ -23,6 +23,7 @@ void Renderer::finish()
     for (size_t i = 0; i < m_renderPasses.size(); i++)
     {
         RenderPass* renderPass = m_renderPasses[i];
+        renderPass->finish();
         delete renderPass;
     }
 

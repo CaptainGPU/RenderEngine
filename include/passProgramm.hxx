@@ -19,6 +19,8 @@ public:
 
 	void set_OpenGL_Programm(GLuint programm);
 	GLuint get_OpenGL_Programm();
+    
+    void finish();
 
 private:
 	GLuint m_programm;

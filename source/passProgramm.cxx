@@ -19,3 +19,8 @@ GLuint PassProgramm::get_OpenGL_Programm()
 {
 	return m_programm;
 }
+
+void PassProgramm::finish()
+{
+    
+}

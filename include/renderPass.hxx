@@ -13,10 +13,9 @@ public:
 
 	void makeProgram();
 
-	void startRenderPass();
-	void endRenderPass();
-
 	PassProgramm* getPassProgramm();
+    
+    void finish();
 
 private:
 	PassProgramm* m_passProgramm;

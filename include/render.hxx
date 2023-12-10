@@ -56,6 +56,7 @@ public:
 	static FragmentShader* createFragmentShader();
 
 	static PassProgramm* createPassProgramm(VertexShader* vShader, FragmentShader* fShader);
+    static void deletePassProgramm(PassProgramm* programm);
 	static void usePassProgramm(PassProgramm* programm);
 	static void unUsePassProgramm();
 

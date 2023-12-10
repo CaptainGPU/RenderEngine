@@ -19,16 +19,16 @@ void RenderPass::makeProgram()
 	m_passProgramm = Render::createPassProgramm(vShader, fShader);
 }
 
-void RenderPass::startRenderPass()
-{
-}
-
-void RenderPass::endRenderPass()
-{
-}
-
 PassProgramm* RenderPass::getPassProgramm()
 {
 	return m_passProgramm;
 }
 
+void RenderPass::finish()
+{
+    if (m_passProgramm)
+    {
+        Render::deletePassProgramm(m_passProgramm);
+        m_passProgramm = nullptr;
+    }
+}
