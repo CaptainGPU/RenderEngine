@@ -34,7 +34,7 @@ void main()                                                            \n\
 {                                                                      \n\
     vertexColor = vec3(1.0, .0, .0);                               \n\
     vec3 weights[3] = vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)); \n\
-    vertexColor = weights[gl_VertexID];         \n\
+    vertexColor = vec3(1.0, 0.0, 1.0);         \n\
     gl_Position = vec4(0.9f * pos.x, 0.9f * pos.y, pos.z, 1.0f);       \n\
 }";
 #endif
@@ -225,7 +225,8 @@ void Render::drawMesh(Mesh* mesh)
 {
 	//glBindVertexArray(VAO);
     bindVAO(mesh->getVAO());
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+    uint32_t numIndices = mesh->getEBO()->getNumIndices();
+	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
 }
 
 void Render::createVAO(VertexAttributeObject* attributeObject)
@@ -255,40 +256,70 @@ void Render::unBindVAO()
 
 void Render::createVBO(Mesh* mesh)
 {
-	GLfloat vertices[] = {
-		-1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		0.0f, 1.0f, -1.0f
-	};
-
+    float vertices[] = {
+         0.5f,  0.5f, 0.0f,  // top right
+         0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f,  0.5f, 0.0f   // top left
+    };
+    unsigned int indices[] = {  // note that we start from 0!
+        0, 1, 3,  // first Triangle
+        1, 2, 3   // second Triangle
+    };
 
     VertexAttributeObject* vao = new VertexAttributeObject();
     vao->init();
+    
+    ElementBufferObject* ebo = new ElementBufferObject(sizeof(indices) / sizeof(unsigned int));
+    ebo->init();
 
-	
-    GLuint vbo1, vao1;
+    GLuint vbo1, vao1, ebo1;
     vao1 = vao->getOpenGLVAO();
+    ebo1 = ebo->get_OpenGL_EBO();
 
     Render::bindVAO(vao);
 
     glGenBuffers(1, &vbo1);
+    
     glBindBuffer(GL_ARRAY_BUFFER, vbo1);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo1);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-
     mesh->set_OpenGL_VBO(vbo1);
     mesh->setVAO(vao);
-	
+    mesh->setEBO(ebo);
 }
 
 void Render::deleteVBO(Mesh* mesh)
 {
+    ElementBufferObject* ebo = mesh->getEBO();
+    VertexAttributeObject* vao = mesh->getVAO();
+    
 	GLuint vbo = mesh->get_OpenGL_VBO();
 	glDeleteBuffers(1, &vbo);
+    
+    Render::deleteEBO(ebo);
+    Render::deleteVAO(vao);
+}
+
+void Render::createEBO(ElementBufferObject* ebo)
+{
+    GLuint oglEbo;
+    glGenBuffers(1, &oglEbo);
+    
+    ebo->set_OpenGL_EBO(oglEbo);
+}
+
+void Render::deleteEBO(ElementBufferObject* ebo)
+{
+    GLuint oglEbo = ebo->get_OpenGL_EBO();
+    glDeleteBuffers(1, &oglEbo);
 }

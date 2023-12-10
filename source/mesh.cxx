@@ -22,19 +22,26 @@ void Mesh::setVAO(VertexAttributeObject* vao)
 	m_vao = vao;
 }
 
+ElementBufferObject* Mesh::getEBO()
+{
+    return m_ebo;
+}
+
+void Mesh::setEBO(ElementBufferObject* ebo)
+{
+    m_ebo = ebo;
+}
+
 void Mesh::finish()
 {
 	if (m_vbo > 0)
 	{
 		Render::deleteVBO(this);
         m_vbo = 0;
-	}
-    
-    if (m_vao)
-    {
-        Render::deleteVAO(m_vao);
+        
+        m_ebo = nullptr;
         m_vao = nullptr;
-    }
+	}
 }
 
 GLuint Mesh::get_OpenGL_VBO()

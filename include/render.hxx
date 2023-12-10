@@ -17,6 +17,7 @@
 #endif
 
 #include "vao.hxx"
+#include "ebo.hxx"
 #include "mesh.hxx"
 
 #include "vertexShader.hxx"
@@ -39,9 +40,8 @@ public:
 	// Temporary drawing function, TODO: Will be deleted
 	static void draw();
 
-
 	// Render functions
-
+    
 	static void createVAO(VertexAttributeObject* attributeObject);
 	static void deleteVAO(VertexAttributeObject* attributeObject);
 	static void bindVAO(VertexAttributeObject* attributeObject);
@@ -49,6 +49,9 @@ public:
 
 	static void createVBO(Mesh* mesh);
 	static void deleteVBO(Mesh* mesh);
+    
+    static void createEBO(ElementBufferObject* ebo);
+    static void deleteEBO(ElementBufferObject* ebo);
 
 	static void clearView(float r, float g, float b, float a);
 
