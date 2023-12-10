@@ -27,6 +27,12 @@
 
 #include "renderPass.hxx"
 
+#include "uniform.hxx"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 // Static class that contains basic rendering functions
 class Render
 {
@@ -65,6 +71,9 @@ public:
 
 	static void startRenderPass(RenderPass* renderPass);
 	static void endRenderPass(RenderPass* renderPass);
+    
+    static Uniform* getUniformFromPassProgramm(std::string uniformName, PassProgramm* programm);
+    static void setUniformMatrix4x4(Uniform* uniform, glm::mat4& matrix);
 
 	static void drawMesh(Mesh* mesh);
 };

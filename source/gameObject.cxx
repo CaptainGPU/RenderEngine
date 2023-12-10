@@ -7,7 +7,8 @@
 #include <iostream>
 
 
-GameObject::GameObject(std::string name)
+GameObject::GameObject(std::string name):
+m_isDirtyModelMatrix(true)
 {
     m_name = name;
     
@@ -44,7 +45,27 @@ void GameObject::drawGUI()
     
 }
 
+glm::mat4 GameObject::getModelMatrix()
+{
+    if (m_isDirtyModelMatrix)
+    {
+        m_modelMatrix = glm::mat4(1.0f);
+        m_modelMatrix = glm::translate(m_modelMatrix, m_position);
+        m_isDirtyModelMatrix = false;
+    }
+    
+    return m_modelMatrix;
+}
+
 Mesh* GameObject::getMesh()
 {
     return m_mesh;
+}
+
+// Transform staff
+
+void GameObject::setPositionY(const float& y)
+{
+    m_position.y = y;
+    m_isDirtyModelMatrix = true;
 }

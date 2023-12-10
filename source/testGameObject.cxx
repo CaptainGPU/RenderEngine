@@ -6,9 +6,12 @@
 
 #include <imgui.h>
 
+#include <glm/glm.hpp>
+
 
 TestGameObject::TestGameObject()
-:GameObject("TestGameObject")
+:GameObject("TestGameObject"),
+m_time(.0)
 {
     m_deltaTime = .0;
     m_mesh = new Mesh();
@@ -18,6 +21,12 @@ void TestGameObject::update(float deltaTime)
 {
     GameObject::update(deltaTime);
     m_deltaTime = deltaTime;
+    
+    m_time+=deltaTime;
+    
+    y = glm::sin(m_time);
+    
+    setPositionY(y);
 }
 
 void TestGameObject::drawGUI()
@@ -28,6 +37,8 @@ void TestGameObject::drawGUI()
     
     ImGui::Text("RenderTime: %f(ms)", m_deltaTime);
     ImGui::Text("FPS: %f", 1.0f / m_deltaTime);
+    ImGui::Text("Time: %f", m_time);
+    ImGui::Text("sin: %f", y);
     
     ImGui::End();
 }

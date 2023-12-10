@@ -6,8 +6,13 @@
 #include "engine.hxx"
 #include "render.hxx"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 SceneRenderer::SceneRenderer()
-:Renderer("SceneRenderer")
+:Renderer("SceneRenderer"),
+m_matrixModelUniform(nullptr)
 {
 }
 
@@ -32,6 +37,8 @@ void SceneRenderer::render()
 
         //Render::createVBO(mesh, m_meshVAO);
 
+        glm::mat4 modelMatrix = gameObject->getModelMatrix();
+        m_matrixModelUniform->setMatrix4x4(modelMatrix);
         Render::drawMesh(mesh);
     }
 
@@ -53,8 +60,13 @@ void SceneRenderer::init()
 
         if (pass == TRIANGLE_PASS)
         {
+            std::vector<std::string> uniformNames = {"modelMatrix"};
+            
             renderPass = new RenderPass();
             renderPass->makeProgram();
+            renderPass->registerUniforms(uniformNames);
+            
+            m_matrixModelUniform = renderPass->getUniform(uniformNames[0]);
         }
 
         m_renderPasses[i] = renderPass;

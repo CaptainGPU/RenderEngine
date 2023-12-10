@@ -7,6 +7,7 @@
 
 #include "renderer.hxx"
 #include "renderInfo.hxx"
+#include "uniform.hxx"
 
 enum SceneRendererPasses
 {
@@ -22,5 +23,8 @@ public:
     void render() override;
     void init() override;
     void finish() override;
+    
+private:
+    Uniform* m_matrixModelUniform;
 private:
 };

@@ -16,4 +16,6 @@ public:
     
 private:
     float m_deltaTime;
+    float m_time;
+    float y;
 };

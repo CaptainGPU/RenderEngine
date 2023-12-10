@@ -26,6 +26,8 @@ void Engine::init()
 
 void Engine::run()
 {
+    calculateDeltaTime();
+    
     m_sceneManager->run();
 }
 

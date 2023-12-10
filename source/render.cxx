@@ -15,12 +15,13 @@ precision highp float;\n\
 layout (location = 0) in vec3 pos;                                      \n\
                                                                        \n\
 out vec3 vertexColor;                                                      \n\
+uniform mat4 modelMatrix; \n\
 void main()                                                            \n\
 {                                                                      \n\
     vertexColor = vec3(1.0, .0, .0);                               \n\
     vec3 weights[3] = vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)); \n\
     vertexColor = weights[gl_VertexID];         \n\
-    gl_Position = vec4(0.9f * pos.x, 0.9f * pos.y, pos.z, 1.0f);       \n\
+    gl_Position = modelMatrix * vec4(0.9f * pos.x, 0.9f * pos.y, pos.z, 1.0f);       \n\
 }";
 
 #else
@@ -30,12 +31,13 @@ precision highp float;\n\
 layout (location = 0) in vec3 pos;                                      \n\
                                                                        \n\
 out vec3 vertexColor;                                                      \n\
+uniform mat4 modelMatrix; \n\
 void main()                                                            \n\
 {                                                                      \n\
     vertexColor = vec3(1.0, .0, .0);                               \n\
     vec3 weights[3] = vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)); \n\
     vertexColor = vec3(1.0, 0.0, 1.0);         \n\
-    gl_Position = vec4(0.9f * pos.x, 0.9f * pos.y, pos.z, 1.0f);       \n\
+    gl_Position = modelMatrix * vec4(0.9f * pos.x, 0.9f * pos.y, pos.z, 1.0f);       \n\
 }";
 #endif
 
@@ -322,4 +324,32 @@ void Render::deleteEBO(ElementBufferObject* ebo)
 {
     GLuint oglEbo = ebo->get_OpenGL_EBO();
     glDeleteBuffers(1, &oglEbo);
+}
+
+Uniform* Render::getUniformFromPassProgramm(std::string uniformName, PassProgramm* programm)
+{
+    GLuint oglProgramm = programm->get_OpenGL_Programm();
+    usePassProgramm(programm);
+    
+    GLint location = glGetUniformLocation(oglProgramm, uniformName.c_str());
+    
+    unUsePassProgramm();
+    
+    if (location < 0)
+    {
+        return nullptr;
+    }
+    
+    Uniform* uniform = new Uniform();
+    uniform->set_OpenGL_uniformID(location);
+    
+    
+    return uniform;
+}
+
+void Render::setUniformMatrix4x4(Uniform* uniform, glm::mat4& matrix)
+{
+    GLint id = uniform->get_OpenGL_uniformID();
+    
+    glUniformMatrix4fv(id, 1, GL_FALSE, glm::value_ptr(matrix));
 }
