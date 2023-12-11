@@ -28,6 +28,8 @@ void Scene::simulate(float deltaTime)
         
         gameObject->update(deltaTime);
     }
+    
+    update(deltaTime);
 }
 
 void Scene::drawGUI()
@@ -98,6 +100,11 @@ void Scene::endPlay()
     
     
     printf("%s scene has say goodbye!\n", m_name.c_str());
+}
+
+void Scene::update(float deltaTime)
+{
+    
 }
 
 void Scene::finish()

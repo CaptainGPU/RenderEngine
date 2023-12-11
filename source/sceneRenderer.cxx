@@ -12,11 +12,12 @@
 
 SceneRenderer::SceneRenderer()
 :Renderer("SceneRenderer"),
-m_matrixModelUniform(nullptr)
+m_matrixModelUniform(nullptr),
+m_matrixProjectionUniform(nullptr)
 {
 }
 
-void SceneRenderer::render()
+void SceneRenderer::render(RenderInfo& renderInfo)
 {
     SceneManager* manager = Engine::get()->getSceneManager();
     Scene* scene = manager->getScene();
@@ -27,7 +28,10 @@ void SceneRenderer::render()
     RenderPass* renderPass = m_renderPasses[SceneRendererPasses::TRIANGLE_PASS];
 
     
-    Render::startRenderPass(renderPass);
+    Render::startRenderPass(renderPass, renderInfo);
+    
+    glm::mat4 projection_matrix = glm::perspective(45.0, double(800.0f / 600.0f), 0.1, 100.0);
+    m_matrixProjectionUniform->setMatrix4x4(projection_matrix);
 
     //Render::clearView(1.0, .0, .0, 1.0);
     for (size_t i = 0; i < numGameObject; i++)
@@ -39,7 +43,8 @@ void SceneRenderer::render()
 
         glm::mat4 modelMatrix = gameObject->getModelMatrix();
         m_matrixModelUniform->setMatrix4x4(modelMatrix);
-        Render::drawMesh(mesh);
+        
+        Render::drawMesh(mesh, renderInfo);
     }
 
     Render::endRenderPass(renderPass);
@@ -60,13 +65,14 @@ void SceneRenderer::init()
 
         if (pass == TRIANGLE_PASS)
         {
-            std::vector<std::string> uniformNames = {"modelMatrix"};
+            std::vector<std::string> uniformNames = {"modelMatrix", "projectionMatrix"};
             
             renderPass = new RenderPass();
             renderPass->makeProgram();
             renderPass->registerUniforms(uniformNames);
             
             m_matrixModelUniform = renderPass->getUniform(uniformNames[0]);
+            m_matrixProjectionUniform = renderPass->getUniform(uniformNames[1]);
         }
 
         m_renderPasses[i] = renderPass;

@@ -13,6 +13,8 @@ public:
     void init();
     void render();
     void finish();
+    
+    void renderStats();
 private:
     Renderer* m_renderer;
     RenderInfo m_renderInfo;

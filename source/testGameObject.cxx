@@ -20,25 +20,27 @@ m_time(.0)
 void TestGameObject::update(float deltaTime)
 {
     GameObject::update(deltaTime);
-    m_deltaTime = deltaTime;
+    /*m_deltaTime = deltaTime;
     
     m_time+=deltaTime;
     
     y = glm::sin(m_time);
     
-    setPositionY(y);
+    //setPositionZ(-2.0 - y);
+    
+    addRotationX(m_deltaTime);*/
 }
 
 void TestGameObject::drawGUI()
 {
     GameObject::drawGUI();
     
-    ImGui::Begin("Example");
+    /*ImGui::Begin("Example");
     
     ImGui::Text("RenderTime: %f(ms)", m_deltaTime);
     ImGui::Text("FPS: %f", 1.0f / m_deltaTime);
     ImGui::Text("Time: %f", m_time);
     ImGui::Text("sin: %f", y);
     
-    ImGui::End();
+    ImGui::End();*/
 }

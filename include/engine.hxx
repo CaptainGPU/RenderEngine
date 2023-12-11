@@ -22,6 +22,8 @@ public:
     
     void finish();
     
+    void renderStats();
+    
     SceneManager* getSceneManager();
     
     static void registreEngine(Engine* engine);

@@ -6,6 +6,7 @@
 #include "sceneRenderer.hxx"
 
 #include <iostream>
+#include <imgui.h>
 
 void RenderEngine::init()
 {
@@ -17,7 +18,7 @@ void RenderEngine::init()
 void RenderEngine::render()
 {
     clearRenderInfo(m_renderInfo);
-    m_renderer->render();
+    m_renderer->render(m_renderInfo);
 }
 
 void RenderEngine::finish()
@@ -30,4 +31,9 @@ void RenderEngine::finish()
     }
     
     printf("Render engine say goodbye!\n");
+}
+
+void RenderEngine::renderStats()
+{
+    showStats(m_renderInfo);
 }

@@ -14,4 +14,6 @@ public:
     
     void startPlay() override;
     void construct() override;
+    
+    void update(float deltaTime) override;
 };

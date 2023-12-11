@@ -13,15 +13,18 @@
 static const char* vShader = "#version 300 es \n\
 precision highp float;\n\
 layout (location = 0) in vec3 pos;                                      \n\
+layout (location = 1) in vec2 tex; \n\
+layout (location = 2) in vec3 norm; \n\
                                                                        \n\
 out vec3 vertexColor;                                                      \n\
 uniform mat4 modelMatrix; \n\
+uniform mat4 projectionMatrix; \n\
 void main()                                                            \n\
 {                                                                      \n\
     vertexColor = vec3(1.0, .0, .0);                               \n\
     vec3 weights[3] = vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)); \n\
-    vertexColor = weights[gl_VertexID];         \n\
-    gl_Position = modelMatrix * vec4(0.9f * pos.x, 0.9f * pos.y, pos.z, 1.0f);       \n\
+    vertexColor = norm;         \n\
+    gl_Position = projectionMatrix * modelMatrix * vec4(pos, 1.0f);       \n\
 }";
 
 #else
@@ -29,15 +32,18 @@ void main()                                                            \n\
 static const char* vShader = "#version 330                                                          \n\
 precision highp float;\n\
 layout (location = 0) in vec3 pos;                                      \n\
+layout (location = 1) in vec2 tex; \n\
+layout (location = 2) in vec3 norm; \n\
                                                                        \n\
 out vec3 vertexColor;                                                      \n\
 uniform mat4 modelMatrix; \n\
+uniform mat4 projectionMatrix; \n\
 void main()                                                            \n\
 {                                                                      \n\
     vertexColor = vec3(1.0, .0, .0);                               \n\
     vec3 weights[3] = vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)); \n\
-    vertexColor = vec3(1.0, 0.0, 1.0);         \n\
-    gl_Position = modelMatrix * vec4(0.9f * pos.x, 0.9f * pos.y, pos.z, 1.0f);       \n\
+    vertexColor = vec3(tex, 1.0 - tex.y);         \n\
+    gl_Position = projectionMatrix * modelMatrix * vec4(pos, 1.0f);       \n\
 }";
 #endif
 
@@ -79,7 +85,7 @@ void Render::setViewport(int x, int y, int width, int height)
 void Render::clearView(float r, float g, float b, float a)
 {
 	glClearColor(r, g, b, a);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 /**/
@@ -207,8 +213,11 @@ void Render::unUsePassProgramm()
 	glUseProgram(0);
 }
 
-void Render::startRenderPass(RenderPass* renderPass)
+void Render::startRenderPass(RenderPass* renderPass,RenderInfo& info)
 {
+    addRenderPass(info);
+    
+    glEnable(GL_DEPTH_TEST);
 	clearView(1.0, 1.0, 1.0, 1.0);
 
 	PassProgramm* programm = renderPass->getPassProgramm();
@@ -223,12 +232,19 @@ void Render::endRenderPass(RenderPass* renderPass)
 	unUsePassProgramm();
 }
 
-void Render::drawMesh(Mesh* mesh)
+void Render::drawMesh(Mesh* mesh, RenderInfo& info)
 {
 	//glBindVertexArray(VAO);
     bindVAO(mesh->getVAO());
+    bindEBO(mesh->getEBO());
     uint32_t numIndices = mesh->getEBO()->getNumIndices();
 	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+    unBindEBO();
+    unBindVAO();
+    
+    addVertex(info, mesh->getNumVertex());
+    addIndices(info, mesh->getEBO()->getNumIndices());
+    addRenderObject(info);
 }
 
 void Render::createVAO(VertexAttributeObject* attributeObject)
@@ -259,14 +275,35 @@ void Render::unBindVAO()
 void Render::createVBO(Mesh* mesh)
 {
     float vertices[] = {
-         0.5f,  0.5f, 0.0f,  // top right
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left
+        -1.0f, 1.0f, -1.0f,        0.0f, 1.0f,        1.0f, 0.0f, 0.0f,
+        -1.0f, -1.0f, -1.0f,        0.0f, 0.0f,        0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, -1.0f,        1.0f, 1.0f,        0.0f, 0.0f, 1.0f,
+        1.0f, -1.0f, -1.0f,        1.0f, 0.0f,        1.0f, 1.0f, 0.0f,
+
+        -1.0f, 1.0f, 1.0f,        0.0f, 1.0f,        0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 1.0f,        1.0f, 1.0f,        0.0f, 0.0f, 1.0f,
+        -1.0f, -1.0f, 1.0f,        0.0f, 0.0f,        1.0f, 0.0f, 0.0f,
+        1.0f, -1.0f, 1.0f,        1.0f, 0.0f,        1.0f, 0.0f, 1.0f
     };
     unsigned int indices[] = {  // note that we start from 0!
-        0, 1, 3,  // first Triangle
-        1, 2, 3   // second Triangle
+        // front
+        0, 1, 2,
+        2, 1, 3,
+        // right
+        2, 3, 5,
+        5, 3, 7,
+        // back
+        5, 7, 4,
+        4, 7, 6,
+        // left
+        4, 6, 0,
+        0, 6, 1,
+        // top
+        4, 0, 5,
+        5, 0, 2,
+        // bottom
+        1, 6, 3,
+        3, 6, 7
     };
 
     VertexAttributeObject* vao = new VertexAttributeObject();
@@ -289,15 +326,26 @@ void Render::createVBO(Mesh* mesh)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo1);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    // XYZ data
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 8, 0);
     glEnableVertexAttribArray(0);
 
+    // UV data
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 8, (void*)(sizeof(vertices[0])*3));
+    glEnableVertexAttribArray(1);
+
+    // normals
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 8, (void*)(sizeof(vertices[0]) * 5));
+    glEnableVertexAttribArray(2);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     mesh->set_OpenGL_VBO(vbo1);
     mesh->setVAO(vao);
     mesh->setEBO(ebo);
+    mesh->setNumVertex(sizeof(vertices) / (sizeof(float) * 8));
 }
 
 void Render::deleteVBO(Mesh* mesh)
@@ -324,6 +372,17 @@ void Render::deleteEBO(ElementBufferObject* ebo)
 {
     GLuint oglEbo = ebo->get_OpenGL_EBO();
     glDeleteBuffers(1, &oglEbo);
+}
+
+void Render::bindEBO(ElementBufferObject* ebo)
+{
+    GLuint oglEbo = ebo->get_OpenGL_EBO();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, oglEbo);
+}
+
+void Render::unBindEBO()
+{
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 Uniform* Render::getUniformFromPassProgramm(std::string uniformName, PassProgramm* programm)

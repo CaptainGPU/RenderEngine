@@ -28,8 +28,10 @@ public:
     virtual void startPlay();
     virtual void endPlay();
     
+    virtual void update(float deltaTime);
+    
     void finish();
-protected:
+private:
     std::vector<GameObject*> m_gameObjects;
     
 private:

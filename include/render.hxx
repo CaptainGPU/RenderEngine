@@ -26,6 +26,7 @@
 #include "passProgramm.hxx"
 
 #include "renderPass.hxx"
+#include "renderInfo.hxx"
 
 #include "uniform.hxx"
 
@@ -43,9 +44,6 @@ public:
 	// Viewport size setting function
 	static void setViewport(int x, int y, int width, int height);
 
-	// Temporary drawing function, TODO: Will be deleted
-	static void draw();
-
 	// Render functions
     
 	static void createVAO(VertexAttributeObject* attributeObject);
@@ -58,6 +56,8 @@ public:
     
     static void createEBO(ElementBufferObject* ebo);
     static void deleteEBO(ElementBufferObject* ebo);
+    static void bindEBO(ElementBufferObject* ebo);
+    static void unBindEBO();
 
 	static void clearView(float r, float g, float b, float a);
 
@@ -69,11 +69,11 @@ public:
 	static void usePassProgramm(PassProgramm* programm);
 	static void unUsePassProgramm();
 
-	static void startRenderPass(RenderPass* renderPass);
+	static void startRenderPass(RenderPass* renderPass, RenderInfo& info);
 	static void endRenderPass(RenderPass* renderPass);
     
     static Uniform* getUniformFromPassProgramm(std::string uniformName, PassProgramm* programm);
     static void setUniformMatrix4x4(Uniform* uniform, glm::mat4& matrix);
 
-	static void drawMesh(Mesh* mesh);
+	static void drawMesh(Mesh* mesh, RenderInfo& info);
 };

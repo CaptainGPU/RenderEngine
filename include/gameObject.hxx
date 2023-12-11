@@ -30,7 +30,13 @@ public:
     
     // Transform staff
     
+    void setPositionX(const float& x);
     void setPositionY(const float& y);
+    void setPositionZ(const float& z);
+    
+    void addRotationX(const float& x);
+    void addRotationY(const float& y);
+    void addRotationZ(const float& z);
     
 private:
     glm::vec3 m_position;

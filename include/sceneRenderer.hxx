@@ -6,7 +6,6 @@
 #pragma once
 
 #include "renderer.hxx"
-#include "renderInfo.hxx"
 #include "uniform.hxx"
 
 enum SceneRendererPasses
@@ -20,11 +19,12 @@ class SceneRenderer : public Renderer
 {
 public:
     SceneRenderer();
-    void render() override;
+    void render(RenderInfo& renderInfo) override;
     void init() override;
     void finish() override;
     
 private:
     Uniform* m_matrixModelUniform;
+    Uniform* m_matrixProjectionUniform;
 private:
 };

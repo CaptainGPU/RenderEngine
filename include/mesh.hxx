@@ -16,6 +16,9 @@ public:
     
     ElementBufferObject* getEBO();
     void setEBO(ElementBufferObject* ebo);
+    
+    void setNumVertex(uint32_t numVertex);
+    uint32_t getNumVertex();
 	
     void finish();
 	
@@ -27,6 +30,8 @@ public:
 private:
 	VertexAttributeObject* m_vao;
     ElementBufferObject* m_ebo;
+    
+    uint32_t m_numVertex;
 
 	// OpenGL Staff
 

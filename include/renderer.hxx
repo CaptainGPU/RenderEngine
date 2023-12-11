@@ -5,6 +5,7 @@
 #pragma once
 
 #include "renderPass.hxx"
+#include "renderInfo.hxx"
 
 #include <string>
 #include <vector>
@@ -15,7 +16,7 @@ public:
     virtual ~Renderer();
     
     virtual void init();
-    virtual void render() = 0;
+    virtual void render(RenderInfo& renderInfo) = 0;
     virtual void finish();
 protected:
     std::vector<RenderPass*> m_renderPasses;

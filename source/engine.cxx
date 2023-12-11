@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <imgui.h>
 
 Engine* Engine::g_Engine;
 
@@ -44,6 +45,17 @@ void Engine::finish()
     m_sceneManager = nullptr;
 }
 
+void Engine::renderStats()
+{
+    ImGui::Begin("Stats");
+    ImGui::Text("Time: %f", m_gameTime);
+    ImGui::Text("RenderTime: %f(ms)", m_deltaTime);
+    ImGui::Text("FPS: %f", 1.0f / m_deltaTime);
+    
+    m_renderEngine->renderStats();
+    ImGui::End();
+}
+
 void Engine::calculateDeltaTime()
 {
     static auto startTime = std::chrono::high_resolution_clock::now();
@@ -67,7 +79,7 @@ void Engine::simulate()
     // Render UI
     RenderGUI::starRender();
     m_sceneManager->drawGUI();
-    //RenderGUI::frame();
+    renderStats();
     RenderGUI::endRender();
 
 }

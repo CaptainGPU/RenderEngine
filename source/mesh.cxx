@@ -7,7 +7,8 @@
 
 Mesh::Mesh():
 m_vao(nullptr),
-m_vbo(0)
+m_vbo(0),
+m_numVertex(0)
 {
     Render::createVBO(this);
 }
@@ -30,6 +31,16 @@ ElementBufferObject* Mesh::getEBO()
 void Mesh::setEBO(ElementBufferObject* ebo)
 {
     m_ebo = ebo;
+}
+
+void Mesh::setNumVertex(uint32_t numVertex)
+{
+    m_numVertex = numVertex;
+}
+
+uint32_t Mesh::getNumVertex()
+{
+    return m_numVertex;
 }
 
 void Mesh::finish()
