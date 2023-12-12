@@ -24,7 +24,7 @@ m_fov(45.0f)
 
 }
 
-glm::mat4 Camera::getProjectionMatrix()
+glm::mat4& Camera::getProjectionMatrix()
 {
 	if (m_dirtyProjectionMatrix)
 	{

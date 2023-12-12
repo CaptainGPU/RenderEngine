@@ -13,7 +13,7 @@ class Camera : public GameObject
 public:
 	Camera(std::string name);
 
-	glm::mat4 getProjectionMatrix();
+	glm::mat4& getProjectionMatrix();
 	glm::mat4& getViewMatrix();
 
 	virtual void drawGUI() override;
