@@ -25,5 +25,5 @@ public:
 private:
     void releaseScene();
     
-    Scene* m_scene = nullptr;
+    Scene* m_scene;
 };

@@ -18,6 +18,7 @@ layout (location = 2) in vec3 norm; \n\
                                                                        \n\
 out vec3 vertexColor;                                                      \n\
 uniform mat4 modelMatrix; \n\
+uniform mat4 viewMatrix; \n\
 uniform mat4 projectionMatrix; \n\
 void main()                                                            \n\
 {                                                                      \n\
@@ -37,13 +38,14 @@ layout (location = 2) in vec3 norm; \n\
                                                                        \n\
 out vec3 vertexColor;                                                      \n\
 uniform mat4 modelMatrix; \n\
+uniform mat4 viewMatrix; \n\
 uniform mat4 projectionMatrix; \n\
 void main()                                                            \n\
 {                                                                      \n\
     vertexColor = vec3(1.0, .0, .0);                               \n\
     vec3 weights[3] = vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)); \n\
     vertexColor = vec3(tex, 1.0 - tex.y);         \n\
-    gl_Position = projectionMatrix * modelMatrix * vec4(pos, 1.0f);       \n\
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(pos, 1.0f);       \n\
 }";
 #endif
 

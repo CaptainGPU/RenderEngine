@@ -8,7 +8,8 @@
 
 #include <iostream>
 
-SceneManager::SceneManager()
+SceneManager::SceneManager():
+m_scene(nullptr)
 {
 }
 

@@ -6,13 +6,17 @@
 
 #include <iostream>
 
-Scene::Scene(std::string name)
+Scene::Scene(std::string name):
+m_defaultCamera(nullptr),
+m_camera(nullptr)
 {
     m_name = name;
 }
 
 void Scene::construct()
 {
+    m_defaultCamera = new Camera("Defailt Camera");
+    addGameObject(m_defaultCamera);
 }
 
 void Scene::simulate(float deltaTime)
@@ -115,4 +119,14 @@ void Scene::finish()
         
         delete gameObject;
     }
+}
+
+Camera* Scene::getCamera()
+{
+    return m_camera ? m_camera : m_defaultCamera;
+}
+
+void Scene::setCamera(Camera* camera)
+{
+    m_camera = camera;
 }

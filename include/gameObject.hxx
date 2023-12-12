@@ -27,8 +27,13 @@ public:
     glm::mat4 getModelMatrix();
 
     Mesh* getMesh();
+
+    bool isRenderingObject();
+    void setIsRenderingObject(bool isRenderingObject);
     
     // Transform staff
+
+    glm::vec3 getPosition();
     
     void setPositionX(const float& x);
     void setPositionY(const float& y);
@@ -47,7 +52,8 @@ private:
     
     std::string m_name;
     
-    bool m_isDirtyModelMatrix;
+    bool m_isDirtyTransform;
+    bool m_renderingObject;
 
 protected:
     Mesh* m_mesh;

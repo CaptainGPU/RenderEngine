@@ -5,6 +5,7 @@
 #pragma once
 
 #include "gameObject.hxx"
+#include "camera.hxx"
 
 #include <vector>
 #include <string>
@@ -23,6 +24,9 @@ public:
     
     size_t getGameObjectCount();
     GameObject* getGameObject(size_t index);
+
+    Camera* getCamera();
+    void setCamera(Camera* camera);
     
     virtual void construct();
     virtual void startPlay();
@@ -33,6 +37,9 @@ public:
     void finish();
 private:
     std::vector<GameObject*> m_gameObjects;
+
+    Camera* m_defaultCamera;
+    Camera* m_camera;
     
 private:
     std::string m_name;

@@ -25,6 +25,7 @@ public:
     
 private:
     Uniform* m_matrixModelUniform;
+    Uniform* m_matrixViewUniform;
     Uniform* m_matrixProjectionUniform;
 private:
 };

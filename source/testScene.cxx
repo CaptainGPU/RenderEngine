@@ -17,6 +17,8 @@ TestScene::~TestScene()
 
 void TestScene::construct()
 {
+    Scene::construct();
+
     float dist = 3.0;
     
     float count = .0;

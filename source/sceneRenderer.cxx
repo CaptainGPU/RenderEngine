@@ -6,10 +6,6 @@
 #include "engine.hxx"
 #include "render.hxx"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 SceneRenderer::SceneRenderer()
 :Renderer("SceneRenderer"),
 m_matrixModelUniform(nullptr),
@@ -21,25 +17,29 @@ void SceneRenderer::render(RenderInfo& renderInfo)
 {
     SceneManager* manager = Engine::get()->getSceneManager();
     Scene* scene = manager->getScene();
+    Camera* camera = scene->getCamera();
 
     size_t numGameObject = scene->getGameObjectCount();
-
     
     RenderPass* renderPass = m_renderPasses[SceneRendererPasses::TRIANGLE_PASS];
 
-    
     Render::startRenderPass(renderPass, renderInfo);
+
+    glm::mat4& viewMatrix = camera->getViewMatrix();
+    m_matrixViewUniform->setMatrix4x4(viewMatrix);
     
-    glm::mat4 projection_matrix = glm::perspective(45.0, double(800.0f / 600.0f), 0.1, 100.0);
+    glm::mat4& projection_matrix = scene->getCamera()->getProjectionMatrix();
     m_matrixProjectionUniform->setMatrix4x4(projection_matrix);
 
-    //Render::clearView(1.0, .0, .0, 1.0);
     for (size_t i = 0; i < numGameObject; i++)
     {
         GameObject* gameObject = scene->getGameObject(i);
         Mesh* mesh = gameObject->getMesh();
 
-        //Render::createVBO(mesh, m_meshVAO);
+        if (!mesh || !gameObject->isRenderingObject())
+        {
+            continue;
+        }
 
         glm::mat4 modelMatrix = gameObject->getModelMatrix();
         m_matrixModelUniform->setMatrix4x4(modelMatrix);
@@ -48,8 +48,6 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     }
 
     Render::endRenderPass(renderPass);
-    
-    //Render::draw();
 }
 
 void SceneRenderer::init()
@@ -65,14 +63,15 @@ void SceneRenderer::init()
 
         if (pass == TRIANGLE_PASS)
         {
-            std::vector<std::string> uniformNames = {"modelMatrix", "projectionMatrix"};
+            std::vector<std::string> uniformNames = {"modelMatrix", "viewMatrix", "projectionMatrix"};
             
             renderPass = new RenderPass();
             renderPass->makeProgram();
             renderPass->registerUniforms(uniformNames);
             
             m_matrixModelUniform = renderPass->getUniform(uniformNames[0]);
-            m_matrixProjectionUniform = renderPass->getUniform(uniformNames[1]);
+            m_matrixViewUniform = renderPass->getUniform(uniformNames[1]);
+            m_matrixProjectionUniform = renderPass->getUniform(uniformNames[2]);
         }
 
         m_renderPasses[i] = renderPass;
