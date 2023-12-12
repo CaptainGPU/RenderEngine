@@ -6,6 +6,7 @@
 
 #include "vao.hxx"
 #include "ebo.hxx"
+#include <stdint.h>
 
 class Mesh
 {

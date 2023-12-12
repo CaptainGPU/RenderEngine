@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include "defines.hxx"
 
 #if (CURRENT_PLATFORM == PLATFORM_WIN) || (CURRENT_PLATFORM == PLATFORM_MAC)
