@@ -25,7 +25,7 @@ void main()                                                            \n\
     vertexColor = vec3(1.0, .0, .0);                               \n\
     vec3 weights[3] = vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)); \n\
     vertexColor = norm;         \n\
-    gl_Position = projectionMatrix * modelMatrix * vec4(pos, 1.0f);       \n\
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(pos, 1.0f);       \n\
 }";
 
 #else
@@ -220,7 +220,7 @@ void Render::startRenderPass(RenderPass* renderPass,RenderInfo& info)
     addRenderPass(info);
     
     glEnable(GL_DEPTH_TEST);
-	clearView(1.0, 1.0, 1.0, 1.0);
+	clearView(164.0f / 256.0f, 189.0f / 256.0f, 191.0f / 256.0f, 1.0);
 
 	PassProgramm* programm = renderPass->getPassProgramm();
 
