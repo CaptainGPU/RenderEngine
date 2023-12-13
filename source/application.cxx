@@ -34,6 +34,8 @@ void Application::initStage()
 
 	// Initializing the Window component
 	m_window = new Window(m_width, m_height);
+
+	m_window->initInput();
     
     m_engine = new Engine();
     Engine::registreEngine(m_engine);

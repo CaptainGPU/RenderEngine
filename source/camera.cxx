@@ -46,9 +46,19 @@ glm::mat4& Camera::getViewMatrix()
 	return m_viewMatrix;
 }
 
+glm::vec3& Camera::getFrontVector()
+{
+	return m_front;
+}
+
+glm::vec3& Camera::getRightVector()
+{
+	return m_right;
+}
+
 void Camera::drawGUI()
 {
-	GameObject::drawGUI();
+	/*GameObject::drawGUI();
 
 	ImGui::Begin("Debug Camera");
 
@@ -68,7 +78,7 @@ void Camera::drawGUI()
 		m_dirtyProjectionMatrix = true;
 	}
 
-	ImGui::End();
+	ImGui::End();*/
 }
 
 void Camera::calculateCameraVectors()

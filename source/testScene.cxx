@@ -4,6 +4,7 @@
 //
 #include "testScene.hxx"
 #include "testGameObject.hxx"
+#include "debugCamera.hxx"
 
 
 TestScene::TestScene()
@@ -42,7 +43,9 @@ void TestScene::construct()
         }
     }
     
-    
+    DebugCamera* camera = new DebugCamera();
+    addGameObject(camera);
+    setCamera(camera);
 }
 
 void TestScene::update(float deltaTime)

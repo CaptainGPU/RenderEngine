@@ -25,6 +25,8 @@ class Window
 public:
 	Window(int width, int height);
 
+	void initInput();
+
 	// Window update function
 	void frame();
     
@@ -51,4 +53,6 @@ private:
 	// Window framebuffer width and height
 	GLint m_bufferWidth;
 	GLint m_bufferHeight;
+
+	static void HandleKeys(GLFWwindow* window, int key, int code, int action, int mode);
 };

@@ -5,6 +5,7 @@
 
 #include "window.hxx"
 #include "render.hxx"
+#include "input.hxx"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -67,6 +68,12 @@ Window::Window(int width, int height)
 	Render::setViewport(0, 0, m_bufferWidth, m_bufferHeight);
 }
 
+void Window::initInput()
+{
+	Input::init();
+	glfwSetKeyCallback(m_window, HandleKeys);
+}
+
 // Window update function
 void Window::frame()
 {
@@ -96,4 +103,72 @@ void Window::close()
 	}
 
 	glfwTerminate();
+}
+
+void Window::HandleKeys(GLFWwindow* window, int key, int code, int action, int mode)
+{
+	Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	{
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	}
+
+	if (key >= 0 && key < 1024)
+	{
+		KEYS engineKey = KEYS::KEY_COUNT;
+		bool registerKey = false;
+
+		if (key == GLFW_KEY_W)
+		{
+			engineKey = KEYS::KEY_W;
+			registerKey = true;
+		}
+
+		if (key == GLFW_KEY_S)
+		{
+			engineKey = KEYS::KEY_S;
+			registerKey = true;
+		}
+
+		if (key == GLFW_KEY_A)
+		{
+			engineKey = KEYS::KEY_A;
+			registerKey = true;
+		}
+
+		if (key == GLFW_KEY_D)
+		{
+			engineKey = KEYS::KEY_D;
+			registerKey = true;
+		}
+
+		if (key == GLFW_KEY_Q)
+		{
+			engineKey = KEYS::KEY_Q;
+			registerKey = true;
+		}
+
+		if (key == GLFW_KEY_E)
+		{
+			engineKey = KEYS::KEY_E;
+			registerKey = true;
+		}
+
+		if (registerKey)
+		{
+			if (action == GLFW_PRESS)
+			{
+				Input::setKeyPressed(engineKey, true);
+			}
+			else if(action == GLFW_RELEASE)
+			{
+				Input::setKeyPressed(engineKey, false);
+			}
+		}
+	}
+	else
+	{
+		return;
+	}
 }

@@ -84,6 +84,12 @@ glm::vec3 GameObject::getPosition()
     return m_position;
 }
 
+void GameObject::addPosition(const glm::vec3& position)
+{
+    m_position += position;
+    m_isDirtyTransform = true;
+}
+
 void GameObject::setPositionX(const float& x)
 {
     m_position.x = x;

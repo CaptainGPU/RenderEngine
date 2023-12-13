@@ -35,6 +35,7 @@ public:
 
     glm::vec3 getPosition();
     
+    void addPosition(const glm::vec3& position);
     void setPositionX(const float& x);
     void setPositionY(const float& y);
     void setPositionZ(const float& z);
