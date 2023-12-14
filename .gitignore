@@ -399,4 +399,5 @@ FodyWeavers.xsd
 
 build/
 platform/
+emsc/
 generated/*.hxx

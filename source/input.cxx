@@ -4,6 +4,7 @@
 //
 
 #include "input.hxx"
+#include <cstdio>
 
 bool Input::m_keys[KEYS::KEY_COUNT];
 
