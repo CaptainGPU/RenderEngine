@@ -66,7 +66,7 @@ void Camera::drawGUI()
 	float pitch = m_pitch;
 	float fov = m_fov;
 
-	ImGui::SliderFloat("fow", &fov, 1.0f, 180.0f);
+	ImGui::SliderFloat("FOV", &fov, 1.0f, 180.0f);
 	ImGui::SliderFloat("yaw", &yaw, -180.0f, 180.0f);
 	ImGui::SliderFloat("pitch", &pitch, -90.0f, 90.0f);
 
