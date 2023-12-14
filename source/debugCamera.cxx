@@ -6,15 +6,42 @@
 #include "debugCamera.hxx"
 #include "input.hxx"
 
-DebugCamera::DebugCamera():
+DebugCamera::DebugCamera() :
 Camera("DebugCamera"),
-m_speed(10)
+m_speed(10),
+m_turnSpeed(.2f)
 {
 }
 
 void DebugCamera::update(float deltaTime)
 {
 	Camera::update(deltaTime);
+
+	if (!Input::isInputEnable())
+	{
+		return;
+	}
+
+	float xChange = Input::getXChange();
+	float yChange = Input::getYChange();
+
+	xChange *= m_turnSpeed;
+	yChange *= m_turnSpeed;
+
+	m_yaw += xChange;
+	m_pitch += yChange;
+
+	if (m_pitch > 89.0f)
+	{
+		m_pitch = 89.0f;
+	}
+	else
+	{
+		if (m_pitch < -89.0f)
+		{
+			m_pitch = -89.0f;
+		}
+	}
 
 	glm::vec3 front = getFrontVector();
 	glm::vec3 right = getRightVector();

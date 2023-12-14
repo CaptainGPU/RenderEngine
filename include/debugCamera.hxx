@@ -15,4 +15,5 @@ public:
 
 private:
 	float m_speed;
+	float m_turnSpeed;
 };

@@ -27,3 +27,8 @@ void Uniform::setMatrix4x4(glm::mat4& matrix)
 {
     Render::setUniformMatrix4x4(this, matrix);
 }
+
+void Uniform::setFloat(float& value)
+{
+    Render::setUniformFloatValue(this, value);
+}

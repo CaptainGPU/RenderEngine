@@ -31,10 +31,11 @@ private:
 	glm::vec3 m_up;
 	glm::vec3 m_right;
 
+	bool m_dirtyProjectionMatrix;
+	bool m_dirtyViewMatrix;
+
+protected:
 	float m_yaw;
 	float m_pitch;
 	float m_fov;
-
-	bool m_dirtyProjectionMatrix;
-	bool m_dirtyViewMatrix;
 };

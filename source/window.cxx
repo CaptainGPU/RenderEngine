@@ -15,6 +15,13 @@ Window::Window(int width, int height)
 {
 	m_width = width;
 	m_height = height;
+	
+	// Mouse
+	m_lastX = 0;
+	m_lastY = 0;
+	m_xChange = 0;
+	m_yChange = 0;
+	m_mouseFirstMove = true;
 
 	m_isValid = true;
 
@@ -79,6 +86,8 @@ void Window::frame()
 {
 	// GLFW event handling
 	glfwPollEvents();
+
+	updateMouse();
 }
 
 void Window::swap()
@@ -103,6 +112,27 @@ void Window::close()
 	}
 
 	glfwTerminate();
+}
+
+void Window::updateMouse()
+{
+	double xpos, ypos;
+	glfwGetCursorPos(m_window, &xpos, &ypos);
+
+	if (m_mouseFirstMove)
+	{
+		m_lastX = (float)xpos;
+		m_lastY = (float)ypos;
+		m_mouseFirstMove = false;
+	}
+
+	m_xChange = (float)xpos - m_lastX;
+	m_yChange = m_lastY - (float)ypos;
+
+	m_lastX = (float)xpos;
+	m_lastY = (float)ypos;
+
+	Input::setXYChange(m_xChange, m_yChange);
 }
 
 void Window::HandleKeys(GLFWwindow* window, int key, int code, int action, int mode)
@@ -153,6 +183,24 @@ void Window::HandleKeys(GLFWwindow* window, int key, int code, int action, int m
 		{
 			engineKey = KEYS::KEY_E;
 			registerKey = true;
+		}
+
+		if (key == GLFW_KEY_T)
+		{
+			engineKey = KEYS::KEY_T;
+			registerKey = true;
+		}
+
+		bool isTPress = Input::keyIsPressed(KEY_T);
+		if (!isTPress && key == GLFW_KEY_T)
+		{
+			if (action == GLFW_PRESS)
+			{
+				bool inputEnable = Input::isInputEnable();
+				inputEnable = !inputEnable;
+				Input::setInputEnable(inputEnable);
+				glfwSetInputMode(window, GLFW_CURSOR, inputEnable ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+			}
 		}
 
 		if (registerKey)

@@ -74,6 +74,7 @@ public:
     
     static Uniform* getUniformFromPassProgramm(std::string uniformName, PassProgramm* programm);
     static void setUniformMatrix4x4(Uniform* uniform, glm::mat4& matrix);
+	static void setUniformFloatValue(Uniform* uniform, float& value);
 
 	static void drawMesh(Mesh* mesh, RenderInfo& info);
 };

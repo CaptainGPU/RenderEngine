@@ -4,6 +4,7 @@
 //
 #include "engine.hxx"
 #include "renderGUI.hxx"
+#include "input.hxx"
 
 #include <GLFW/glfw3.h>
 
@@ -49,6 +50,16 @@ void Engine::finish()
 void Engine::renderStats()
 {
     ImGui::Begin("Stats");
+    ImGui::Text("W/A/S/D/Q/E - camera movement");
+    ImGui::Text("T - toogle input");
+    if (Input::isInputEnable())
+    {
+        ImGui::Text("Input: Enable");
+    }
+    else
+    {
+        ImGui::Text("Input: Disable");
+    }
     ImGui::Text("Time: %f", m_gameTime);
     ImGui::Text("RenderTime: %f(ms)", m_deltaTime);
     ImGui::Text("FPS: %f", 1.0f / m_deltaTime);
@@ -88,6 +99,11 @@ void Engine::simulate()
 void Engine::registreEngine(Engine* engine)
 {
     g_Engine = engine;
+}
+
+float Engine::getGameTime()
+{
+    return m_gameTime;
 }
 
 SceneManager* Engine::getSceneManager()

@@ -24,7 +24,8 @@ void main()                                                            \n\
 {                                                                      \n\
     vertexColor = vec3(1.0, .0, .0);                               \n\
     vec3 weights[3] = vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)); \n\
-    vertexColor = norm;         \n\
+    vec3 color = (pos + 1.0) * 0.5; \n\
+    vertexColor = color;         \n\
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(pos, 1.0f);       \n\
 }";
 
@@ -44,7 +45,8 @@ void main()                                                            \n\
 {                                                                      \n\
     vertexColor = vec3(1.0, .0, .0);                               \n\
     vec3 weights[3] = vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)); \n\
-    vertexColor = vec3(tex, 1.0 - tex.y);         \n\
+    vec3 color = (pos + 1.0) * 0.5; \n\
+    vertexColor = color;         \n\
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(pos, 1.0f);       \n\
 }";
 #endif
@@ -55,11 +57,14 @@ static const char* fShader = "#version 300 es\n\
 precision highp float;\n\
 in vec3 vertexColor;                                \n\
 out vec4 color;                                     \n\
+uniform float time;                                 \n\
                                                     \n\
 void main()                                         \n\
 {                                                   \n\
-    color =  vec4(vertexColor, 1.0f);     \n\
-}                                                   \n\
+    vec3 colorSin = 0.5 + 0.5*cos(time + vertexColor * vec3(0.0, 2.0, 4.0)); \n\
+    colorSin = vertexColor; \n\
+    color =  vec4(colorSin, 1.0f);     \n\
+}                                                    \n\
 ";
 
 #else
@@ -68,10 +73,13 @@ static const char* fShader = "#version 330                                      
 precision highp float;\n\
 in vec3 vertexColor;                                \n\
 out vec4 color;                                     \n\
+uniform float time;                                 \n\
                                                     \n\
 void main()                                         \n\
 {                                                   \n\
-    color =  vec4(vertexColor, 1.0f);     \n\
+    vec3 colorSin = 0.5 + 0.5*cos(time + vertexColor * vec3(0.0, 2.0, 4.0)); \n\
+    colorSin = vertexColor; \n\
+    color =  vec4(colorSin, 1.0f);     \n\
 }                                                   \n\
 ";
 
@@ -277,10 +285,10 @@ void Render::unBindVAO()
 void Render::createVBO(Mesh* mesh)
 {
     float vertices[] = {
-        -1.0f, 1.0f, -1.0f,        0.0f, 1.0f,        1.0f, 0.0f, 0.0f,
-        -1.0f, -1.0f, -1.0f,        0.0f, 0.0f,        0.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, -1.0f,        1.0f, 1.0f,        0.0f, 0.0f, 1.0f,
-        1.0f, -1.0f, -1.0f,        1.0f, 0.0f,        1.0f, 1.0f, 0.0f,
+        -1.0f, 1.0f, -1.0f,        1.0f, 0.0f,        1.0f, 0.0f, 0.0f,
+        -1.0f, -1.0f, -1.0f,        1.0f, 1.0f,        0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, -1.0f,        0.0f, 0.0f,        0.0f, 0.0f, 1.0f,
+        1.0f, -1.0f, -1.0f,        0.0f, 1.0f,        1.0f, 1.0f, 0.0f,
 
         -1.0f, 1.0f, 1.0f,        0.0f, 1.0f,        0.0f, 1.0f, 0.0f,
         1.0f, 1.0f, 1.0f,        1.0f, 1.0f,        0.0f, 0.0f, 1.0f,
@@ -396,11 +404,6 @@ Uniform* Render::getUniformFromPassProgramm(std::string uniformName, PassProgram
     
     unUsePassProgramm();
     
-    if (location < 0)
-    {
-        return nullptr;
-    }
-    
     Uniform* uniform = new Uniform();
     uniform->set_OpenGL_uniformID(location);
     
@@ -413,4 +416,14 @@ void Render::setUniformMatrix4x4(Uniform* uniform, glm::mat4& matrix)
     GLint id = uniform->get_OpenGL_uniformID();
     
     glUniformMatrix4fv(id, 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void Render::setUniformFloatValue(Uniform* uniform, float& value)
+{
+    GLint id = uniform->get_OpenGL_uniformID();
+    if (id < 0)
+    {
+        return;
+    }
+    glUniform1f(id, value);
 }

@@ -26,6 +26,7 @@ public:
     GLint get_OpenGL_uniformID();
     
     void setMatrix4x4(glm::mat4& matrix);
+    void setFloat(float& value);
     
 private:
     GLint m_ogl_uniformID;

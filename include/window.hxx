@@ -40,6 +40,9 @@ public:
 	void close();
 
 private:
+	void updateMouse();
+
+private:
 	// Window width and height
 	int m_width;
 	int m_height;
@@ -53,6 +56,13 @@ private:
 	// Window framebuffer width and height
 	GLint m_bufferWidth;
 	GLint m_bufferHeight;
+
+	// Window mouse
+	float m_lastX;
+	float m_lastY;
+	float m_xChange;
+	float m_yChange;
+	bool m_mouseFirstMove;
 
 	static void HandleKeys(GLFWwindow* window, int key, int code, int action, int mode);
 };

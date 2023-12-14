@@ -31,6 +31,9 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     glm::mat4& projection_matrix = scene->getCamera()->getProjectionMatrix();
     m_matrixProjectionUniform->setMatrix4x4(projection_matrix);
 
+    float time = Engine::get()->getGameTime();
+    m_timeUniform->setFloat(time);
+
     for (size_t i = 0; i < numGameObject; i++)
     {
         GameObject* gameObject = scene->getGameObject(i);
@@ -63,7 +66,7 @@ void SceneRenderer::init()
 
         if (pass == TRIANGLE_PASS)
         {
-            std::vector<std::string> uniformNames = {"modelMatrix", "viewMatrix", "projectionMatrix"};
+            std::vector<std::string> uniformNames = {"modelMatrix", "viewMatrix", "projectionMatrix", "time"};
             
             renderPass = new RenderPass();
             renderPass->makeProgram();
@@ -72,6 +75,7 @@ void SceneRenderer::init()
             m_matrixModelUniform = renderPass->getUniform(uniformNames[0]);
             m_matrixViewUniform = renderPass->getUniform(uniformNames[1]);
             m_matrixProjectionUniform = renderPass->getUniform(uniformNames[2]);
+            m_timeUniform = renderPass->getUniform(uniformNames[3]);
         }
 
         m_renderPasses[i] = renderPass;

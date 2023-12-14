@@ -27,6 +27,8 @@ public:
     SceneManager* getSceneManager();
     
     static void registreEngine(Engine* engine);
+
+    float getGameTime();
     
 private:
     void calculateDeltaTime();
