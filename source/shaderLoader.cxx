@@ -38,14 +38,22 @@ std::string glslCode(std::string fileLocation)
 std::string getShaderPath(std::string name)
 {
 	std::string platform;
+    
+    std::string location;
+    
+#if CURRENT_PLATFORM == PLATFORM_MAC
+    location = "../../";
+#else
+    location = "../";
+#endif
 
 #if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
-	platform = "WebGL";
+    platform = "WebGL";
 #else
 	platform = "OpenGL";
 #endif
 
-	std::string path = std::string("../shaders/") + platform + "/" + name;
+	std::string path = location + std::string("shaders/") + platform + "/" + name;
 	return path;
 }
 
