@@ -66,7 +66,7 @@ void SceneRenderer::init()
 
         if (pass == TRIANGLE_PASS)
         {
-            std::vector<std::string> uniformNames = {"modelMatrix", "viewMatrix", "projectionMatrix", "time"};
+            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time"};
             
             renderPass = new RenderPass();
             renderPass->makeProgram();

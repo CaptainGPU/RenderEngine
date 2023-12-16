@@ -5,85 +5,9 @@
 
 #include "render.hxx"
 
+#include "shaderLoader.hxx"
+
 #include <iostream>
-
-// Temporary vertex shader code, TODO: Will be deleted
-#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
-
-static const char* vShader = "#version 300 es \n\
-precision highp float;\n\
-layout (location = 0) in vec3 pos;                                      \n\
-layout (location = 1) in vec2 tex; \n\
-layout (location = 2) in vec3 norm; \n\
-                                                                       \n\
-out vec3 vertexColor;                                                      \n\
-uniform mat4 modelMatrix; \n\
-uniform mat4 viewMatrix; \n\
-uniform mat4 projectionMatrix; \n\
-void main()                                                            \n\
-{                                                                      \n\
-    vertexColor = vec3(1.0, .0, .0);                               \n\
-    vec3 weights[3] = vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)); \n\
-    vec3 color = (pos + 1.0) * 0.5; \n\
-    vertexColor = color;         \n\
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(pos, 1.0f);       \n\
-}";
-
-#else
-
-static const char* vShader = "#version 330                                                          \n\
-precision highp float;\n\
-layout (location = 0) in vec3 pos;                                      \n\
-layout (location = 1) in vec2 tex; \n\
-layout (location = 2) in vec3 norm; \n\
-                                                                       \n\
-out vec3 vertexColor;                                                      \n\
-uniform mat4 modelMatrix; \n\
-uniform mat4 viewMatrix; \n\
-uniform mat4 projectionMatrix; \n\
-void main()                                                            \n\
-{                                                                      \n\
-    vertexColor = vec3(1.0, .0, .0);                               \n\
-    vec3 weights[3] = vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)); \n\
-    vec3 color = (pos + 1.0) * 0.5; \n\
-    vertexColor = color;         \n\
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(pos, 1.0f);       \n\
-}";
-#endif
-
-#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
-// Temporary fragment shader, TODO: Will be deleted
-static const char* fShader = "#version 300 es\n\
-precision highp float;\n\
-in vec3 vertexColor;                                \n\
-out vec4 color;                                     \n\
-uniform float time;                                 \n\
-                                                    \n\
-void main()                                         \n\
-{                                                   \n\
-    vec3 colorSin = 0.5 + 0.5*cos(time + vertexColor * vec3(0.0, 2.0, 4.0)); \n\
-    colorSin = vertexColor; \n\
-    color =  vec4(colorSin, 1.0f);     \n\
-}                                                    \n\
-";
-
-#else
-// Temporary fragment shader, TODO: Will be deleted
-static const char* fShader = "#version 330                                       \n\
-precision highp float;\n\
-in vec3 vertexColor;                                \n\
-out vec4 color;                                     \n\
-uniform float time;                                 \n\
-                                                    \n\
-void main()                                         \n\
-{                                                   \n\
-    vec3 colorSin = 0.5 + 0.5*cos(time + vertexColor * vec3(0.0, 2.0, 4.0)); \n\
-    colorSin = vertexColor; \n\
-    color =  vec4(colorSin, 1.0f);     \n\
-}                                                   \n\
-";
-
-#endif
 
 // Viewport size setting function
 void Render::setViewport(int x, int y, int width, int height)
@@ -104,31 +28,7 @@ VertexShader* Render::createVertexShader()
 {
 	VertexShader* shader = new VertexShader();
 
-	GLuint theShader = glCreateShader(GL_VERTEX_SHADER);
-
-	const char* shaderCode = vShader;
-	const GLchar* code[1];
-	code[0] = shaderCode;
-
-	GLint codeLength[1];
-	codeLength[0] = strlen(shaderCode);
-
-	glShaderSource(theShader, 1, code, codeLength);
-	glCompileShader(theShader);
-
-	GLint result = 0;
-	GLchar errorLog[128] = { 0 };
-
-	// compile programm
-	glGetShaderiv(theShader, GL_COMPILE_STATUS, &result);
-	if (!result)
-	{
-		glGetShaderInfoLog(theShader, sizeof(errorLog), nullptr, errorLog);
-		printf("Error compiling the %d shader: %s\n", GL_VERTEX_SHADER, errorLog);
-		
-	}
-
-	shader->set_OpenGL_Shader(theShader);
+    loadVertexShader(shader, "mesh.vert");
 
 	return shader;
 }
@@ -137,31 +37,7 @@ FragmentShader* Render::createFragmentShader()
 {
 	FragmentShader* shader = new FragmentShader();
 
-	GLuint theShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	const char* shaderCode = fShader;
-	const GLchar* code[1];
-	code[0] = shaderCode;
-
-	GLint codeLength[1];
-	codeLength[0] = strlen(shaderCode);
-
-	glShaderSource(theShader, 1, code, codeLength);
-	glCompileShader(theShader);
-
-	GLint result = 0;
-	GLchar errorLog[128] = { 0 };
-
-	// compile programm
-	glGetShaderiv(theShader, GL_COMPILE_STATUS, &result);
-	if (!result)
-	{
-		glGetShaderInfoLog(theShader, sizeof(errorLog), nullptr, errorLog);
-		printf("Error compiling the %d shader: %s\n", GL_FRAGMENT_SHADER, errorLog);
-
-	}
-
-	shader->set_OpenGL_Shader(theShader);
+    loadFragmentShader(shader, "mesh.frag");
 
 	return shader;
 }

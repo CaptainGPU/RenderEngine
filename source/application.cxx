@@ -6,6 +6,7 @@
 #include "application.hxx"
 
 #include <iostream>
+#include "fileSystem.hxx"
 
 // Part of Emscripten Loop code, see header
 #if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
@@ -31,6 +32,10 @@ Application::Application(int width, int height)
 void Application::initStage()
 {
 	printf("Application initialize\n");
+
+#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
+	mountFileSystem();
+#endif
 
 	// Initializing the Window component
 	m_window = new Window(m_width, m_height);
