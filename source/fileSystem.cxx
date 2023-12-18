@@ -20,11 +20,13 @@ void mountFileSystem()
 #if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
 void mountFileSystemEmscripten()
 {
-    printf("Start Mount file system for Emscripten\n");
+    printf("Start mounting file system for Emscripten\n");
 
     std::vector<std::string> files = {
         "/shaders/WebGL/mesh.frag",
-        "/shaders/WebGL/mesh.vert"
+        "/shaders/WebGL/mesh.vert",
+        "/Models/monkey.obj",
+        "/Models/crash_normal.obj"
     };
 
     for (size_t i = 0; i < files.size(); i++)
@@ -40,6 +42,6 @@ void mountFileSystemEmscripten()
         }
     }
 
-    printf("End Mount file system for Emscripten");
+    printf("End mounting file system for Emscripten\n");
 }
 #endif

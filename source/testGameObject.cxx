@@ -8,27 +8,20 @@
 
 #include <glm/glm.hpp>
 
+#include "meshLoader.hxx"
+
 
 TestGameObject::TestGameObject()
 :GameObject("TestGameObject"),
 m_time(.0)
 {
     m_deltaTime = .0;
-    m_mesh = new Mesh();
+    m_mesh = loadMesh();
 }
 
 void TestGameObject::update(float deltaTime)
 {
     GameObject::update(deltaTime);
-    /*m_deltaTime = deltaTime;
-    
-    m_time+=deltaTime;
-    
-    y = glm::sin(m_time);
-    
-    //setPositionZ(-2.0 - y);
-    
-    addRotationX(m_deltaTime);*/
 }
 
 void TestGameObject::drawGUI()

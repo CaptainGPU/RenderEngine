@@ -30,8 +30,8 @@ void GameObject::endPlay()
 {
     if (m_mesh)
     {
-        m_mesh->finish();
-        delete m_mesh;
+        //m_mesh->finish();
+        //delete m_mesh;
         m_mesh = nullptr;
     }
 

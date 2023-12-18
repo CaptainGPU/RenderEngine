@@ -6,6 +6,7 @@
 #include "render.hxx"
 
 #include "shaderLoader.hxx"
+#include "meshLoader.hxx"
 
 #include <iostream>
 
@@ -160,6 +161,10 @@ void Render::unBindVAO()
 
 void Render::createVBO(Mesh* mesh)
 {
+    loadMesh();
+
+    return;
+
     float vertices[] = {
         -1.0f, 1.0f, -1.0f,        1.0f, 0.0f,        1.0f, 0.0f, 0.0f,
         -1.0f, -1.0f, -1.0f,        1.0f, 1.0f,        0.0f, 1.0f, 0.0f,
@@ -243,7 +248,7 @@ void Render::deleteVBO(Mesh* mesh)
 	glDeleteBuffers(1, &vbo);
     
     Render::deleteEBO(ebo);
-    Render::deleteVAO(vao);
+    //Render::deleteVAO(vao);
 }
 
 void Render::createEBO(ElementBufferObject* ebo)
