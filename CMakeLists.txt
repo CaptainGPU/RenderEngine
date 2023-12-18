@@ -35,7 +35,7 @@ message(STATUS "Hello, let's build a Render Engine for the ${DEPLOY_PLATFORM} pl
 
 
 # GLFW, GLAD, IMGUI, GLM LIBS
-set(IGG_COMPONENTS "IMGUI;GLFW;GLAD;GLM" CACHE STRING "The components to import and build")
+set(IGG_COMPONENTS "IMGUI;GLFW;GLAD;GLM;TINYOBJ" CACHE STRING "The components to import and build")
 
 
 message(STATUS "-------------------------------------------------")
@@ -119,6 +119,16 @@ endif ()
 
 # PRING GLM INFO
 message(STATUS "Import GLM - ${IMPORT_GLM} | branch - ${IGG_GLM_TAG}")
+
+# GLM PARAMS
+if (IMPORT_TINYOBJ)
+    set(IGG_TINYOBJ_TAG release CACHE STRING "Defines the glm version (e.g. master, 0.9.9.8, 0.9.9.7, ...")
+else ()
+    unset(IGG_TINYOBJ_TAG CACHE)
+endif ()
+
+# PRING GLM INFO
+message(STATUS "Import TinyOBJ - ${IMPORT_TINYOBJ} | branch - ${IGG_TINYOBJ_TAG}")
 
 # DOWNLOAD GLAD
 if (IMPORT_GLAD)
@@ -205,6 +215,17 @@ if (IMPORT_GLM)
             GIT_TAG ${IGG_GLM_TAG}
     )
     list(APPEND components glm)
+endif ()
+
+# DOWNLOAD TINYOBJ
+if (IMPORT_TINYOBJ)
+    message(STATUS "Download TinyOBJ")
+    FetchContent_Declare(
+            tinyobjloader
+            GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader.git
+            GIT_TAG ${IGG_TINYOBJ_TAG}
+    )
+    list(APPEND components tinyobjloader)
 endif ()
 
 # DOWNLOAD ImGui
@@ -366,6 +387,7 @@ target_link_libraries(
     ${PROJECT_NAME}
     imgui
     glm
+    tinyobjloader
 )
 
 message(STATUS "-------------------------------------------------")

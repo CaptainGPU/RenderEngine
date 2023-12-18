@@ -5,12 +5,16 @@
 #include "mesh.hxx"
 #include "render.hxx"
 
+#include <tiny_obj_loader.h>
+
 Mesh::Mesh():
 m_vao(nullptr),
 m_vbo(0),
 m_numVertex(0)
 {
     Render::createVBO(this);
+
+    tinyobj::attrib_t attrib;
 }
 
 VertexAttributeObject* Mesh::getVAO()
