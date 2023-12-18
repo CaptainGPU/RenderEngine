@@ -13,7 +13,10 @@
 
 Engine* Engine::g_Engine;
 
-Engine::Engine()
+Engine::Engine():
+m_all(1.0f),
+m_avr(30.0f),
+m_count(1.0f)
 {
     m_deltaTime = .0;
     g_Engine = this;
@@ -29,7 +32,7 @@ void Engine::init()
 
 void Engine::run()
 {
-    calculateDeltaTime();
+    m_lastTime = std::chrono::high_resolution_clock::now();
     
     m_sceneManager->run();
 }
@@ -63,6 +66,7 @@ void Engine::renderStats()
     ImGui::Text("Time: %f", m_gameTime);
     ImGui::Text("RenderTime: %f(ms)", m_deltaTime);
     ImGui::Text("FPS: %f", 1.0f / m_deltaTime);
+    ImGui::Text("FPS(avr): %f", 1.0f / m_avr);
     
     m_renderEngine->renderStats();
     ImGui::End();
@@ -78,6 +82,19 @@ void Engine::calculateDeltaTime()
     m_deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - m_lastTime).count();
     
     m_lastTime = currentTime;
+    calculateAverage();
+}
+
+void Engine::calculateAverage()
+{
+    m_all += m_deltaTime;
+    m_count += 1.0;
+    if (m_all > 1.0)
+    {
+        m_avr = m_all / m_count;
+        m_all = .0f;
+        m_count = .0;
+    }
 }
 
 void Engine::simulate()

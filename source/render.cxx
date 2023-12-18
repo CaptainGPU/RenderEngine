@@ -105,6 +105,7 @@ void Render::startRenderPass(RenderPass* renderPass,RenderInfo& info)
     addRenderPass(info);
     
     glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_CULL_FACE);
 	clearView(164.0f / 256.0f, 189.0f / 256.0f, 191.0f / 256.0f, 1.0);
 
 	PassProgramm* programm = renderPass->getPassProgramm();

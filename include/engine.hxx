@@ -32,6 +32,7 @@ public:
     
 private:
     void calculateDeltaTime();
+    void calculateAverage();
     
 private:
     SceneManager* m_sceneManager = nullptr;
@@ -40,6 +41,10 @@ private:
     float m_deltaTime;
     std::chrono::steady_clock::time_point m_lastTime;
     float m_gameTime;
+    
+    float m_all;
+    float m_avr;
+    float m_count;
     
     static Engine* g_Engine;
     
