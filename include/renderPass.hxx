@@ -30,12 +30,8 @@ public:
     void setTwoSideRender(bool isTwoSide);
     bool isTwoSideRender();
 
-    void setWireFrameRender(bool isWireFrame);
-    bool isWireFrameRender();
-
 private:
 	PassProgramm* m_passProgramm;
     std::map<std::string, Uniform*> m_uniforms;
     bool m_twoSideRender;
-    bool m_wireFrameRender;
 };

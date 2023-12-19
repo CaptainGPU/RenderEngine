@@ -114,15 +114,6 @@ void Render::startRenderPass(RenderPass* renderPass,RenderInfo& info)
         glEnable(GL_CULL_FACE);
     }
 
-    if (renderPass->isWireFrameRender())
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    else
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
-
     glEnable(GL_DEPTH_TEST);
 
 	PassProgramm* programm = renderPass->getPassProgramm();
@@ -157,7 +148,7 @@ void Render::drawMeshBound(MeshBound* bound, RenderInfo& info)
     bindVAO(bound->getVAO());
     bindEBO(bound->getEBO());
     uint32_t numIndices = bound->getEBO()->getNumIndices();
-    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_LINES, numIndices, GL_UNSIGNED_INT, 0);
     unBindEBO();
     unBindVAO();
 }

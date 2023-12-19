@@ -54,8 +54,6 @@ void SceneRenderer::init()
             std::vector<std::string> uniformNames = { "u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "u_boundColor"};
 
             renderPass = new RenderPass();
-            renderPass->setWireFrameRender(true);
-            renderPass->setTwoSideRender(true);
             renderPass->makeProgram("meshBound", "meshBound");
             renderPass->registerUniforms(uniformNames);
 

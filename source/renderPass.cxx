@@ -8,8 +8,7 @@
 
 RenderPass::RenderPass():
 m_passProgramm(nullptr),
-m_twoSideRender(false),
-m_wireFrameRender(false)
+m_twoSideRender(false)
 {
 
 }
@@ -58,14 +57,4 @@ void RenderPass::setTwoSideRender(bool isTwoSide)
 bool RenderPass::isTwoSideRender()
 {
     return m_twoSideRender;
-}
-
-void RenderPass::setWireFrameRender(bool isWireFrame)
-{
-    m_wireFrameRender = isWireFrame;
-}
-
-bool RenderPass::isWireFrameRender()
-{
-    return m_wireFrameRender;
 }
