@@ -15,6 +15,7 @@ public:
     void finish();
     
     void renderStats();
+    void rendererDrawDebugUI();
 private:
     Renderer* m_renderer;
     RenderInfo m_renderInfo;

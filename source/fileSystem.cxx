@@ -25,8 +25,8 @@ void mountFileSystemEmscripten()
     std::vector<std::string> files = {
         "/shaders/WebGL/mesh.frag",
         "/shaders/WebGL/mesh.vert",
-        "/Models/monkey.obj",
-        "/Models/crash_normal.obj"
+        "/Models/monkey.mesh",
+        "/Models/crash_normal.mesh"
     };
 
     for (size_t i = 0; i < files.size(); i++)

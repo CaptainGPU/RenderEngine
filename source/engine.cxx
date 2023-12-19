@@ -109,6 +109,7 @@ void Engine::simulate()
     RenderGUI::starRender();
     m_sceneManager->drawGUI();
     renderStats();
+    m_renderEngine->rendererDrawDebugUI();
     RenderGUI::endRender();
 
 }

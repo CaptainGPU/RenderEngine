@@ -37,3 +37,8 @@ void RenderEngine::renderStats()
 {
     showStats(m_renderInfo);
 }
+
+void RenderEngine::rendererDrawDebugUI()
+{
+    m_renderer->drawDebugUI();
+}

@@ -9,6 +9,7 @@
 #include "meshLoader.hxx"
 
 #include <iostream>
+#include <glm/gtc/type_ptr.hpp>
 
 // Viewport size setting function
 void Render::setViewport(int x, int y, int width, int height)
@@ -25,20 +26,20 @@ void Render::clearView(float r, float g, float b, float a)
 
 /**/
 
-VertexShader* Render::createVertexShader()
+VertexShader* Render::createVertexShader(std::string vertexProgram)
 {
 	VertexShader* shader = new VertexShader();
 
-    loadVertexShader(shader, "mesh.vert");
+    loadVertexShader(shader, vertexProgram + ".vert");
 
 	return shader;
 }
 
-FragmentShader* Render::createFragmentShader()
+FragmentShader* Render::createFragmentShader(std::string fragmentProgram)
 {
 	FragmentShader* shader = new FragmentShader();
 
-    loadFragmentShader(shader, "mesh.frag");
+    loadFragmentShader(shader, fragmentProgram + ".frag");
 
 	return shader;
 }
@@ -103,10 +104,26 @@ void Render::unUsePassProgramm()
 void Render::startRenderPass(RenderPass* renderPass,RenderInfo& info)
 {
     addRenderPass(info);
-    
+
+    if (renderPass->isTwoSideRender())
+    {
+        glDisable(GL_CULL_FACE);
+    }
+    else
+    {
+        glEnable(GL_CULL_FACE);
+    }
+
+    if (renderPass->isWireFrameRender())
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_CULL_FACE);
-	clearView(164.0f / 256.0f, 189.0f / 256.0f, 191.0f / 256.0f, 1.0);
 
 	PassProgramm* programm = renderPass->getPassProgramm();
 
@@ -133,6 +150,16 @@ void Render::drawMesh(Mesh* mesh, RenderInfo& info)
     addVertex(info, mesh->getNumVertex());
     addIndices(info, mesh->getEBO()->getNumIndices());
     addRenderObject(info);
+}
+
+void Render::drawMeshBound(MeshBound* bound, RenderInfo& info)
+{
+    bindVAO(bound->getVAO());
+    bindEBO(bound->getEBO());
+    uint32_t numIndices = bound->getEBO()->getNumIndices();
+    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+    unBindEBO();
+    unBindVAO();
 }
 
 void Render::createVAO(VertexAttributeObject* attributeObject)
@@ -291,6 +318,13 @@ Uniform* Render::getUniformFromPassProgramm(std::string uniformName, PassProgram
     
     
     return uniform;
+}
+
+void Render::setUniformVec3(Uniform* uniform, glm::vec3& value)
+{
+    GLint id = uniform->get_OpenGL_uniformID();
+
+    glUniform3f(id, value.x, value.y, value.z);
 }
 
 void Render::setUniformMatrix4x4(Uniform* uniform, glm::mat4& matrix)

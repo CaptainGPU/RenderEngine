@@ -23,6 +23,11 @@ GLint Uniform::get_OpenGL_uniformID()
     return m_ogl_uniformID;
 }
 
+void Uniform::setVec3(glm::vec3& value)
+{
+    Render::setUniformVec3(this, value);
+}
+
 void Uniform::setMatrix4x4(glm::mat4& matrix)
 {
     Render::setUniformMatrix4x4(this, matrix);

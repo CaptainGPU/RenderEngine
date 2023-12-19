@@ -18,6 +18,8 @@ public:
     virtual void init();
     virtual void render(RenderInfo& renderInfo) = 0;
     virtual void finish();
+
+    virtual void drawDebugUI();
 protected:
     std::vector<RenderPass*> m_renderPasses;
     

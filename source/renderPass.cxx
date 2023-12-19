@@ -7,15 +7,17 @@
 #include <iostream>
 
 RenderPass::RenderPass():
-m_passProgramm(nullptr)
+m_passProgramm(nullptr),
+m_twoSideRender(false),
+m_wireFrameRender(false)
 {
 
 }
 
-void RenderPass::makeProgram()
+void RenderPass::makeProgram(std::string vertexProgram, std::string fragmentProgram)
 {
-	VertexShader* vShader = Render::createVertexShader();
-	FragmentShader* fShader = Render::createFragmentShader();
+	VertexShader* vShader = Render::createVertexShader(vertexProgram);
+	FragmentShader* fShader = Render::createFragmentShader(fragmentProgram);
 
 	m_passProgramm = Render::createPassProgramm(vShader, fShader);
 }
@@ -46,4 +48,24 @@ void RenderPass::finish()
         Render::deletePassProgramm(m_passProgramm);
         m_passProgramm = nullptr;
     }
+}
+
+void RenderPass::setTwoSideRender(bool isTwoSide)
+{
+    m_twoSideRender = isTwoSide;
+}
+
+bool RenderPass::isTwoSideRender()
+{
+    return m_twoSideRender;
+}
+
+void RenderPass::setWireFrameRender(bool isWireFrame)
+{
+    m_wireFrameRender = isWireFrame;
+}
+
+bool RenderPass::isWireFrameRender()
+{
+    return m_wireFrameRender;
 }

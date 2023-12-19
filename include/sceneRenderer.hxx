@@ -10,7 +10,8 @@
 
 enum SceneRendererPasses
 {
-    TRIANGLE_PASS,
+    BASE_PASS,
+    BOUND_PASS,
     
     PASS_COUNT
 };
@@ -22,11 +23,27 @@ public:
     void render(RenderInfo& renderInfo) override;
     void init() override;
     void finish() override;
+
+    void drawDebugUI() override;
+
+private:
+    void renderBasePass(RenderInfo& renderInfo);
+    void renderBoundPass(RenderInfo& renderInfo);
     
 private:
+    bool m_renderBasePass;
+    bool m_renderBoundPass;
+
+    glm::vec3 m_boundColor;
+
     Uniform* m_matrixModelUniform;
     Uniform* m_matrixViewUniform;
     Uniform* m_matrixProjectionUniform;
     Uniform* m_timeUniform;
+
+    Uniform* m_boundMatrixModelUniform;
+    Uniform* m_boundMatrixViewUniform;
+    Uniform* m_boundMatrixProjectionUniform;
+    Uniform* m_boundColorUniform;
 private:
 };

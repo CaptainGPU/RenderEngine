@@ -29,3 +29,7 @@ void Renderer::finish()
 
     printf("Renderer: %s say goodbye!\n", m_name.c_str());
 }
+
+void Renderer::drawDebugUI()
+{
+}

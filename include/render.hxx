@@ -32,7 +32,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 // Static class that contains basic rendering functions
 class Render
@@ -61,8 +60,8 @@ public:
 
 	static void clearView(float r, float g, float b, float a);
 
-	static VertexShader* createVertexShader();
-	static FragmentShader* createFragmentShader();
+	static VertexShader* createVertexShader(std::string vertexProgram);
+	static FragmentShader* createFragmentShader(std::string fragmentProgram);
 
 	static PassProgramm* createPassProgramm(VertexShader* vShader, FragmentShader* fShader);
     static void deletePassProgramm(PassProgramm* programm);
@@ -73,8 +72,10 @@ public:
 	static void endRenderPass(RenderPass* renderPass);
     
     static Uniform* getUniformFromPassProgramm(std::string uniformName, PassProgramm* programm);
+	static void setUniformVec3(Uniform* uniform, glm::vec3& value);
     static void setUniformMatrix4x4(Uniform* uniform, glm::mat4& matrix);
 	static void setUniformFloatValue(Uniform* uniform, float& value);
 
 	static void drawMesh(Mesh* mesh, RenderInfo& info);
+	static void drawMeshBound(MeshBound* bound, RenderInfo& info);
 };
