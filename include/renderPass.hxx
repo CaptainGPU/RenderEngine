@@ -16,6 +16,7 @@ class RenderPass
 {
 public:
 	RenderPass();
+    virtual ~RenderPass();
 
 	void makeProgram(std::string vertexProgram, std::string fragmentProgram);
     

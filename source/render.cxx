@@ -101,6 +101,17 @@ void Render::unUsePassProgramm()
 	glUseProgram(0);
 }
 
+void Render::useFrameBuffer(FrameBuffer* frameBuffer)
+{
+    unsigned int fbo = frameBuffer->get_openGL_FBO();
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+}
+
+void Render::unUseFrameBuffer()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Render::startRenderPass(RenderPass* renderPass,RenderInfo& info)
 {
     addRenderPass(info);
@@ -178,86 +189,6 @@ void Render::unBindVAO()
 	glBindVertexArray(0);
 }
 
-void Render::createVBO(Mesh* mesh)
-{
-    loadMesh();
-
-    return;
-
-    float vertices[] = {
-        -1.0f, 1.0f, -1.0f,        1.0f, 0.0f,        1.0f, 0.0f, 0.0f,
-        -1.0f, -1.0f, -1.0f,        1.0f, 1.0f,        0.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, -1.0f,        0.0f, 0.0f,        0.0f, 0.0f, 1.0f,
-        1.0f, -1.0f, -1.0f,        0.0f, 1.0f,        1.0f, 1.0f, 0.0f,
-
-        -1.0f, 1.0f, 1.0f,        0.0f, 1.0f,        0.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 1.0f,        1.0f, 1.0f,        0.0f, 0.0f, 1.0f,
-        -1.0f, -1.0f, 1.0f,        0.0f, 0.0f,        1.0f, 0.0f, 0.0f,
-        1.0f, -1.0f, 1.0f,        1.0f, 0.0f,        1.0f, 0.0f, 1.0f
-    };
-    unsigned int indices[] = {  // note that we start from 0!
-        // front
-        0, 1, 2,
-        2, 1, 3,
-        // right
-        2, 3, 5,
-        5, 3, 7,
-        // back
-        5, 7, 4,
-        4, 7, 6,
-        // left
-        4, 6, 0,
-        0, 6, 1,
-        // top
-        4, 0, 5,
-        5, 0, 2,
-        // bottom
-        1, 6, 3,
-        3, 6, 7
-    };
-
-    VertexAttributeObject* vao = new VertexAttributeObject();
-    vao->init();
-    
-    ElementBufferObject* ebo = new ElementBufferObject(sizeof(indices) / sizeof(unsigned int));
-    ebo->init();
-
-    GLuint vbo1, vao1, ebo1;
-    vao1 = vao->getOpenGLVAO();
-    ebo1 = ebo->get_OpenGL_EBO();
-
-    Render::bindVAO(vao);
-
-    glGenBuffers(1, &vbo1);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, vbo1);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo1);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // XYZ data
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 8, 0);
-    glEnableVertexAttribArray(0);
-
-    // UV data
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 8, (void*)(sizeof(vertices[0])*3));
-    glEnableVertexAttribArray(1);
-
-    // normals
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]) * 8, (void*)(sizeof(vertices[0]) * 5));
-    glEnableVertexAttribArray(2);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    mesh->set_OpenGL_VBO(vbo1);
-    mesh->setVAO(vao);
-    mesh->setEBO(ebo);
-    mesh->setNumVertex(sizeof(vertices) / (sizeof(float) * 8));
-}
-
 void Render::deleteVBO(Mesh* mesh)
 {
     ElementBufferObject* ebo = mesh->getEBO();
@@ -333,4 +264,89 @@ void Render::setUniformFloatValue(Uniform* uniform, float& value)
         return;
     }
     glUniform1f(id, value);
+}
+
+void Render::setUniformTexture(Uniform* uniform, Texture* texture)
+{
+    Render::useTexture(texture);
+    GLint id = uniform->get_OpenGL_uniformID();
+    glUniform1i(id, 0);
+}
+
+FrameBuffer* Render::createFrameBuffer()
+{
+    Texture* texture = Render::createTexture();
+    
+    unsigned int width, height;
+    width = 1600;
+    height = 1200;
+    
+    FrameBuffer* frameBuffer = new FrameBuffer();
+    
+    unsigned int fbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    
+    unsigned int frameBufferTexture = texture->get_OpenGL_Texture();
+    Render::useTexture(texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
+    
+    unsigned int rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    
+    int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    
+    if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+    {
+        std::cout << "Framebuffer error:" << fboStatus << std::endl;
+    }
+    
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    Render::unUseTexture();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    
+    frameBuffer->set_openGL_FBO(fbo);
+    frameBuffer->setColorTexture(texture);
+    
+    return frameBuffer;
+}
+
+Texture* Render::createTexture()
+{
+    Texture* texture = new Texture();
+    
+    unsigned int oglTexture;
+    glGenTextures(1, &oglTexture);
+    
+    texture->set_OpenGL_Texture(oglTexture);
+    
+    return texture;
+}
+
+void Render::useTexture(Texture* texture)
+{
+    unsigned int oglTexture = texture->get_OpenGL_Texture();
+    glBindTexture(GL_TEXTURE_2D, oglTexture);
+}
+
+void Render::unUseTexture()
+{
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+}
+
+void Render::activateTexture(Texture* texture, unsigned int slot)
+{
+    glActiveTexture(GL_TEXTURE0 + slot);
+    Render::useTexture(texture);
 }

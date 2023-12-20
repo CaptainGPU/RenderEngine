@@ -16,7 +16,7 @@ TestGameObject::TestGameObject()
 m_time(.0)
 {
     m_deltaTime = .0;
-    m_mesh = loadMesh();
+    m_mesh = loadMesh("monkey.mesh");
 }
 
 void TestGameObject::update(float deltaTime)

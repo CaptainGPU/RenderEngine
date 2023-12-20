@@ -37,3 +37,8 @@ void Uniform::setFloat(float& value)
 {
     Render::setUniformFloatValue(this, value);
 }
+
+void Uniform::setTexture(Texture* texture)
+{
+    Render::setUniformTexture(this, texture);
+}

@@ -8,10 +8,13 @@
 #include "renderer.hxx"
 #include "uniform.hxx"
 
+class FrameBuffer;
+
 enum SceneRendererPasses
 {
     BASE_PASS,
     BOUND_PASS,
+    POSTPROCESSING_PASS,
     
     PASS_COUNT
 };
@@ -29,10 +32,12 @@ public:
 private:
     void renderBasePass(RenderInfo& renderInfo);
     void renderBoundPass(RenderInfo& renderInfo);
+    void renderPostProcessingPass(RenderInfo& renderInfo);
     
 private:
     bool m_renderBasePass;
     bool m_renderBoundPass;
+    bool m_renderPostProcessing;
 
     glm::vec3 m_boundColor;
 
@@ -45,5 +50,16 @@ private:
     Uniform* m_boundMatrixViewUniform;
     Uniform* m_boundMatrixProjectionUniform;
     Uniform* m_boundColorUniform;
+    
+    Uniform* m_sceneTextureUniform;
+    Uniform* m_chromaticAberrationUniform;
+    Uniform* m_sepiaUniform;
+    Uniform* m_filmGrainUniform;
+    
+    float m_chAberrPower;
+    float m_sepia;
+    float m_filmGrain;
+    
+    FrameBuffer* m_frameBuffer;
 private:
 };

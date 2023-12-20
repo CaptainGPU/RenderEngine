@@ -9,4 +9,4 @@
 
 #include <glm/glm.hpp>
 
-Mesh* loadMesh();
+Mesh* loadMesh(std::string modelName);

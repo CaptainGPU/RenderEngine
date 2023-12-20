@@ -17,6 +17,8 @@
 
 #include <glm/glm.hpp>
 
+class Texture;
+
 class Uniform
 {
 public:
@@ -28,6 +30,7 @@ public:
     void setVec3(glm::vec3& value);
     void setMatrix4x4(glm::mat4& matrix);
     void setFloat(float& value);
+    void setTexture(Texture* texture);
     
 private:
     GLint m_ogl_uniformID;

@@ -36,7 +36,7 @@ void TestScene::construct()
             gameObject->setPositionY(5.0 * dist - (float(j) * dist));
             gameObject->setPositionZ(-25.0f);
             
-            gameObject->addRotationY((6.28 / 10.0) * count);
+            //gameObject->addRotationY((6.28 / 10.0) * count);
             //gameObject->addRotationZ((6.28 / 10.0) * count);
             
             addGameObject(gameObject);
@@ -56,7 +56,7 @@ void TestScene::update(float deltaTime)
         GameObject* gameObject = getGameObject(i);
         
         //gameObject->addRotationZ(deltaTime);
-        gameObject->addRotationY(deltaTime);
+        //gameObject->addRotationY(deltaTime);
     }
 }
 

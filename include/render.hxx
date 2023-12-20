@@ -33,6 +33,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "frameBuffer.hxx"
+#include "texture.hxx"
+
 // Static class that contains basic rendering functions
 class Render
 {
@@ -50,7 +53,6 @@ public:
 	static void bindVAO(VertexAttributeObject* attributeObject);
 	static void unBindVAO();
 
-	static void createVBO(Mesh* mesh);
 	static void deleteVBO(Mesh* mesh);
     
     static void createEBO(ElementBufferObject* ebo);
@@ -67,6 +69,9 @@ public:
     static void deletePassProgramm(PassProgramm* programm);
 	static void usePassProgramm(PassProgramm* programm);
 	static void unUsePassProgramm();
+    
+    static void useFrameBuffer(FrameBuffer* frameBuffer);
+    static void unUseFrameBuffer();
 
 	static void startRenderPass(RenderPass* renderPass, RenderInfo& info);
 	static void endRenderPass(RenderPass* renderPass);
@@ -75,6 +80,14 @@ public:
 	static void setUniformVec3(Uniform* uniform, glm::vec3& value);
     static void setUniformMatrix4x4(Uniform* uniform, glm::mat4& matrix);
 	static void setUniformFloatValue(Uniform* uniform, float& value);
+    static void setUniformTexture(Uniform* uniform, Texture* texture);
+    
+    static FrameBuffer* createFrameBuffer();
+    
+    static Texture* createTexture();
+    static void useTexture(Texture* texture);
+    static void unUseTexture();
+    static void activateTexture(Texture* texure, unsigned int slot);
 
 	static void drawMesh(Mesh* mesh, RenderInfo& info);
 	static void drawMeshBound(MeshBound* bound, RenderInfo& info);

@@ -12,6 +12,10 @@ m_twoSideRender(false)
 {
 
 }
+RenderPass::~RenderPass()
+{
+    
+}
 
 void RenderPass::makeProgram(std::string vertexProgram, std::string fragmentProgram)
 {

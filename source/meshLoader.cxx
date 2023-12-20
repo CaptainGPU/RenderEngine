@@ -77,14 +77,20 @@ void generateStaticMeshBound(MeshBound* bound)
 	bound->setEBO(ebo);
 }
 
-Mesh* loadMesh()
+Mesh* loadMesh(std::string modelName)
 {
-	std::string modelFilePath = "../Models/crash_normal.mesh";
+    std::string modelFolder = "../Models/";
+    
+#if CURRENT_PLATFORM == PLATFORM_MAC
+    modelFolder = "../../Models/";
+#endif
+    
+	std::string modelFilePath = modelFolder + modelName;
 
-	if (rand() % 2)
-	{
-		modelFilePath = "../Models/monkey.mesh";
-	}
+//	if (rand() % 2)
+//	{
+//		modelFilePath = "../../Models/monkey.mesh";
+//	}
 
 	Mesh* mesh = nullptr;
 
