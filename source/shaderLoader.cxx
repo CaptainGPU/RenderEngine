@@ -83,6 +83,7 @@ void loadVertexShader(VertexShader* shader, std::string name)
 	if (!result)
 	{
 		glGetShaderInfoLog(theShader, sizeof(errorLog), nullptr, errorLog);
+		printf("Shader Name: %s\n", name.c_str());
 		printf("Error compiling the %d shader: %s\n", GL_VERTEX_SHADER, errorLog);
 
 	}
@@ -117,6 +118,7 @@ void loadFragmentShader(FragmentShader* shader, std::string name)
 	if (!result)
 	{
 		glGetShaderInfoLog(theShader, sizeof(errorLog), nullptr, errorLog);
+		printf("Shader Name: %s\n", name.c_str());
 		printf("Error compiling the %d shader: %s\n", GL_FRAGMENT_SHADER, errorLog);
 
 	}

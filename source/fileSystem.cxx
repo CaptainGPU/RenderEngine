@@ -27,7 +27,11 @@ void mountFileSystemEmscripten()
         "/shaders/WebGL/mesh.vert",
         "/shaders/WebGL/meshBound.frag",
         "/shaders/WebGL/meshBound.vert",
+        "/shaders/WebGL/fullScreen.frag",
+        "/shaders/WebGL/fullScreen.vert",
         "/Models/monkey.mesh",
+        "/Models/monkey_hd.mesh",
+        "/Models/quad.mesh",
         "/Models/crash_normal.mesh"
     };
 

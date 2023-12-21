@@ -278,8 +278,8 @@ FrameBuffer* Render::createFrameBuffer()
     Texture* texture = Render::createTexture();
     
     unsigned int width, height;
-    width = 1600;
-    height = 1200;
+    width = 800;
+    height = 600;
     
     FrameBuffer* frameBuffer = new FrameBuffer();
     

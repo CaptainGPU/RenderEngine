@@ -8,5 +8,6 @@
 #include "mesh.hxx"
 
 #include <glm/glm.hpp>
+#include <string>
 
 Mesh* loadMesh(std::string modelName);

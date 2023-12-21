@@ -233,7 +233,15 @@ void SceneRenderer::render(RenderInfo& renderInfo)
 }
 
 void SceneRenderer::drawDebugUI()
-{
+{  
+    ImGui::Begin("Post-processing settings");
+    
+    ImGui::SliderFloat("Chromatic Aberrations", &m_chAberrPower, .0f, 4.0f);
+    ImGui::SliderFloat("Sepia", &m_sepia, .0f, 1.0f);
+    ImGui::SliderFloat("Film Grain", &m_filmGrain, .0f, 1.0f);
+    
+    ImGui::End();
+
     ImGui::Begin("Scene Renderer");
     ImGui::Checkbox("Base Pass", &m_renderBasePass);
     ImGui::Checkbox("Bound Pass", &m_renderBoundPass);
@@ -242,13 +250,5 @@ void SceneRenderer::drawDebugUI()
     float* f = glm::value_ptr(m_boundColor);
     ImGui::ColorEdit3("", f);
 
-    ImGui::End();
-    
-    ImGui::Begin("Post-processing settings");
-    
-    ImGui::SliderFloat("Chromatic Aberrations", &m_chAberrPower, .0f, 4.0f);
-    ImGui::SliderFloat("Sepia", &m_sepia, .0f, 1.0f);
-    ImGui::SliderFloat("Film Grain", &m_filmGrain, .0f, 1.0f);
-    
     ImGui::End();
 }

@@ -115,7 +115,7 @@ Mesh* loadMesh(std::string modelName)
 
 	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelFilePath.c_str()))
 	{
-		printf("failLoad\n");
+		printf("failLoad: %s\n", modelFilePath.c_str());
 		return nullptr;
 	}
 
