@@ -146,11 +146,22 @@ Mesh* loadMesh(std::string modelName)
 
 				tinyobj::real_t tx = .0f;
 				tinyobj::real_t ty = .0f;
+                
+                tinyobj::real_t nx = .0f;
+                tinyobj::real_t ny = .0f;
+                tinyobj::real_t nz = .0f;
 
 				if (idx.texcoord_index >= 0) {
 					tx = attrib.texcoords[2 * size_t(idx.texcoord_index) + 0];
 					ty = attrib.texcoords[2 * size_t(idx.texcoord_index) + 1];
 				}
+                
+                if (idx.normal_index >= 0)
+                {
+                    nx = attrib.normals[3 * idx.normal_index + 0];
+                    ny = attrib.normals[3 * idx.normal_index + 1];
+                    nz = attrib.normals[3 * idx.normal_index + 2];
+                }
 
 				Vertex vertex;
 				vertex.pos = {
@@ -159,6 +170,9 @@ Mesh* loadMesh(std::string modelName)
 				vertex.uv = {
 					tx, ty
 				};
+                vertex.normal = {
+                    nx, ny, nz
+                };
 
 				bound->updateBound(vertex);
 

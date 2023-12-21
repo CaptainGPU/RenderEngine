@@ -16,7 +16,15 @@ TestGameObject::TestGameObject()
 m_time(.0)
 {
     m_deltaTime = .0;
-    m_mesh = loadMesh("monkey.mesh");
+    
+    if (rand() % 2)
+    {
+        m_mesh = loadMesh("crash_normal.mesh");
+    }
+    else
+    {
+        m_mesh = loadMesh("monkey.mesh");
+    }
 }
 
 void TestGameObject::update(float deltaTime)

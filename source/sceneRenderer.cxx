@@ -20,9 +20,9 @@ m_boundMatrixViewUniform(nullptr),
 m_boundMatrixProjectionUniform(nullptr),
 m_boundColorUniform(nullptr),
 m_sceneTextureUniform(nullptr),
-m_renderBoundPass(true),
+m_renderBoundPass(false),
 m_renderBasePass(true),
-m_renderPostProcessing(true),
+m_renderPostProcessing(false),
 m_boundColor(1.0),
 m_frameBuffer(nullptr),
 m_chromaticAberrationUniform(nullptr),
@@ -214,7 +214,7 @@ void SceneRenderer::render(RenderInfo& renderInfo)
 {
     Render::useFrameBuffer(m_frameBuffer);
     
-    Render::clearView(164.0f / 256.0f, 189.0f / 256.0f, 191.0f / 256.0f, 1.0);
+    Render::clearView(.1, .1, .1, 1.0);
 
     if (m_renderBasePass)
     {

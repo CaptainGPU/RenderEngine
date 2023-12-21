@@ -56,7 +56,7 @@ void TestScene::update(float deltaTime)
         GameObject* gameObject = getGameObject(i);
         
         //gameObject->addRotationZ(deltaTime);
-        //gameObject->addRotationY(deltaTime);
+        gameObject->addRotationY(deltaTime);
     }
 }
 
