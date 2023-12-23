@@ -55,10 +55,13 @@ private:
     Uniform* m_chromaticAberrationUniform;
     Uniform* m_sepiaUniform;
     Uniform* m_filmGrainUniform;
+    Uniform* m_postProcessTimeUniform;
+    Uniform* m_vignetteUniform;
     
     float m_chAberrPower;
     float m_sepia;
     float m_filmGrain;
+    float m_vignette;
     
     FrameBuffer* m_frameBuffer;
 private:

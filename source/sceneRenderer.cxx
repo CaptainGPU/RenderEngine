@@ -30,7 +30,9 @@ m_chAberrPower(1.0),
 m_sepiaUniform(nullptr),
 m_sepia(0.8),
 m_filmGrainUniform(nullptr),
-m_filmGrain(0.35)
+m_filmGrain(0.35),
+m_vignetteUniform(nullptr),
+m_vignette(1.0)
 {
 }
 
@@ -75,7 +77,7 @@ void SceneRenderer::init()
         
         if (pass == POSTPROCESSING_PASS)
         {
-            std::vector<std::string> uniformNames = { "u_screenTexture", "u_chromaticAberration", "u_sepia", "u_filmGrain"};
+            std::vector<std::string> uniformNames = { "u_screenTexture", "u_chromaticAberration", "u_sepia", "u_filmGrain", "u_vignette", "u_time"};
             
             renderPass = new ScreenRenderPass();
             renderPass->makeProgram("fullScreen", "fullScreen");
@@ -85,6 +87,8 @@ void SceneRenderer::init()
             m_chromaticAberrationUniform = renderPass->getUniform(uniformNames[1]);
             m_sepiaUniform = renderPass->getUniform(uniformNames[2]);
             m_filmGrainUniform = renderPass->getUniform(uniformNames[3]);
+            m_vignetteUniform = renderPass->getUniform(uniformNames[4]);
+            m_postProcessTimeUniform = renderPass->getUniform(uniformNames[5]);
         }
 
         m_renderPasses[i] = renderPass;
@@ -192,18 +196,23 @@ void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
     float aberrationPower = 0.0;
     float sepia = .0;
     float filmGrain = .0;
+    float vignette = .0;
     
     if (m_renderPostProcessing)
     {
         aberrationPower = m_chAberrPower;
         sepia = m_sepia;
         filmGrain = m_filmGrain;
+        vignette = m_vignette;
     }
     
     m_chromaticAberrationUniform->setFloat(aberrationPower);
     m_sepiaUniform->setFloat(sepia);
     m_filmGrainUniform->setFloat(filmGrain);
+    m_vignetteUniform->setFloat(vignette);
     
+    float time = Engine::get()->getGameTime();
+    m_postProcessTimeUniform->setFloat(time);
     
     pass->draw(renderInfo);
     
@@ -239,6 +248,7 @@ void SceneRenderer::drawDebugUI()
     ImGui::SliderFloat("Chromatic Aberrations", &m_chAberrPower, .0f, 4.0f);
     ImGui::SliderFloat("Sepia", &m_sepia, .0f, 1.0f);
     ImGui::SliderFloat("Film Grain", &m_filmGrain, .0f, 1.0f);
+    ImGui::SliderFloat("Vignette", &m_vignette, .0f, 2.0f);
     
     ImGui::End();
 

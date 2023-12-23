@@ -4,6 +4,8 @@ uniform sampler2D u_screenTexture;
 uniform float u_chromaticAberration;
 uniform float u_sepia;
 uniform float u_filmGrain;
+uniform float u_time;
+uniform float u_vignette;
 
 in vec2 v_texcoord;
 
@@ -82,6 +84,25 @@ float grainFromUV(vec2 uv, float intesity, float anim)
 	return grain;
 }
 
+// Функція обчислення маски віньєтки
+vec3 computeVignetteMask(vec2 uv, float intesity)
+{ 
+    // Зсуваємо центр uv-координат у центр зображення
+    uv = (uv - .5) * (800. / 600.) * 2.;
+    // Помножуємо uv-координат на інтенсивність
+    uv *= intesity;
+
+    // Відстань до центру зображення
+    float distance = dot(uv, uv) + 1.0;
+
+    // Коефіцієнт згасання
+    float koef = 1.0 / (distance * distance);
+
+    // Маска віньєтки
+    vec3 mask = vec3(koef);
+    return mask;
+}
+
 void main()
 {
     // Позиція фокуса
@@ -108,10 +129,14 @@ void main()
     vec3 sepiaColor = sepia(chromaticAberration, u_sepia);
 
      // Обчислюємо зернистість
-    float grain = grainFromUV(uv, u_filmGrain, .0);
+    float grain = grainFromUV(uv, u_filmGrain, u_time);
+
+    vec3 mask = computeVignetteMask(uv, u_vignette);
 
     // Додаємо зернистість до зображення
     sepiaColor += grain;
+
+    sepiaColor *= mask;
 
     vec3 finalColor = sepiaColor;
     color = vec4(finalColor, 1.0f);
