@@ -22,17 +22,34 @@ m_boundColorUniform(nullptr),
 m_sceneTextureUniform(nullptr),
 m_renderBoundPass(false),
 m_renderBasePass(true),
-m_renderPostProcessing(false),
+m_renderPostProcessing(true),
 m_boundColor(1.0),
 m_frameBuffer(nullptr),
 m_chromaticAberrationUniform(nullptr),
-m_chAberrPower(1.0),
+m_chAberrPower(0.0),
 m_sepiaUniform(nullptr),
-m_sepia(0.8),
+m_sepia(0.0),
 m_filmGrainUniform(nullptr),
-m_filmGrain(0.35),
+m_filmGrain(0.0),
 m_vignetteUniform(nullptr),
-m_vignette(1.0)
+m_vignette(0.0),
+m_postProcessGammaUniform(nullptr),
+m_gamma(2.2),
+m_basePassGammaUniform(nullptr),
+m_basePassAlbedoUniform(nullptr),
+m_basePassAlbedo(glm::vec3(1.0)),
+m_baseLightColorUniform(nullptr),
+m_basePassLightColor(glm::vec3(1.0)),
+m_basePassAmbientColorUniform(nullptr),
+m_basePassAmbientColor(glm::vec3(1.0)),
+m_basePasSmoothnessUniform(nullptr),
+m_basePassSmoothness(0.214),
+m_basePassAmbientStrengthUniform(nullptr),
+m_basePassAmbientStrength(0.1),
+m_basePassSpecularStrengthUniform(nullptr),
+m_basePassSpecularStrength(0.5),
+m_basePassCameraPosition(nullptr),
+m_sceneColor(glm::vec3(.1))
 {
 }
 
@@ -49,7 +66,7 @@ void SceneRenderer::init()
 
         if (pass == BASE_PASS)
         {
-            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time"};
+            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time", "u_gamma", "u_albedo", "u_lightColor", "u_ambientColor", "u_smoothness", "u_ambientStrength", "u_specularStrength", "u_cameraPosition"};
             
             renderPass = new RenderPass();
             renderPass->makeProgram("mesh", "mesh");
@@ -59,6 +76,14 @@ void SceneRenderer::init()
             m_matrixViewUniform = renderPass->getUniform(uniformNames[1]);
             m_matrixProjectionUniform = renderPass->getUniform(uniformNames[2]);
             m_timeUniform = renderPass->getUniform(uniformNames[3]);
+            m_basePassGammaUniform = renderPass->getUniform(uniformNames[4]);
+            m_basePassAlbedoUniform = renderPass->getUniform(uniformNames[5]);
+            m_baseLightColorUniform = renderPass->getUniform(uniformNames[6]);
+            m_basePassAmbientColorUniform = renderPass->getUniform(uniformNames[7]);
+            m_basePasSmoothnessUniform = renderPass->getUniform(uniformNames[8]);
+            m_basePassAmbientStrengthUniform = renderPass->getUniform(uniformNames[9]);
+            m_basePassSpecularStrengthUniform = renderPass->getUniform(uniformNames[10]);
+            m_basePassCameraPosition = renderPass->getUniform(uniformNames[11]);
         }
 
         if (pass == BOUND_PASS)
@@ -77,7 +102,7 @@ void SceneRenderer::init()
         
         if (pass == POSTPROCESSING_PASS)
         {
-            std::vector<std::string> uniformNames = { "u_screenTexture", "u_chromaticAberration", "u_sepia", "u_filmGrain", "u_vignette", "u_time"};
+            std::vector<std::string> uniformNames = { "u_texture_0", "u_chromaticAberration", "u_sepia", "u_filmGrain", "u_vignette", "u_time", "u_gamma"};
             
             renderPass = new ScreenRenderPass();
             renderPass->makeProgram("fullScreen", "fullScreen");
@@ -89,6 +114,7 @@ void SceneRenderer::init()
             m_filmGrainUniform = renderPass->getUniform(uniformNames[3]);
             m_vignetteUniform = renderPass->getUniform(uniformNames[4]);
             m_postProcessTimeUniform = renderPass->getUniform(uniformNames[5]);
+            m_postProcessGammaUniform = renderPass->getUniform(uniformNames[6]);
         }
 
         m_renderPasses[i] = renderPass;
@@ -124,6 +150,17 @@ void SceneRenderer::renderBasePass(RenderInfo& renderInfo)
 
     float time = Engine::get()->getGameTime();
     m_timeUniform->setFloat(time);
+
+    glm::vec3 cameraPosition = camera->getPosition();
+
+    m_basePassGammaUniform->setFloat(m_gamma);
+    m_basePassAlbedoUniform->setVec3(m_basePassAlbedo);
+    m_baseLightColorUniform->setVec3(m_basePassLightColor);
+    m_basePassAmbientColorUniform->setVec3(m_basePassAmbientColor);
+    m_basePasSmoothnessUniform->setFloat(m_basePassSmoothness);
+    m_basePassAmbientStrengthUniform->setFloat(m_basePassAmbientStrength);
+    m_basePassSpecularStrengthUniform->setFloat(m_basePassSpecularStrength);
+    m_basePassCameraPosition->setVec3(cameraPosition);
 
     for (size_t i = 0; i < numGameObject; i++)
     {
@@ -197,6 +234,7 @@ void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
     float sepia = .0;
     float filmGrain = .0;
     float vignette = .0;
+    float gamma = 1.0;
     
     if (m_renderPostProcessing)
     {
@@ -204,12 +242,14 @@ void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
         sepia = m_sepia;
         filmGrain = m_filmGrain;
         vignette = m_vignette;
+        gamma = m_gamma;
     }
     
     m_chromaticAberrationUniform->setFloat(aberrationPower);
     m_sepiaUniform->setFloat(sepia);
     m_filmGrainUniform->setFloat(filmGrain);
     m_vignetteUniform->setFloat(vignette);
+    m_postProcessGammaUniform->setFloat(gamma);
     
     float time = Engine::get()->getGameTime();
     m_postProcessTimeUniform->setFloat(time);
@@ -222,8 +262,14 @@ void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
 void SceneRenderer::render(RenderInfo& renderInfo)
 {
     Render::useFrameBuffer(m_frameBuffer);
+
+    float gamma = m_gamma;
+
+    //float black = pow(0.1, gamma);
+
+    glm::vec3 sceneColor = glm::pow(m_sceneColor, glm::vec3(gamma));
     
-    Render::clearView(.1, .1, .1, 1.0);
+    Render::clearView(sceneColor.r, sceneColor.g, sceneColor.b, 1.0);
 
     if (m_renderBasePass)
     {
@@ -249,6 +295,7 @@ void SceneRenderer::drawDebugUI()
     ImGui::SliderFloat("Sepia", &m_sepia, .0f, 1.0f);
     ImGui::SliderFloat("Film Grain", &m_filmGrain, .0f, 1.0f);
     ImGui::SliderFloat("Vignette", &m_vignette, .0f, 2.0f);
+    ImGui::SliderFloat("Gamma", &m_gamma, 1.0f, 3.0f);
     
     ImGui::End();
 
@@ -258,7 +305,24 @@ void SceneRenderer::drawDebugUI()
     ImGui::Checkbox("Post-Processing Pass", &m_renderPostProcessing);
 
     float* f = glm::value_ptr(m_boundColor);
-    ImGui::ColorEdit3("", f);
+    ImGui::ColorEdit3("bound", f);
+
+    f = glm::value_ptr(m_sceneColor);
+    ImGui::ColorEdit3("scene color", f);
+
+    f = glm::value_ptr(m_basePassAlbedo);
+    ImGui::ColorEdit3("albedo", f);
+
+    f = glm::value_ptr(m_basePassLightColor);
+    ImGui::ColorEdit3("light color", f);
+
+    f = glm::value_ptr(m_basePassAmbientColor);
+    ImGui::ColorEdit3("ambient color", f);
+
+    ImGui::SliderFloat("Ambient Strength", &m_basePassAmbientStrength, .0f, 1.0f);
+    ImGui::SliderFloat("Specular Strength", &m_basePassSpecularStrength, .0f, 1.0f);
+
+    ImGui::SliderFloat("smoothness", &m_basePassSmoothness, .001f, 1.0f);
 
     ImGui::End();
 }

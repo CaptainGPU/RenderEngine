@@ -23,7 +23,7 @@ m_time(.0)
     }
     else
     {
-        m_mesh = loadMesh("monkey.mesh");
+        m_mesh = loadMesh("monkey_hd.mesh");
     }
 }
 

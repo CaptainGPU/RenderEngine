@@ -23,7 +23,7 @@ m_renderingObject(true)
 
 void GameObject::startPlay()
 {
-    printf("GameObject: %s, start play!\n", m_name.c_str());
+    //printf("GameObject: %s, start play!\n", m_name.c_str());
 }
 
 void GameObject::endPlay()

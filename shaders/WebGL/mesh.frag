@@ -3,68 +3,50 @@
 precision highp float;
 
 in vec3 v_normal;
+in vec3 v_position;
 in vec3 vertexColor;
 
 out vec4 color;
 uniform float u_time;
+uniform float u_gamma;
+uniform vec3 u_albedo;
+uniform vec3 u_lightColor;
+uniform vec3 u_ambientColor;
+uniform float u_smoothness;
+uniform float u_ambientStrength;
+uniform float u_specularStrength;
+uniform vec3 u_cameraPosition;
 
-// Позиція камери
-vec3 cameraPosition = vec3(.0, 0, 1.0);
-// Позиція джерела світла
-vec3 lightPosition = vec3(1.0, 1.0, 1.0);
-
-vec3 warmColor = vec3(.4, .4, .0); // "Теплий колір"
-vec3 coolColor = vec3(.0, .0, .4); // "Холодний колір"
-float warm = 1.0; // Коефіцієнт "Теплого кольору"
-float cool = 1.0; // Коефіцієнт "Холодного кольору"
-vec3 albedo = vec3(.4, .0, .0); // Альбедо-колір моделі
-float specularCoef = 0.3; // Коефіцієнт дзеркального відблиску
+const vec3 lightPosition = vec3(.0);
 
 void main()
 {
-    // фінальний колір пикселя, обчислений у шейдері
-    vec3 finalColor = vec3(.0);
+    vec3 objectColor = pow(u_albedo, vec3(u_gamma));
 
-    // Нормалізуємо напрямок до джерела світла
-    vec3 lightDirection = normalize(lightPosition);
-    // Нормалізуємо нормаль поверхні
-    vec3 nNormal = normalize(v_normal.xyz);
-    // Нормалізуємо напрямок до камери
-    vec3 viewDirection = normalize(cameraPosition);
+    vec3 lightColor = pow(u_lightColor, vec3(u_gamma));
+    vec3 ambientColor = pow(u_ambientColor, vec3(u_gamma));
 
-    // Отримуємо "теплий колір" градіенту
-    vec3 kWarm = warmColor + albedo * warm;
-    
-    // Отримуємо "холодний колір" градіенту
-    vec3 kCool = coolColor + albedo * cool;
+    // ambient
+    float ambientStrength = u_ambientStrength;
+    vec3 ambient = ambientStrength * ambientColor;
+  	
+    // diffuse 
+    vec3 norm = normalize(v_normal);
+    vec3 lightDir = normalize(lightPosition - v_position);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * lightColor;
 
-    // Обчислюємо alpha-значення градієнта
-    float alpha = (1.0 + dot(lightDirection, nNormal)) * 0.5;
-    // Альтернативне (дифузне) alpha-значення градієнта
-    // alpha = dot(lightDirection, nNormal);
+    // specular
+    float specularStrength = u_specularStrength;
+    vec3 viewDir = normalize(u_cameraPosition - v_position);
+    vec3 reflectDir = reflect(-lightDir, norm);
 
-    // Обчислюємо gooch-градієнт
-    vec3 gooch = (alpha * kWarm) + ((1.0 - alpha) * kCool);
+    float specPos = mix(2.0, 512.0, u_smoothness);
 
-    // Отримуємо віддзеркалений від поверхні моделі вектор 
-    // від джерела світла
-    vec3 reflection = normalize(reflect(-lightDirection, nNormal));
-    
-    // Обчислюємо значення specular освітлення,
-    // використовуючи скалярне множення вектора камери 
-    // на дзеркально відбитий вектор від джерела світла
-    float specular = max(dot(reflection, viewDirection), .0);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), specPos);
+    vec3 specular = specularStrength * spec * lightColor;  
 
-    // Робимо відблиск більш глянцевим, зводячи значення дзеркального
-    // освітлення в ступінь 128
-    specular = pow(specular, 128.0);
+    vec3 result = (ambient + diffuse + specular) * objectColor;
 
-    // Помножуємо значення дзеркального освітлення на коефіцієнт
-    specular *= specularCoef;
-
-    // Фінальний колір пікселя = 
-    // gooch + значення дзеркального освітлення
-    finalColor = gooch + specular;
-
-    color = vec4(finalColor, 1.0);
+    color = vec4(result, 1.0);
 }  

@@ -1,11 +1,12 @@
 #version 330
 
-uniform sampler2D u_screenTexture;
+uniform sampler2D u_texture_0;
 uniform float u_chromaticAberration;
 uniform float u_sepia;
 uniform float u_filmGrain;
 uniform float u_time;
 uniform float u_vignette;
+uniform float u_gamma;
 
 in vec2 v_texcoord;
 
@@ -117,9 +118,9 @@ void main()
     vec2 uvBlue = getOffsetUV(center_pos, uv, .01 * u_chromaticAberration);
 
     // Вибираемо RBG значення з текстури
-    float r = texture(u_screenTexture, uvRed).r;
-    float g = texture(u_screenTexture, uvGreen).g;
-    float b = texture(u_screenTexture, uvBlue).b;
+    float r = texture(u_texture_0, uvRed).r;
+    float g = texture(u_texture_0, uvGreen).g;
+    float b = texture(u_texture_0, uvBlue).b;
 
     // Хроматична аберація
     vec3 chromaticAberration = vec3(r, g, b);
@@ -139,5 +140,7 @@ void main()
     sepiaColor *= mask;
 
     vec3 finalColor = sepiaColor;
+    finalColor = pow(finalColor, vec3(1.0 / u_gamma));
+
     color = vec4(finalColor, 1.0f);
 }

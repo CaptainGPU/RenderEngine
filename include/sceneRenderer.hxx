@@ -45,6 +45,7 @@ private:
     Uniform* m_matrixViewUniform;
     Uniform* m_matrixProjectionUniform;
     Uniform* m_timeUniform;
+    Uniform* m_basePassGammaUniform;
 
     Uniform* m_boundMatrixModelUniform;
     Uniform* m_boundMatrixViewUniform;
@@ -57,11 +58,30 @@ private:
     Uniform* m_filmGrainUniform;
     Uniform* m_postProcessTimeUniform;
     Uniform* m_vignetteUniform;
+    Uniform* m_postProcessGammaUniform;
+
+    Uniform* m_basePassAlbedoUniform;
+    Uniform* m_baseLightColorUniform;
+    Uniform* m_basePassAmbientColorUniform;
+    Uniform* m_basePasSmoothnessUniform;
+    Uniform* m_basePassAmbientStrengthUniform;
+    Uniform* m_basePassSpecularStrengthUniform;
+    Uniform* m_basePassCameraPosition;
+
+    glm::vec3 m_basePassAlbedo;
+    glm::vec3 m_basePassLightColor;
+    glm::vec3 m_basePassAmbientColor;
+    float m_basePassSmoothness;
+    float m_basePassAmbientStrength;
+    float m_basePassSpecularStrength;
+    glm::vec3 m_sceneColor;
+
     
     float m_chAberrPower;
     float m_sepia;
     float m_filmGrain;
     float m_vignette;
+    float m_gamma;
     
     FrameBuffer* m_frameBuffer;
 private:

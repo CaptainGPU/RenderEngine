@@ -1,11 +1,14 @@
 #version 300 es
 
-precision highp float;
+precision mediump float;
 
-uniform sampler2D u_screenTexture;
+uniform sampler2D u_texture_0;
 uniform float u_chromaticAberration;
 uniform float u_sepia;
 uniform float u_filmGrain;
+uniform float u_time;
+uniform float u_vignette;
+uniform float u_gamma;
 
 in vec2 v_texcoord;
 
@@ -84,6 +87,25 @@ float grainFromUV(vec2 uv, float intesity, float anim)
 	return grain;
 }
 
+// Функція обчислення маски віньєтки
+vec3 computeVignetteMask(vec2 uv, float intesity)
+{ 
+    // Зсуваємо центр uv-координат у центр зображення
+    uv = (uv - .5) * (800. / 600.) * 2.;
+    // Помножуємо uv-координат на інтенсивність
+    uv *= intesity;
+
+    // Відстань до центру зображення
+    float distance = dot(uv, uv) + 1.0;
+
+    // Коефіцієнт згасання
+    float koef = 1.0 / (distance * distance);
+
+    // Маска віньєтки
+    vec3 mask = vec3(koef);
+    return mask;
+}
+
 void main()
 {
     // Позиція фокуса
@@ -98,9 +120,9 @@ void main()
     vec2 uvBlue = getOffsetUV(center_pos, uv, .01 * u_chromaticAberration);
 
     // Вибираемо RBG значення з текстури
-    float r = texture(u_screenTexture, uvRed).r;
-    float g = texture(u_screenTexture, uvGreen).g;
-    float b = texture(u_screenTexture, uvBlue).b;
+    float r = texture(u_texture_0, uvRed).r;
+    float g = texture(u_texture_0, uvGreen).g;
+    float b = texture(u_texture_0, uvBlue).b;
 
     // Хроматична аберація
     vec3 chromaticAberration = vec3(r, g, b);
@@ -110,11 +132,17 @@ void main()
     vec3 sepiaColor = sepia(chromaticAberration, u_sepia);
 
      // Обчислюємо зернистість
-    float grain = grainFromUV(uv, u_filmGrain, .0);
+    float grain = grainFromUV(uv, u_filmGrain, u_time);
+
+    vec3 mask = computeVignetteMask(uv, u_vignette);
 
     // Додаємо зернистість до зображення
     sepiaColor += grain;
 
+    sepiaColor *= mask;
+
     vec3 finalColor = sepiaColor;
+    finalColor = pow(finalColor, vec3(1.0 / u_gamma));
+
     color = vec4(finalColor, 1.0f);
 }
