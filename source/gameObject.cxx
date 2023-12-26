@@ -10,15 +10,15 @@ const float toRadians = 3.14159265f / 180.0f;
 
 GameObject::GameObject(std::string name):
 m_isDirtyTransform(true),
-m_renderingObject(true)
+m_renderingObject(true),
+m_mesh(nullptr),
+m_lightComponent(nullptr)
 {
     m_name = name;
     
     m_position = glm::vec3(.0);
     m_scale = glm::vec3(1.);
     m_rotation = glm::vec3(.0);
-
-    m_mesh = nullptr;
 }
 
 void GameObject::startPlay()
@@ -142,4 +142,11 @@ void GameObject::addRotationZ(const float& z)
     }
     
     m_isDirtyTransform = true;
+}
+
+// Light staff
+
+LightComponent* GameObject::getLightComponent()
+{
+    return m_lightComponent;
 }

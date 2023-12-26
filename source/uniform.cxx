@@ -38,6 +38,11 @@ void Uniform::setFloat(float& value)
     Render::setUniformFloatValue(this, value);
 }
 
+void Uniform::setInt(int& value)
+{
+    Render::setUniformIntValue(this, value);
+}
+
 void Uniform::setTexture(Texture* texture)
 {
     Render::setUniformTexture(this, texture);

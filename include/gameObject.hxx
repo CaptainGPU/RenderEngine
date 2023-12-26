@@ -10,6 +10,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <string>
 
+class LightComponent;
+
 class GameObject
 {
 public:
@@ -44,6 +46,10 @@ public:
     void addRotationY(const float& y);
     void addRotationZ(const float& z);
     
+    // Light staff
+    
+    LightComponent* getLightComponent();
+    
 private:
     glm::vec3 m_position;
     glm::vec3 m_scale;
@@ -55,6 +61,9 @@ private:
     
     bool m_isDirtyTransform;
     bool m_renderingObject;
+    
+protected:
+    LightComponent* m_lightComponent;
 
 protected:
     Mesh* m_mesh;

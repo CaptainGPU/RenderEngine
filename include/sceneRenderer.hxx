@@ -8,12 +8,17 @@
 #include "renderer.hxx"
 #include "uniform.hxx"
 
+#define MAX_POINT_LIGHTS 4
+
 class FrameBuffer;
+class Mesh;
+struct PointLightData;
 
 enum SceneRendererPasses
 {
     BASE_PASS,
     BOUND_PASS,
+    LIGHT_OBJECTS_PASS,
     POSTPROCESSING_PASS,
     
     PASS_COUNT
@@ -30,13 +35,17 @@ public:
     void drawDebugUI() override;
 
 private:
-    void renderBasePass(RenderInfo& renderInfo);
+    void renderBasePass(std::vector<PointLightData>& lights, RenderInfo& renderInfo);
     void renderBoundPass(RenderInfo& renderInfo);
+    void renderLightObjectsPass(std::vector<PointLightData>& lights, RenderInfo& renderInfo);
     void renderPostProcessingPass(RenderInfo& renderInfo);
+    
+    void constructPointLightsData(std::vector<PointLightData>& lights);
     
 private:
     bool m_renderBasePass;
     bool m_renderBoundPass;
+    bool m_renderLightObjectsPass;
     bool m_renderPostProcessing;
 
     glm::vec3 m_boundColor;
@@ -51,6 +60,11 @@ private:
     Uniform* m_boundMatrixViewUniform;
     Uniform* m_boundMatrixProjectionUniform;
     Uniform* m_boundColorUniform;
+    
+    Uniform* m_lightObjectMatrixModelUniform;
+    Uniform* m_lightObjectMatrixViewUniform;
+    Uniform* m_lightObjectMatrixProjectionUniform;
+    Uniform* m_lightObjectColorUniform;
     
     Uniform* m_sceneTextureUniform;
     Uniform* m_chromaticAberrationUniform;
@@ -74,6 +88,9 @@ private:
     float m_basePassSmoothness;
     float m_basePassAmbientStrength;
     float m_basePassSpecularStrength;
+    Uniform* m_basePassPointLightColor[MAX_POINT_LIGHTS];
+    Uniform* m_basePassPointLightsPosition[MAX_POINT_LIGHTS];
+    Uniform* m_basePassPointLightsCount;
     glm::vec3 m_sceneColor;
 
     
@@ -84,5 +101,6 @@ private:
     float m_gamma;
     
     FrameBuffer* m_frameBuffer;
-private:
+    
+    Mesh* m_lightObjectMesh;
 };

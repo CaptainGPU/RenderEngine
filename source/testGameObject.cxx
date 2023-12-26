@@ -11,20 +11,13 @@
 #include "meshLoader.hxx"
 
 
-TestGameObject::TestGameObject()
+TestGameObject::TestGameObject(std::string modelName)
 :GameObject("TestGameObject"),
 m_time(.0)
 {
     m_deltaTime = .0;
     
-    if (rand() % 2)
-    {
-        m_mesh = loadMesh("crash_normal.mesh");
-    }
-    else
-    {
-        m_mesh = loadMesh("monkey_hd.mesh");
-    }
+    m_mesh = loadMesh(modelName);
 }
 
 void TestGameObject::update(float deltaTime)

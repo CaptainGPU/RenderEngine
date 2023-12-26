@@ -7,6 +7,8 @@
 #include "render.hxx"
 #include "imgui.h"
 #include "screenRenderPass.hxx"
+#include "pointLightGameObject.hxx"
+#include "meshLoader.hxx"
 #include <glm/gtc/type_ptr.hpp>
 
 SceneRenderer::SceneRenderer()
@@ -22,6 +24,7 @@ m_boundColorUniform(nullptr),
 m_sceneTextureUniform(nullptr),
 m_renderBoundPass(false),
 m_renderBasePass(true),
+m_renderLightObjectsPass(true),
 m_renderPostProcessing(true),
 m_boundColor(1.0),
 m_frameBuffer(nullptr),
@@ -49,8 +52,23 @@ m_basePassAmbientStrength(0.1),
 m_basePassSpecularStrengthUniform(nullptr),
 m_basePassSpecularStrength(0.5),
 m_basePassCameraPosition(nullptr),
-m_sceneColor(glm::vec3(.1))
+m_sceneColor(glm::vec3(.0))
 {
+    // Base PASS
+    for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
+    {
+        m_basePassPointLightColor[i] = nullptr;
+        m_basePassPointLightsPosition[i] = nullptr;
+    }
+    m_basePassPointLightsCount = nullptr;
+    
+    // Light objects PASS
+    m_lightObjectMesh = nullptr;
+    
+    m_lightObjectMatrixModelUniform = nullptr;
+    m_lightObjectMatrixViewUniform = nullptr;
+    m_lightObjectMatrixProjectionUniform = nullptr;
+    m_lightObjectColorUniform = nullptr;
 }
 
 void SceneRenderer::init()
@@ -66,7 +84,20 @@ void SceneRenderer::init()
 
         if (pass == BASE_PASS)
         {
-            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time", "u_gamma", "u_albedo", "u_lightColor", "u_ambientColor", "u_smoothness", "u_ambientStrength", "u_specularStrength", "u_cameraPosition"};
+            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time", "u_gamma", "u_albedo", "u_lightColor", "u_ambientColor", "u_smoothness", "u_ambientStrength", "u_specularStrength", "u_cameraPosition", "u_pointLightsCount"};
+            
+            for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
+            {
+                char locBuff[100] = { '\0' };
+                
+                snprintf(locBuff, sizeof(locBuff), "u_pointLights[%zu].color", i);
+                std::string name = std::string(locBuff);
+                uniformNames.push_back(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_pointLights[%zu].position", i);
+                name = std::string(locBuff);
+                uniformNames.push_back(name);
+            }
             
             renderPass = new RenderPass();
             renderPass->makeProgram("mesh", "mesh");
@@ -84,6 +115,20 @@ void SceneRenderer::init()
             m_basePassAmbientStrengthUniform = renderPass->getUniform(uniformNames[9]);
             m_basePassSpecularStrengthUniform = renderPass->getUniform(uniformNames[10]);
             m_basePassCameraPosition = renderPass->getUniform(uniformNames[11]);
+            m_basePassPointLightsCount = renderPass->getUniform(uniformNames[12]);
+            
+            for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
+            {
+                char locBuff[100] = { '\0' };
+                
+                snprintf(locBuff, sizeof(locBuff), "u_pointLights[%zu].color", i);
+                std::string name = std::string(locBuff);
+                m_basePassPointLightColor[i] = renderPass->getUniform(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_pointLights[%zu].position", i);
+                name = std::string(locBuff);
+                m_basePassPointLightsPosition[i] = renderPass->getUniform(name);
+            }
         }
 
         if (pass == BOUND_PASS)
@@ -98,6 +143,20 @@ void SceneRenderer::init()
             m_boundMatrixViewUniform = renderPass->getUniform(uniformNames[1]);
             m_boundMatrixProjectionUniform = renderPass->getUniform(uniformNames[2]);
             m_boundColorUniform = renderPass->getUniform(uniformNames[3]);
+        }
+        
+        if (pass == LIGHT_OBJECTS_PASS)
+        {
+            std::vector<std::string> uniformNames = { "u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "u_color" };
+            
+            renderPass = new RenderPass();
+            renderPass->makeProgram("light", "light");
+            renderPass->registerUniforms(uniformNames);
+            
+            m_lightObjectMatrixModelUniform = renderPass->getUniform(uniformNames[0]);
+            m_lightObjectMatrixViewUniform = renderPass->getUniform(uniformNames[1]);
+            m_lightObjectMatrixProjectionUniform = renderPass->getUniform(uniformNames[2]);
+            m_lightObjectColorUniform =renderPass->getUniform(uniformNames[3]);
         }
         
         if (pass == POSTPROCESSING_PASS)
@@ -121,8 +180,7 @@ void SceneRenderer::init()
     }
     
     m_frameBuffer = Render::createFrameBuffer();
-
-    //Render::init();
+    m_lightObjectMesh = loadMesh("light.mesh");
 }
 
 void SceneRenderer::finish()
@@ -130,7 +188,7 @@ void SceneRenderer::finish()
     Renderer::finish();
 }
 
-void SceneRenderer::renderBasePass(RenderInfo& renderInfo)
+void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, RenderInfo& renderInfo)
 {
     SceneManager* manager = Engine::get()->getSceneManager();
     Scene* scene = manager->getScene();
@@ -161,6 +219,21 @@ void SceneRenderer::renderBasePass(RenderInfo& renderInfo)
     m_basePassAmbientStrengthUniform->setFloat(m_basePassAmbientStrength);
     m_basePassSpecularStrengthUniform->setFloat(m_basePassSpecularStrength);
     m_basePassCameraPosition->setVec3(cameraPosition);
+    
+    int lightsCount = lights.size();
+    m_basePassPointLightsCount->setInt(lightsCount);
+    
+    glm::vec3 lColor = glm::vec3(1.0, .0, .0);
+    
+    //m_basePassPointLightColor[0]->setVec3(lColor);
+    
+    for (size_t i = 0; i < lightsCount; i++)
+    {
+        PointLightData data = lights[i];
+        m_basePassPointLightColor[i]->setVec3(data.color);
+        m_basePassPointLightsPosition[i]->setVec3(data.position);
+    }
+    
 
     for (size_t i = 0; i < numGameObject; i++)
     {
@@ -220,6 +293,33 @@ void SceneRenderer::renderBoundPass(RenderInfo& renderInfo)
     Render::endRenderPass(renderPass);
 }
 
+void SceneRenderer::renderLightObjectsPass(std::vector<PointLightData>& lights, RenderInfo& renderInfo)
+{
+    SceneManager* manager = Engine::get()->getSceneManager();
+    Scene* scene = manager->getScene();
+    Camera* camera = scene->getCamera();
+    
+    RenderPass* renderPass = m_renderPasses[SceneRendererPasses::LIGHT_OBJECTS_PASS];
+    
+    Render::startRenderPass(renderPass, renderInfo);
+    
+    glm::mat4& viewMatrix = camera->getViewMatrix();
+    m_lightObjectMatrixViewUniform->setMatrix4x4(viewMatrix);
+
+    glm::mat4& projection_matrix = camera->getProjectionMatrix();
+    m_lightObjectMatrixProjectionUniform->setMatrix4x4(projection_matrix);
+    
+    for (PointLightData& data : lights)
+    {
+        m_lightObjectMatrixModelUniform->setMatrix4x4(data.model);
+        m_lightObjectColorUniform->setVec3(data.color);
+        
+        Render::drawMesh(m_lightObjectMesh, renderInfo);
+    }
+    
+    Render::endRenderPass(renderPass);
+}
+
 void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
 {
     RenderPass* renderPass = m_renderPasses[SceneRendererPasses::POSTPROCESSING_PASS];
@@ -261,11 +361,12 @@ void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
 
 void SceneRenderer::render(RenderInfo& renderInfo)
 {
+    std::vector<PointLightData> lights;
+    constructPointLightsData(lights);
+    
     Render::useFrameBuffer(m_frameBuffer);
 
     float gamma = m_gamma;
-
-    //float black = pow(0.1, gamma);
 
     glm::vec3 sceneColor = glm::pow(m_sceneColor, glm::vec3(gamma));
     
@@ -273,13 +374,19 @@ void SceneRenderer::render(RenderInfo& renderInfo)
 
     if (m_renderBasePass)
     {
-        renderBasePass(renderInfo);
+        renderBasePass(lights, renderInfo);
     }
 
     if (m_renderBoundPass)
     {
         renderBoundPass(renderInfo);
     }
+    
+    if (m_renderLightObjectsPass)
+    {
+        renderLightObjectsPass(lights, renderInfo);
+    }
+    
     Render::unUseFrameBuffer();
     
     Render::clearView(164.0f / 256.0f, 189.0f / 256.0f, 191.0f / 256.0f, 1.0);
@@ -302,6 +409,7 @@ void SceneRenderer::drawDebugUI()
     ImGui::Begin("Scene Renderer");
     ImGui::Checkbox("Base Pass", &m_renderBasePass);
     ImGui::Checkbox("Bound Pass", &m_renderBoundPass);
+    ImGui::Checkbox("Show Lights", &m_renderLightObjectsPass);
     ImGui::Checkbox("Post-Processing Pass", &m_renderPostProcessing);
 
     float* f = glm::value_ptr(m_boundColor);
@@ -325,4 +433,30 @@ void SceneRenderer::drawDebugUI()
     ImGui::SliderFloat("smoothness", &m_basePassSmoothness, .001f, 1.0f);
 
     ImGui::End();
+}
+
+void SceneRenderer::constructPointLightsData(std::vector<PointLightData>& lights)
+{
+    SceneManager* manager = Engine::get()->getSceneManager();
+    Scene* scene = manager->getScene();
+
+    size_t numGameObject = scene->getGameObjectCount();
+    
+    for (size_t i = 0; i < numGameObject; i++)
+    {
+        GameObject* object = scene->getGameObject(i);
+        if (!object)
+        {
+            continue;
+        }
+        
+        PoinLightGameObject* pointLight = dynamic_cast<PoinLightGameObject*>(object);
+        if (!pointLight)
+        {
+            continue;
+        }
+        
+        PointLightData data = pointLight->getData();
+        lights.push_back(data);
+    }
 }

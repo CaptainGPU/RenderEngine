@@ -266,6 +266,16 @@ void Render::setUniformFloatValue(Uniform* uniform, float& value)
     glUniform1f(id, value);
 }
 
+void Render::setUniformIntValue(Uniform* uniform, int& value)
+{
+    GLint id = uniform->get_OpenGL_uniformID();
+    if (id < 0)
+    {
+        return;
+    }
+    glUniform1i(id, value);
+}
+
 void Render::setUniformTexture(Uniform* uniform, Texture* texture)
 {
     Render::useTexture(texture);
@@ -287,9 +297,20 @@ FrameBuffer* Render::createFrameBuffer()
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     
+    unsigned int format = GL_RGB16F;
+    
+#if CURRENT_PLATFORM == PLATFORM_MAC
+    width *= 2;
+    height *= 2;
+#endif
+    
+#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
+    format = GL_RGB;
+#endif
+    
     unsigned int frameBufferTexture = texture->get_OpenGL_Texture();
     Render::useTexture(texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

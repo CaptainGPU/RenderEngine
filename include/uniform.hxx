@@ -30,6 +30,7 @@ public:
     void setVec3(glm::vec3& value);
     void setMatrix4x4(glm::mat4& matrix);
     void setFloat(float& value);
+    void setInt(int& value);
     void setTexture(Texture* texture);
     
 private:

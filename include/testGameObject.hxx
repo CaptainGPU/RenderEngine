@@ -9,7 +9,7 @@
 class TestGameObject : public GameObject
 {
 public:
-    TestGameObject();
+    TestGameObject(std::string modelName);
     
     void drawGUI() override;
     void update(float deltaTime) override;
