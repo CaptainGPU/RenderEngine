@@ -81,6 +81,16 @@ void Camera::drawGUI()
 	ImGui::End();*/
 }
 
+void Camera::setPitch(const float& pitch)
+{
+    m_pitch = pitch;
+}
+
+void Camera::setYaw(const float& yaw)
+{
+    m_yaw = yaw;
+}
+
 void Camera::calculateCameraVectors()
 {
 	glm::vec3 front;

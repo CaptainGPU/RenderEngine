@@ -56,6 +56,7 @@ glm::mat4 GameObject::getModelMatrix()
         m_modelMatrix = glm::rotate(m_modelMatrix, m_rotation.x, glm::vec3(1.0f, 0.0f, .0f));
         m_modelMatrix = glm::rotate(m_modelMatrix, m_rotation.y, glm::vec3(0.0f, 1.0f, .0f));
         m_modelMatrix = glm::rotate(m_modelMatrix, m_rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+        m_modelMatrix = glm::scale(m_modelMatrix, m_scale);
         m_isDirtyTransform = false;
     }
     
@@ -87,6 +88,12 @@ glm::vec3 GameObject::getPosition()
 void GameObject::addPosition(const glm::vec3& position)
 {
     m_position += position;
+    m_isDirtyTransform = true;
+}
+
+void GameObject::setPosition(const glm::vec3& position)
+{
+    m_position = position;
     m_isDirtyTransform = true;
 }
 
@@ -142,6 +149,26 @@ void GameObject::addRotationZ(const float& z)
     }
     
     m_isDirtyTransform = true;
+}
+
+float GameObject::getRotationX()
+{
+    return m_rotation.x;
+}
+
+float GameObject::getRotationY()
+{
+    return m_rotation.y;
+}
+
+float GameObject::getRotationZ()
+{
+    return m_rotation.z;
+}
+
+void GameObject::setScale(const glm::vec3& scale)
+{
+    m_scale = scale;
 }
 
 // Light staff

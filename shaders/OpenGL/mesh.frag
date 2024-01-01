@@ -2,13 +2,28 @@
 
 //precision highp float;
 
+const float PI = 3.14159265359;
+
 struct PointLight
 {
     vec3 position;
     vec3 color;
 };
 
+struct SpotLight
+{
+    vec3 direction;
+    vec3 color;
+    vec3 position;
+    float linear;
+    float quadratic;
+    float constant;
+    float innerCut;
+    float outCut;
+};
+
 const int MAX_POINT_LIGHTS = 4;
+const int MAX_SPOT_LIGHTS = 4;
 
 in vec3 v_normal;
 in vec3 v_position;
@@ -25,7 +40,9 @@ uniform float u_ambientStrength;
 uniform float u_specularStrength;
 uniform vec3 u_cameraPosition;
 uniform PointLight u_pointLights[MAX_POINT_LIGHTS];
+uniform SpotLight u_spotLights[MAX_SPOT_LIGHTS];
 uniform int u_pointLightsCount;
+uniform int u_spotLightsCount;
 
 vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor)
 {
@@ -65,6 +82,47 @@ vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor
     return ambient + diffuse + specular;
 }
 
+vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
+{
+    vec3 lightPosition = u_spotLights[index].position;
+    vec3 lightDir = normalize(lightPosition - v_position);
+    vec3 lightDirection = u_spotLights[index].direction;
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 lightColor = u_spotLights[index].color;
+
+    float specPos = mix(2.0, 512.0, u_smoothness);
+
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), specPos);
+    spec *= u_specularStrength;
+
+    float distance = length(lightPosition - v_position);
+
+    float constant = u_spotLights[index].constant;
+    float linear = u_spotLights[index].linear;
+    float quadratic = u_spotLights[index].quadratic;
+
+    float attenuation = 1.0 / (constant + linear * distance + quadratic * (distance * distance));
+
+    float theta = dot(lightDir, -lightDirection);
+
+    float cutOff = u_spotLights[index].innerCut;
+    float outerCutOff = u_spotLights[index].outCut;
+
+    float epsilon = cutOff - outerCutOff;
+    float intensity = clamp((theta - outerCutOff) / epsilon, 0.0, 1.0);
+
+    vec3 ambient = u_ambientStrength * lightColor;
+    vec3 diffuse = diff * lightColor;
+    vec3 specular = spec * lightColor;
+
+    ambient *= attenuation * intensity;
+    diffuse *= attenuation * intensity;
+    specular *= attenuation * intensity;
+
+    return ambient + diffuse + specular;
+}
+
 void main()
 {
     vec3 lighing  = vec3(0);
@@ -77,6 +135,11 @@ void main()
     for (int i = 0; i < u_pointLightsCount; i++)
     {
         lighing += calculatePointLight(i, normal, viewDir, u_ambientColor);
+    }
+
+    for (int i = 0; i < u_spotLightsCount; i++)
+    {
+        lighing += calculateSpotLight(i, normal, viewDir);
     }
 
     vec3 finalColor = lighing;

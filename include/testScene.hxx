@@ -7,6 +7,7 @@
 #include "scene.hxx"
 
 class PoinLightGameObject;
+class SpotLight;
 
 class TestScene : public Scene {
     
@@ -24,5 +25,10 @@ private:
     
     std::vector<PoinLightGameObject* > m_lights;
     std::vector<GameObject* > m_meshes;
-    GameObject* m_whiteLight;
+    SpotLight* m_whiteLight;
+    GameObject* m_plane;
+    
+    SpotLight* m_spot1;
+    SpotLight* m_spot2;
+    SpotLight* m_spot3;
 };

@@ -6,6 +6,7 @@
 #include "testGameObject.hxx"
 #include "debugCamera.hxx"
 #include "pointLightGameObject.hxx"
+#include "spotLight.hxx"
 
 #define TWO_PI 6.283
 
@@ -52,12 +53,17 @@ void TestScene::construct()
     DebugCamera* camera = new DebugCamera();
     addGameObject(camera);
     setCamera(camera);
+    camera->setPosition(glm::vec3(0.0f, 22.0, -5.5f));
+    camera->setPitch(-34.65f);
+    camera->setYaw(-90.0f);
     
-    PoinLightGameObject* pointLight = new PoinLightGameObject();
+    PoinLightGameObject* pointLight = nullptr;
+    
+    pointLight = new PoinLightGameObject();
     pointLight->setColor(glm::vec3(1.0f, 0.0f, 0.0f));
     addGameObject(pointLight);
     m_lights.push_back(pointLight);
-    
+
     pointLight = new PoinLightGameObject();
     pointLight->setColor(glm::vec3(.0f, 1.0f, .0f));
     addGameObject(pointLight);
@@ -68,11 +74,41 @@ void TestScene::construct()
     addGameObject(pointLight);
     m_lights.push_back(pointLight);
     
-    pointLight = new PoinLightGameObject();
-    pointLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-    addGameObject(pointLight);
+    m_whiteLight = new SpotLight();
+    m_whiteLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    m_whiteLight->addRotationZ(glm::radians(-45.0f));
+    addGameObject(m_whiteLight);
     
-    m_whiteLight = pointLight;
+    m_plane = new TestGameObject("plane.mesh");
+    addGameObject(m_plane);
+    
+    m_plane->setScale(glm::vec3(20.0));
+    m_plane->setPosition(glm::vec3(0.0, -1.0, -40.0));
+    
+    
+    m_spot1 = new SpotLight();
+    m_spot1->setColor(glm::vec3(0.0f, .0f, 1.0f));
+    m_spot1->addRotationZ(glm::radians(-90.0f));
+    m_spot1->setPositionZ(-25.0 - (0.0 * 4.5));
+    m_spot1->setPositionY(4.0);
+    m_spot1->setPositionX(-2.0 * 4.5);
+    
+    
+    m_spot2 = new SpotLight();
+    m_spot2->setColor(glm::vec3(1.0f, .0f, 0.0f));
+    m_spot2->addRotationZ(glm::radians(-90.0f));
+    m_spot2->setPositionZ(-25.0 - (6.0 * 4.5));
+    m_spot2->setPositionY(4.0);
+    
+    m_spot3 = new SpotLight();
+    m_spot3->setColor(glm::vec3(0.0f, 1.0f, .0f));
+    m_spot3->setPositionZ(-25.0 - (0.0 * 4.5));
+    m_spot3->setPositionY(4.0);
+    m_spot3->setPositionX(2.0 * 4.5);
+    
+    addGameObject(m_spot1);
+    addGameObject(m_spot2);
+    addGameObject(m_spot3);
 }
 
 void TestScene::update(float deltaTime)
@@ -109,8 +145,16 @@ void TestScene::update(float deltaTime)
     float x = glm::cos(m_time);
     x *= 30;
     
-    m_whiteLight->setPositionZ(-25.0 - (3.0 * 4.5) + x);
-    m_whiteLight->setPositionY(1.0);
+    m_whiteLight->setPositionZ(-25.0 - (3.0 * 4.5));
+    m_whiteLight->setPositionY(4.0);
+    
+    //m_whiteLight->addRotationX(deltaTime);
+    m_whiteLight->addRotationY(deltaTime);
+    //m_whiteLight->addRotationZ(deltaTime);
+    
+    m_spot1->addRotationX(deltaTime);
+    m_spot2->addRotationZ(deltaTime);
+    m_spot3->addRotationZ(-deltaTime);
 }
 
 

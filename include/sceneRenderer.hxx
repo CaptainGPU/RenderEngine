@@ -9,10 +9,12 @@
 #include "uniform.hxx"
 
 #define MAX_POINT_LIGHTS 4
+#define MAX_SPOT_LIGHTS 4
 
 class FrameBuffer;
 class Mesh;
 struct PointLightData;
+struct SpotLightData;
 
 enum SceneRendererPasses
 {
@@ -35,18 +37,21 @@ public:
     void drawDebugUI() override;
 
 private:
-    void renderBasePass(std::vector<PointLightData>& lights, RenderInfo& renderInfo);
+    void renderBasePass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, RenderInfo& renderInfo);
     void renderBoundPass(RenderInfo& renderInfo);
-    void renderLightObjectsPass(std::vector<PointLightData>& lights, RenderInfo& renderInfo);
+    void renderLightObjectsPass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, RenderInfo& renderInfo);
     void renderPostProcessingPass(RenderInfo& renderInfo);
     
-    void constructPointLightsData(std::vector<PointLightData>& lights);
+    void constructLightsData(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots);
     
 private:
     bool m_renderBasePass;
     bool m_renderBoundPass;
     bool m_renderLightObjectsPass;
     bool m_renderPostProcessing;
+    
+    bool m_renderPointLights;
+    bool m_renderSpotLights;
 
     glm::vec3 m_boundColor;
 
@@ -91,6 +96,15 @@ private:
     Uniform* m_basePassPointLightColor[MAX_POINT_LIGHTS];
     Uniform* m_basePassPointLightsPosition[MAX_POINT_LIGHTS];
     Uniform* m_basePassPointLightsCount;
+    Uniform* m_basePassSpotLightsCount;
+    Uniform* m_basePassSpotLightsDirection[MAX_POINT_LIGHTS];
+    Uniform* m_basePassSpotLightsPosition[MAX_POINT_LIGHTS];
+    Uniform* m_basePassSpotLightsColor[MAX_POINT_LIGHTS];
+    Uniform* m_basePassSpotLightsLinear[MAX_POINT_LIGHTS];
+    Uniform* m_basePassSpotLightsConstant[MAX_POINT_LIGHTS];
+    Uniform* m_basePassSpotLightsQuadratic[MAX_POINT_LIGHTS];
+    Uniform* m_basePassSpotLightsInnerCut[MAX_POINT_LIGHTS];
+    Uniform* m_basePassSpotLightsOutCut[MAX_POINT_LIGHTS];
     glm::vec3 m_sceneColor;
 
     
@@ -103,4 +117,5 @@ private:
     FrameBuffer* m_frameBuffer;
     
     Mesh* m_lightObjectMesh;
+    Mesh* m_spotLightMesh;
 };

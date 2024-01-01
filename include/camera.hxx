@@ -20,6 +20,10 @@ public:
 	glm::vec3& getRightVector();
 
 	virtual void drawGUI() override;
+    
+    void setPitch(const float& pitch);
+    void setYaw(const float& yaw);
+    
 private:
 	void calculateCameraVectors();
 

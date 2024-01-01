@@ -38,6 +38,7 @@ public:
     glm::vec3 getPosition();
     
     void addPosition(const glm::vec3& position);
+    void setPosition(const glm::vec3& position);
     void setPositionX(const float& x);
     void setPositionY(const float& y);
     void setPositionZ(const float& z);
@@ -45,6 +46,12 @@ public:
     void addRotationX(const float& x);
     void addRotationY(const float& y);
     void addRotationZ(const float& z);
+    
+    float getRotationX();
+    float getRotationY();
+    float getRotationZ();
+    
+    void setScale(const glm::vec3& scale);
     
     // Light staff
     

@@ -8,6 +8,7 @@
 #include "imgui.h"
 #include "screenRenderPass.hxx"
 #include "pointLightGameObject.hxx"
+#include "spotLight.hxx"
 #include "meshLoader.hxx"
 #include <glm/gtc/type_ptr.hpp>
 
@@ -54,16 +55,35 @@ m_basePassSpecularStrength(0.5),
 m_basePassCameraPosition(nullptr),
 m_sceneColor(glm::vec3(.0))
 {
+    
+    m_renderPointLights = true;
+    m_renderSpotLights = true;
+    
     // Base PASS
     for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
     {
         m_basePassPointLightColor[i] = nullptr;
         m_basePassPointLightsPosition[i] = nullptr;
     }
+    
+    for (size_t i = 0; i < MAX_SPOT_LIGHTS; i++)
+    {
+        m_basePassSpotLightsPosition[i] = nullptr;
+        m_basePassSpotLightsDirection[i] = nullptr;
+        m_basePassSpotLightsColor[i] = nullptr;
+        m_basePassSpotLightsLinear[i] = nullptr;
+        m_basePassSpotLightsConstant[i] = nullptr;
+        m_basePassSpotLightsQuadratic[i] = nullptr;
+        m_basePassSpotLightsInnerCut[i] = nullptr;
+        m_basePassSpotLightsOutCut[i] = nullptr;
+    }
+    
     m_basePassPointLightsCount = nullptr;
+    m_basePassSpotLightsCount = nullptr;
     
     // Light objects PASS
     m_lightObjectMesh = nullptr;
+    m_spotLightMesh = nullptr;
     
     m_lightObjectMatrixModelUniform = nullptr;
     m_lightObjectMatrixViewUniform = nullptr;
@@ -84,7 +104,7 @@ void SceneRenderer::init()
 
         if (pass == BASE_PASS)
         {
-            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time", "u_gamma", "u_albedo", "u_lightColor", "u_ambientColor", "u_smoothness", "u_ambientStrength", "u_specularStrength", "u_cameraPosition", "u_pointLightsCount"};
+            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time", "u_gamma", "u_albedo", "u_lightColor", "u_ambientColor", "u_smoothness", "u_ambientStrength", "u_specularStrength", "u_cameraPosition", "u_pointLightsCount", "u_spotLightsCount"};
             
             for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
             {
@@ -95,6 +115,43 @@ void SceneRenderer::init()
                 uniformNames.push_back(name);
                 
                 snprintf(locBuff, sizeof(locBuff), "u_pointLights[%zu].position", i);
+                name = std::string(locBuff);
+                uniformNames.push_back(name);
+            }
+            
+            for (size_t i = 0; i < MAX_SPOT_LIGHTS; i++)
+            {
+                char locBuff[100] = { '\0' };
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].direction", i);
+                std::string name = std::string(locBuff);
+                uniformNames.push_back(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].position", i);
+                name = std::string(locBuff);
+                uniformNames.push_back(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].color", i);
+                name = std::string(locBuff);
+                uniformNames.push_back(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].linear", i);
+                name = std::string(locBuff);
+                uniformNames.push_back(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].quadratic", i);
+                name = std::string(locBuff);
+                uniformNames.push_back(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].constant", i);
+                name = std::string(locBuff);
+                uniformNames.push_back(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].innerCut", i);
+                name = std::string(locBuff);
+                uniformNames.push_back(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].outCut", i);
                 name = std::string(locBuff);
                 uniformNames.push_back(name);
             }
@@ -116,6 +173,7 @@ void SceneRenderer::init()
             m_basePassSpecularStrengthUniform = renderPass->getUniform(uniformNames[10]);
             m_basePassCameraPosition = renderPass->getUniform(uniformNames[11]);
             m_basePassPointLightsCount = renderPass->getUniform(uniformNames[12]);
+            m_basePassSpotLightsCount = renderPass->getUniform(uniformNames[13]);
             
             for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
             {
@@ -128,6 +186,43 @@ void SceneRenderer::init()
                 snprintf(locBuff, sizeof(locBuff), "u_pointLights[%zu].position", i);
                 name = std::string(locBuff);
                 m_basePassPointLightsPosition[i] = renderPass->getUniform(name);
+            }
+            
+            for (size_t i = 0; i < MAX_SPOT_LIGHTS; i++)
+            {
+                char locBuff[100] = { '\0' };
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].direction", i);
+                std::string name = std::string(locBuff);
+                m_basePassSpotLightsDirection[i] = renderPass->getUniform(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].position", i);
+                name = std::string(locBuff);
+                m_basePassSpotLightsPosition[i] = renderPass->getUniform(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].color", i);
+                name = std::string(locBuff);
+                m_basePassSpotLightsColor[i] = renderPass->getUniform(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].linear", i);
+                name = std::string(locBuff);
+                m_basePassSpotLightsLinear[i] = renderPass->getUniform(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].constant", i);
+                name = std::string(locBuff);
+                m_basePassSpotLightsConstant[i] = renderPass->getUniform(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].quadratic", i);
+                name = std::string(locBuff);
+                m_basePassSpotLightsQuadratic[i] = renderPass->getUniform(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].innerCut", i);
+                name = std::string(locBuff);
+                m_basePassSpotLightsInnerCut[i] = renderPass->getUniform(name);
+                
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].outCut", i);
+                name = std::string(locBuff);
+                m_basePassSpotLightsOutCut[i] = renderPass->getUniform(name);
             }
         }
 
@@ -181,6 +276,7 @@ void SceneRenderer::init()
     
     m_frameBuffer = Render::createFrameBuffer();
     m_lightObjectMesh = loadMesh("light.mesh");
+    m_spotLightMesh = loadMesh("spot.mesh");
 }
 
 void SceneRenderer::finish()
@@ -188,7 +284,7 @@ void SceneRenderer::finish()
     Renderer::finish();
 }
 
-void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, RenderInfo& renderInfo)
+void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, RenderInfo& renderInfo)
 {
     SceneManager* manager = Engine::get()->getSceneManager();
     Scene* scene = manager->getScene();
@@ -221,7 +317,20 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, RenderIn
     m_basePassCameraPosition->setVec3(cameraPosition);
     
     int lightsCount = lights.size();
+    int spotLightCount = spots.size();
+    
+    if (!m_renderSpotLights)
+    {
+        spotLightCount = 0;
+    }
+    
+    if (!m_renderPointLights)
+    {
+        lightsCount = 0;
+    }
+    
     m_basePassPointLightsCount->setInt(lightsCount);
+    m_basePassSpotLightsCount->setInt(spotLightCount);
     
     glm::vec3 lColor = glm::vec3(1.0, .0, .0);
     
@@ -234,7 +343,19 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, RenderIn
         m_basePassPointLightsPosition[i]->setVec3(data.position);
     }
     
-
+    for (size_t i = 0; i < spotLightCount; i++)
+    {
+        SpotLightData data = spots[i];
+        m_basePassSpotLightsDirection[i]->setVec3(data.direction);
+        m_basePassSpotLightsPosition[i]->setVec3(data.position);
+        m_basePassSpotLightsColor[i]->setVec3(data.color);
+        m_basePassSpotLightsLinear[i]->setFloat(data.linear);
+        m_basePassSpotLightsConstant[i]->setFloat(data.constant);
+        m_basePassSpotLightsQuadratic[i]->setFloat(data.quadratic);
+        m_basePassSpotLightsOutCut[i]->setFloat(data.outCut);
+        m_basePassSpotLightsInnerCut[i]->setFloat(data.innerCut);
+    }
+    
     for (size_t i = 0; i < numGameObject; i++)
     {
         GameObject* gameObject = scene->getGameObject(i);
@@ -293,7 +414,7 @@ void SceneRenderer::renderBoundPass(RenderInfo& renderInfo)
     Render::endRenderPass(renderPass);
 }
 
-void SceneRenderer::renderLightObjectsPass(std::vector<PointLightData>& lights, RenderInfo& renderInfo)
+void SceneRenderer::renderLightObjectsPass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, RenderInfo& renderInfo)
 {
     SceneManager* manager = Engine::get()->getSceneManager();
     Scene* scene = manager->getScene();
@@ -309,12 +430,35 @@ void SceneRenderer::renderLightObjectsPass(std::vector<PointLightData>& lights, 
     glm::mat4& projection_matrix = camera->getProjectionMatrix();
     m_lightObjectMatrixProjectionUniform->setMatrix4x4(projection_matrix);
     
-    for (PointLightData& data : lights)
+    size_t lightsCount = lights.size();
+    size_t spotLightCount = spots.size();
+    
+    if (!m_renderSpotLights)
     {
+        spotLightCount = 0;
+    }
+    
+    if (!m_renderPointLights)
+    {
+        lightsCount = 0;
+    }
+    
+    for (size_t i = 0; i < lightsCount; i++)
+    {
+        PointLightData& data = lights[i];
         m_lightObjectMatrixModelUniform->setMatrix4x4(data.model);
         m_lightObjectColorUniform->setVec3(data.color);
         
         Render::drawMesh(m_lightObjectMesh, renderInfo);
+    }
+    
+    for (size_t i = 0; i < spotLightCount; i++)
+    {
+        SpotLightData& data = spots[i];
+        m_lightObjectMatrixModelUniform->setMatrix4x4(data.model);
+        m_lightObjectColorUniform->setVec3(data.color);
+        
+        Render::drawMesh(m_spotLightMesh, renderInfo);
     }
     
     Render::endRenderPass(renderPass);
@@ -362,7 +506,9 @@ void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
 void SceneRenderer::render(RenderInfo& renderInfo)
 {
     std::vector<PointLightData> lights;
-    constructPointLightsData(lights);
+    std::vector<SpotLightData> spots;
+    
+    constructLightsData(lights, spots);
     
     Render::useFrameBuffer(m_frameBuffer);
 
@@ -374,7 +520,7 @@ void SceneRenderer::render(RenderInfo& renderInfo)
 
     if (m_renderBasePass)
     {
-        renderBasePass(lights, renderInfo);
+        renderBasePass(lights, spots, renderInfo);
     }
 
     if (m_renderBoundPass)
@@ -384,7 +530,7 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     
     if (m_renderLightObjectsPass)
     {
-        renderLightObjectsPass(lights, renderInfo);
+        renderLightObjectsPass(lights, spots, renderInfo);
     }
     
     Render::unUseFrameBuffer();
@@ -410,6 +556,8 @@ void SceneRenderer::drawDebugUI()
     ImGui::Checkbox("Base Pass", &m_renderBasePass);
     ImGui::Checkbox("Bound Pass", &m_renderBoundPass);
     ImGui::Checkbox("Show Lights", &m_renderLightObjectsPass);
+    ImGui::Checkbox("Spot Lights Enable", &m_renderSpotLights);
+    ImGui::Checkbox("Point Lights Enable", &m_renderPointLights);
     ImGui::Checkbox("Post-Processing Pass", &m_renderPostProcessing);
 
     float* f = glm::value_ptr(m_boundColor);
@@ -435,7 +583,7 @@ void SceneRenderer::drawDebugUI()
     ImGui::End();
 }
 
-void SceneRenderer::constructPointLightsData(std::vector<PointLightData>& lights)
+void SceneRenderer::constructLightsData(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots)
 {
     SceneManager* manager = Engine::get()->getSceneManager();
     Scene* scene = manager->getScene();
@@ -451,12 +599,17 @@ void SceneRenderer::constructPointLightsData(std::vector<PointLightData>& lights
         }
         
         PoinLightGameObject* pointLight = dynamic_cast<PoinLightGameObject*>(object);
-        if (!pointLight)
+        if (pointLight)
         {
-            continue;
+            PointLightData data = pointLight->getData();
+            lights.push_back(data);
         }
         
-        PointLightData data = pointLight->getData();
-        lights.push_back(data);
+        SpotLight* spot = dynamic_cast<SpotLight*>(object);
+        if (spot)
+        {
+            SpotLightData data = spot->getData();
+            spots.push_back(data);
+        }
     }
 }
