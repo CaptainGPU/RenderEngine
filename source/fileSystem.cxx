@@ -29,10 +29,16 @@ void mountFileSystemEmscripten()
         "/shaders/WebGL/meshBound.vert",
         "/shaders/WebGL/fullScreen.frag",
         "/shaders/WebGL/fullScreen.vert",
+        "/shaders/WebGL/light.frag",
+        "/shaders/WebGL/light.vert",
         "/Models/monkey.mesh",
         "/Models/monkey_hd.mesh",
         "/Models/quad.mesh",
-        "/Models/crash_normal.mesh"
+        "/Models/light.mesh",
+        "/Models/crash_normal.mesh",
+        "/Models/monkey_normal.mesh",
+        "/Models/plane.mesh",
+        "/Models/spot.mesh"
     };
 
     for (size_t i = 0; i < files.size(); i++)

@@ -65,12 +65,12 @@ void TestScene::construct()
     m_lights.push_back(pointLight);
 
     pointLight = new PoinLightGameObject();
-    pointLight->setColor(glm::vec3(.0f, 1.0f, .0f));
+    pointLight->setColor(glm::vec3(0.0f, 1.0f, 0.0f));
     addGameObject(pointLight);
     m_lights.push_back(pointLight);
 
     pointLight = new PoinLightGameObject();
-    pointLight->setColor(glm::vec3(.0f, .0f, 1.0f));
+    pointLight->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
     addGameObject(pointLight);
     m_lights.push_back(pointLight);
     

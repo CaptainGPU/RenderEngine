@@ -49,7 +49,7 @@ m_basePassAmbientColor(glm::vec3(1.0)),
 m_basePasSmoothnessUniform(nullptr),
 m_basePassSmoothness(0.214),
 m_basePassAmbientStrengthUniform(nullptr),
-m_basePassAmbientStrength(0.1),
+m_basePassAmbientStrength(0.006),
 m_basePassSpecularStrengthUniform(nullptr),
 m_basePassSpecularStrength(0.5),
 m_basePassCameraPosition(nullptr),
@@ -61,7 +61,7 @@ m_sceneColor(glm::vec3(.0))
     
     // Base PASS
     for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
-    {
+    {   
         m_basePassPointLightColor[i] = nullptr;
         m_basePassPointLightsPosition[i] = nullptr;
     }
