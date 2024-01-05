@@ -58,11 +58,11 @@ void TestScene::construct()
     PoinLightGameObject* pointLight = nullptr;
     
     pointLight = new PoinLightGameObject();
-    pointLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    pointLight->setColor(glm::vec3(1.0f, 0.0f, 0.0f));
     addGameObject(pointLight);
     m_lights.push_back(pointLight);
 
-    /*pointLight = new PoinLightGameObject();
+    pointLight = new PoinLightGameObject();
     pointLight->setColor(glm::vec3(0.0f, 1.0f, 0.0f));
     addGameObject(pointLight);
     m_lights.push_back(pointLight);
@@ -70,10 +70,10 @@ void TestScene::construct()
     pointLight = new PoinLightGameObject();
     pointLight->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
     addGameObject(pointLight);
-    m_lights.push_back(pointLight);*/
+    m_lights.push_back(pointLight);
     
     m_whiteLight = new SpotLight();
-    m_whiteLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    m_whiteLight->setColor(glm::vec3(0.5f, 0.5f, 0.5f));
     m_whiteLight->addRotationZ(glm::radians(-45.0f));
     addGameObject(m_whiteLight);
     
@@ -143,16 +143,15 @@ void TestScene::update(float deltaTime)
     float x = glm::cos(m_time);
     x *= 30;
     
-    m_whiteLight->setPositionZ(-25.0 - (3.0 * 4.5));
     m_whiteLight->setPositionY(4.0);
     
     //m_whiteLight->addRotationX(deltaTime);
-    m_whiteLight->addRotationY(deltaTime);
+    m_whiteLight->addRotationY(-deltaTime);
     //m_whiteLight->addRotationZ(deltaTime);
     
-    m_spot1->addRotationX(deltaTime);
-    m_spot2->addRotationZ(deltaTime);
-    m_spot3->addRotationZ(-deltaTime);
+    m_spot1->addRotationX(deltaTime * 1.5);
+    m_spot2->addRotationZ(deltaTime * 2.0);
+    m_spot3->addRotationZ(-deltaTime * 2.5);
 }
 
 

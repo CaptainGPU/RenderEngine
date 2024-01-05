@@ -57,7 +57,7 @@ m_sceneColor(glm::vec3(.0))
 {
     
     m_renderPointLights = true;
-    m_renderSpotLights = false;
+    m_renderSpotLights = true;
     
     // Base PASS
     for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
@@ -565,15 +565,6 @@ void SceneRenderer::drawDebugUI()
 
     f = glm::value_ptr(m_sceneColor);
     ImGui::ColorEdit3("scene color", f);
-
-    f = glm::value_ptr(m_basePassAlbedo);
-    ImGui::ColorEdit3("albedo", f);
-
-    f = glm::value_ptr(m_basePassLightColor);
-    ImGui::ColorEdit3("light color", f);
-
-    f = glm::value_ptr(m_basePassAmbientColor);
-    ImGui::ColorEdit3("ambient color", f);
 
     ImGui::SliderFloat("Ambient Strength", &m_basePassAmbientStrength, .0f, 1.0f);
     ImGui::SliderFloat("Specular Strength", &m_basePassSpecularStrength, .0f, 1.0f);

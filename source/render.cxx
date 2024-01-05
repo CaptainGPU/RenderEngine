@@ -298,6 +298,9 @@ FrameBuffer* Render::createFrameBuffer()
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     
     unsigned int format = GL_RGB16F;
+    unsigned int chanels = GL_RGB;
+    unsigned int dataFormat = GL_UNSIGNED_BYTE;
+
     
 #if CURRENT_PLATFORM == PLATFORM_MAC
     width *= 2;
@@ -305,12 +308,14 @@ FrameBuffer* Render::createFrameBuffer()
 #endif
     
 #if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
-    format = GL_RGB;
+    format = GL_SRGB8_ALPHA8;
+    chanels = GL_RGBA;
+    dataFormat = GL_UNSIGNED_BYTE;
 #endif
     
     unsigned int frameBufferTexture = texture->get_OpenGL_Texture();
     Render::useTexture(texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, chanels, dataFormat, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
