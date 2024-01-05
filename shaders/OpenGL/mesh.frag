@@ -73,11 +73,31 @@ vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor
     vec3 diffuse = diff * lightColor;
     vec3 specular = spec * lightColor;
 
+    vec3 ToLight = lightPosition - v_position;
+    float DistanceSqr = dot(ToLight, ToLight);
+
+    attenuation = 1 / (DistanceSqr + 1);
+
+    float InvRadius = 1.0 / range;
+
+    float A = (InvRadius * InvRadius);
+    float B = DistanceSqr * A;
+    float C = B * B;
+    float D = 1.0 - C;
+    float E = clamp(D, 0.0, 1.0);
+    float F = E * E;
+
+    attenuation *= F;
+
+    //float LightRadiusMask = Square(E);
+
     ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
 
     return ambient + diffuse + specular;
+
+    //return vec3(attenuation);
 }
 
 vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
