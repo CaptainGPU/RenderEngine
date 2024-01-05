@@ -57,7 +57,7 @@ m_sceneColor(glm::vec3(.0))
 {
     
     m_renderPointLights = true;
-    m_renderSpotLights = true;
+    m_renderSpotLights = false;
     
     // Base PASS
     for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)

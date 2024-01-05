@@ -29,7 +29,7 @@ void TestScene::construct()
     
     float count = .0;
     
-    for (size_t i = 0; i < 11; i++)
+    for (size_t i = 0; i < 10; i++)
     {
         for (size_t j = 0; j < 10; j++)
         {
@@ -37,12 +37,10 @@ void TestScene::construct()
             
             TestGameObject* gameObject = new TestGameObject("monkey_normal.mesh");
             
-            gameObject->setPositionX(5.0 * dist - (float(i) * dist));
-            //gameObject->setPositionY(5.0 * dist - (float(j) * dist));
-            gameObject->setPositionZ(-25.0f - (float(j) * dist));
+            gameObject->setPositionX((i * dist) - (4.5 * dist) );
+            gameObject->setPositionZ((j * dist) - (4.5 * dist));
             
             gameObject->addRotationY((6.28 / 10.0) * count);
-            //gameObject->addRotationZ((6.28 / 10.0) * count);
             
             addGameObject(gameObject);
             
@@ -53,18 +51,18 @@ void TestScene::construct()
     DebugCamera* camera = new DebugCamera();
     addGameObject(camera);
     setCamera(camera);
-    camera->setPosition(glm::vec3(0.0f, 22.0, -5.5f));
+    camera->setPosition(glm::vec3(0.0f, 22.0, 30.5f));
     camera->setPitch(-34.65f);
     camera->setYaw(-90.0f);
     
     PoinLightGameObject* pointLight = nullptr;
     
     pointLight = new PoinLightGameObject();
-    pointLight->setColor(glm::vec3(1.0f, 0.0f, 0.0f));
+    pointLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
     addGameObject(pointLight);
     m_lights.push_back(pointLight);
 
-    pointLight = new PoinLightGameObject();
+    /*pointLight = new PoinLightGameObject();
     pointLight->setColor(glm::vec3(0.0f, 1.0f, 0.0f));
     addGameObject(pointLight);
     m_lights.push_back(pointLight);
@@ -72,7 +70,7 @@ void TestScene::construct()
     pointLight = new PoinLightGameObject();
     pointLight->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
     addGameObject(pointLight);
-    m_lights.push_back(pointLight);
+    m_lights.push_back(pointLight);*/
     
     m_whiteLight = new SpotLight();
     m_whiteLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -83,28 +81,28 @@ void TestScene::construct()
     addGameObject(m_plane);
     
     m_plane->setScale(glm::vec3(20.0));
-    m_plane->setPosition(glm::vec3(0.0, -1.0, -40.0));
+    m_plane->setPosition(glm::vec3(0.0, -1.0, 0.0));
     
     
     m_spot1 = new SpotLight();
     m_spot1->setColor(glm::vec3(0.0f, .0f, 1.0f));
     m_spot1->addRotationZ(glm::radians(-90.0f));
-    m_spot1->setPositionZ(-25.0 - (0.0 * 4.5));
-    m_spot1->setPositionY(4.0);
-    m_spot1->setPositionX(-2.0 * 4.5);
+    m_spot1->setPositionZ(-10.5);
+    m_spot1->setPositionY(4.0f);
+    m_spot1->setPositionX(-10.5);
     
     
     m_spot2 = new SpotLight();
     m_spot2->setColor(glm::vec3(1.0f, .0f, 0.0f));
     m_spot2->addRotationZ(glm::radians(-90.0f));
-    m_spot2->setPositionZ(-25.0 - (6.0 * 4.5));
-    m_spot2->setPositionY(4.0);
+    m_spot2->setPositionZ(10.5);
+    m_spot2->setPositionY(4.0f);
     
     m_spot3 = new SpotLight();
     m_spot3->setColor(glm::vec3(0.0f, 1.0f, .0f));
-    m_spot3->setPositionZ(-25.0 - (0.0 * 4.5));
-    m_spot3->setPositionY(4.0);
-    m_spot3->setPositionX(2.0 * 4.5);
+    m_spot3->setPositionZ(-10.5);
+    m_spot3->setPositionY(4.0f);
+    m_spot3->setPositionX(10.5);
     
     addGameObject(m_spot1);
     addGameObject(m_spot2);
@@ -138,7 +136,7 @@ void TestScene::update(float deltaTime)
         
         gameObject->setPositionX(sin);
         gameObject->setPositionY(1.0);
-        gameObject->setPositionZ(-25.0 - (3.0 * 4.5) + cos);
+        gameObject->setPositionZ(cos);
         
     }
     
