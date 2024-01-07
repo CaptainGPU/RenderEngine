@@ -43,10 +43,12 @@ uniform PointLight u_pointLights[MAX_POINT_LIGHTS];
 uniform SpotLight u_spotLights[MAX_SPOT_LIGHTS];
 uniform int u_pointLightsCount;
 uniform int u_spotLightsCount;
+uniform vec3 u_sunDirection;
+uniform float u_sunItensity;
 
 vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor)
 {
-    vec3 lightColor = u_pointLights[index].color;
+    vec3 lightColor = pow(u_pointLights[index].color, vec3(u_gamma));
     vec3 lightPosition = u_pointLights[index].position;
     vec3 lightDir = normalize(lightPosition - v_position);
     vec3 halfwayDir = normalize(lightDir + viewDir);  
@@ -107,7 +109,7 @@ vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
     vec3 lightDirection = u_spotLights[index].direction;
     float diff = max(dot(normal, lightDir), 0.0);
     vec3 reflectDir = reflect(-lightDir, normal);
-    vec3 lightColor = u_spotLights[index].color;
+    vec3 lightColor = pow(u_spotLights[index].color, vec3(u_gamma));; 
     vec3 halfwayDir = normalize(lightDir + viewDir);  
 
     float specPow = mix(2.0, 512.0, u_smoothness);
@@ -142,6 +144,30 @@ vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
     return ambient + diffuse + specular;
 }
 
+vec3 calculateDirectionLight(vec3 normal, vec3 viewDir)
+{
+    vec3 lightColor = pow(u_lightColor, vec3(u_gamma));
+    vec3 lightDirection = u_sunDirection;
+    vec3 lightDir = normalize(-lightDirection);
+    float diff = max(dot(normal, lightDir), 0.0);
+
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    
+    float specPow = mix(2.0, 512.0, u_smoothness);
+
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), specPow);
+    spec *= u_specularStrength;
+
+    vec3 ambient = u_ambientStrength * lightColor;
+    vec3 diffuse = diff * lightColor;
+    vec3 specular = spec * lightColor;
+
+    vec3 finalColor = ambient + diffuse + specular;
+    finalColor *= u_sunItensity;
+
+    return finalColor;
+}
+
 void main()
 {
     vec3 lighing  = vec3(0);
@@ -150,6 +176,8 @@ void main()
     vec3 viewDir = normalize(u_cameraPosition - v_position);
 
     vec3 ambientColor = pow(u_ambientColor, vec3(u_gamma));
+
+    lighing += calculateDirectionLight(normal, viewDir);
 
     for (int i = 0; i < u_pointLightsCount; i++)
     {

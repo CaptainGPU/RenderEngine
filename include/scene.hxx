@@ -10,6 +10,8 @@
 #include <vector>
 #include <string>
 
+class SunLight;
+
 class Scene
 {
 public:
@@ -35,11 +37,16 @@ public:
     virtual void update(float deltaTime);
     
     void finish();
+    
+    SunLight* getSunLight();
+    void setSunLight(SunLight* sun);
 private:
     std::vector<GameObject*> m_gameObjects;
 
     Camera* m_defaultCamera;
     Camera* m_camera;
+    
+    SunLight* m_sunLight;
     
 private:
     std::string m_name;

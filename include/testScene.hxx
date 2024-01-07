@@ -31,4 +31,6 @@ private:
     SpotLight* m_spot1;
     SpotLight* m_spot2;
     SpotLight* m_spot3;
+    
+    GameObject* m_sun;
 };

@@ -10,6 +10,7 @@
 #include "pointLightGameObject.hxx"
 #include "spotLight.hxx"
 #include "meshLoader.hxx"
+#include "sunLight.hxx"
 #include <glm/gtc/type_ptr.hpp>
 
 SceneRenderer::SceneRenderer()
@@ -60,6 +61,10 @@ m_sceneColor(glm::vec3(.0))
     m_renderSpotLights = true;
     
     // Base PASS
+    
+    m_basePassSunDirectionUniform = nullptr;
+    m_basePassSunIntensityUniform = nullptr;
+    
     for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
     {   
         m_basePassPointLightColor[i] = nullptr;
@@ -82,8 +87,12 @@ m_sceneColor(glm::vec3(.0))
     m_basePassSpotLightsCount = nullptr;
     
     // Light objects PASS
+    
+    m_lightObjectGammaUniform = nullptr;
+    
     m_lightObjectMesh = nullptr;
     m_spotLightMesh = nullptr;
+    m_sunLightMesh = nullptr;
     
     m_lightObjectMatrixModelUniform = nullptr;
     m_lightObjectMatrixViewUniform = nullptr;
@@ -104,7 +113,7 @@ void SceneRenderer::init()
 
         if (pass == BASE_PASS)
         {
-            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time", "u_gamma", "u_albedo", "u_lightColor", "u_ambientColor", "u_smoothness", "u_ambientStrength", "u_specularStrength", "u_cameraPosition", "u_pointLightsCount", "u_spotLightsCount"};
+            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time", "u_gamma", "u_albedo", "u_lightColor", "u_ambientColor", "u_smoothness", "u_ambientStrength", "u_specularStrength", "u_cameraPosition", "u_pointLightsCount", "u_spotLightsCount", "u_sunDirection", "u_sunItensity"};
             
             for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
             {
@@ -174,6 +183,8 @@ void SceneRenderer::init()
             m_basePassCameraPosition = renderPass->getUniform(uniformNames[11]);
             m_basePassPointLightsCount = renderPass->getUniform(uniformNames[12]);
             m_basePassSpotLightsCount = renderPass->getUniform(uniformNames[13]);
+            m_basePassSunDirectionUniform = renderPass->getUniform(uniformNames[14]);
+            m_basePassSunIntensityUniform = renderPass->getUniform(uniformNames[15]);
             
             for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
             {
@@ -242,7 +253,7 @@ void SceneRenderer::init()
         
         if (pass == LIGHT_OBJECTS_PASS)
         {
-            std::vector<std::string> uniformNames = { "u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "u_color" };
+            std::vector<std::string> uniformNames = { "u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "u_color", "u_gamma" };
             
             renderPass = new RenderPass();
             renderPass->makeProgram("light", "light");
@@ -251,7 +262,8 @@ void SceneRenderer::init()
             m_lightObjectMatrixModelUniform = renderPass->getUniform(uniformNames[0]);
             m_lightObjectMatrixViewUniform = renderPass->getUniform(uniformNames[1]);
             m_lightObjectMatrixProjectionUniform = renderPass->getUniform(uniformNames[2]);
-            m_lightObjectColorUniform =renderPass->getUniform(uniformNames[3]);
+            m_lightObjectColorUniform = renderPass->getUniform(uniformNames[3]);
+            m_lightObjectGammaUniform = renderPass->getUniform(uniformNames[4]);
         }
         
         if (pass == POSTPROCESSING_PASS)
@@ -277,6 +289,7 @@ void SceneRenderer::init()
     m_frameBuffer = Render::createFrameBuffer();
     m_lightObjectMesh = loadMesh("light.mesh");
     m_spotLightMesh = loadMesh("spot.mesh");
+    m_sunLightMesh = loadMesh("sun.mesh");
 }
 
 void SceneRenderer::finish()
@@ -284,7 +297,7 @@ void SceneRenderer::finish()
     Renderer::finish();
 }
 
-void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, RenderInfo& renderInfo)
+void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, SunLightData& sunLightData, RenderInfo& renderInfo)
 {
     SceneManager* manager = Engine::get()->getSceneManager();
     Scene* scene = manager->getScene();
@@ -306,10 +319,13 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vec
     m_timeUniform->setFloat(time);
 
     glm::vec3 cameraPosition = camera->getPosition();
+    
+    m_basePassSunDirectionUniform->setVec3(sunLightData.direction);
+    m_baseLightColorUniform->setVec3(sunLightData.color);
+    m_basePassSunIntensityUniform->setFloat(sunLightData.intensity);
 
     m_basePassGammaUniform->setFloat(m_gamma);
     m_basePassAlbedoUniform->setVec3(m_basePassAlbedo);
-    m_baseLightColorUniform->setVec3(m_basePassLightColor);
     m_basePassAmbientColorUniform->setVec3(m_basePassAmbientColor);
     m_basePasSmoothnessUniform->setFloat(m_basePassSmoothness);
     m_basePassAmbientStrengthUniform->setFloat(m_basePassAmbientStrength);
@@ -333,8 +349,6 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vec
     m_basePassSpotLightsCount->setInt(spotLightCount);
     
     glm::vec3 lColor = glm::vec3(1.0, .0, .0);
-    
-    //m_basePassPointLightColor[0]->setVec3(lColor);
     
     for (size_t i = 0; i < lightsCount; i++)
     {
@@ -414,7 +428,7 @@ void SceneRenderer::renderBoundPass(RenderInfo& renderInfo)
     Render::endRenderPass(renderPass);
 }
 
-void SceneRenderer::renderLightObjectsPass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, RenderInfo& renderInfo)
+void SceneRenderer::renderLightObjectsPass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, SunLightData& sunLightData, RenderInfo& renderInfo)
 {
     SceneManager* manager = Engine::get()->getSceneManager();
     Scene* scene = manager->getScene();
@@ -429,6 +443,8 @@ void SceneRenderer::renderLightObjectsPass(std::vector<PointLightData>& lights, 
 
     glm::mat4& projection_matrix = camera->getProjectionMatrix();
     m_lightObjectMatrixProjectionUniform->setMatrix4x4(projection_matrix);
+    
+    m_lightObjectGammaUniform->setFloat(m_gamma);
     
     size_t lightsCount = lights.size();
     size_t spotLightCount = spots.size();
@@ -460,6 +476,10 @@ void SceneRenderer::renderLightObjectsPass(std::vector<PointLightData>& lights, 
         
         Render::drawMesh(m_spotLightMesh, renderInfo);
     }
+    
+    m_lightObjectMatrixModelUniform->setMatrix4x4(sunLightData.model);
+    m_lightObjectColorUniform->setVec3(sunLightData.color);
+    Render::drawMesh(m_sunLightMesh, renderInfo);
     
     Render::endRenderPass(renderPass);
 }
@@ -508,7 +528,9 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     std::vector<PointLightData> lights;
     std::vector<SpotLightData> spots;
     
-    constructLightsData(lights, spots);
+    SunLightData sunLightData;
+    
+    constructLightsData(lights, spots, sunLightData);
     
     Render::useFrameBuffer(m_frameBuffer);
 
@@ -520,7 +542,7 @@ void SceneRenderer::render(RenderInfo& renderInfo)
 
     if (m_renderBasePass)
     {
-        renderBasePass(lights, spots, renderInfo);
+        renderBasePass(lights, spots, sunLightData, renderInfo);
     }
 
     if (m_renderBoundPass)
@@ -530,7 +552,7 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     
     if (m_renderLightObjectsPass)
     {
-        renderLightObjectsPass(lights, spots, renderInfo);
+        renderLightObjectsPass(lights, spots, sunLightData, renderInfo);
     }
     
     Render::unUseFrameBuffer();
@@ -565,6 +587,23 @@ void SceneRenderer::drawDebugUI()
 
     f = glm::value_ptr(m_sceneColor);
     ImGui::ColorEdit3("scene color", f);
+    
+    SceneManager* manager = Engine::get()->getSceneManager();
+    Scene* scene = manager->getScene();
+    SunLight* light = scene->getSunLight();
+    
+    if (light)
+    {
+        m_basePassLightColor = light->getColor();
+        f = glm::value_ptr(m_basePassLightColor );
+        ImGui::ColorEdit3("Sun color", f);
+        light->setColor(m_basePassLightColor);
+        
+        float intensity = light->getIntensity();
+        ImGui::SliderFloat("Sun intensity", &intensity, .0f, 1.0f);
+        light->setIntensity(intensity);
+    }
+    
 
     ImGui::SliderFloat("Ambient Strength", &m_basePassAmbientStrength, .0f, 1.0f);
     ImGui::SliderFloat("Specular Strength", &m_basePassSpecularStrength, .0f, 1.0f);
@@ -574,10 +613,13 @@ void SceneRenderer::drawDebugUI()
     ImGui::End();
 }
 
-void SceneRenderer::constructLightsData(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots)
+void SceneRenderer::constructLightsData(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, SunLightData& sunLightData)
 {
     SceneManager* manager = Engine::get()->getSceneManager();
     Scene* scene = manager->getScene();
+    
+    SunLight* sunLight = scene->getSunLight();
+    sunLightData = SunLight::getSunLightData(sunLight);
 
     size_t numGameObject = scene->getGameObjectCount();
     

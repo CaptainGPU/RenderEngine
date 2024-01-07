@@ -8,7 +8,8 @@
 
 Scene::Scene(std::string name):
 m_defaultCamera(nullptr),
-m_camera(nullptr)
+m_camera(nullptr),
+m_sunLight(nullptr)
 {
     m_name = name;
 }
@@ -34,6 +35,16 @@ void Scene::simulate(float deltaTime)
     }
     
     update(deltaTime);
+}
+
+SunLight* Scene::getSunLight()
+{
+    return m_sunLight;
+}
+
+void Scene::setSunLight(SunLight* sun)
+{
+    m_sunLight = sun;
 }
 
 void Scene::drawGUI()

@@ -53,9 +53,9 @@ glm::mat4 GameObject::getModelMatrix()
     {
         m_modelMatrix = glm::mat4(1.0f);
         m_modelMatrix = glm::translate(m_modelMatrix, m_position);
-        m_modelMatrix = glm::rotate(m_modelMatrix, m_rotation.x, glm::vec3(1.0f, 0.0f, .0f));
-        m_modelMatrix = glm::rotate(m_modelMatrix, m_rotation.y, glm::vec3(0.0f, 1.0f, .0f));
-        m_modelMatrix = glm::rotate(m_modelMatrix, m_rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, .0f));
+        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, .0f));
+        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
         m_modelMatrix = glm::scale(m_modelMatrix, m_scale);
         m_isDirtyTransform = false;
     }
@@ -142,6 +142,42 @@ void GameObject::addRotationY(const float& y)
 void GameObject::addRotationZ(const float& z)
 {
     m_rotation.z += z;
+    
+    if (m_rotation.z > 360.0)
+    {
+        m_rotation.z -= 360.0;
+    }
+    
+    m_isDirtyTransform = true;
+}
+
+void GameObject::SetRotateX(const float& x)
+{
+    m_rotation.x = x;
+    
+    if (m_rotation.x > 360.0)
+    {
+        m_rotation.x -= 360.0;
+    }
+    
+    m_isDirtyTransform = true;
+}
+
+void GameObject::SetRotateY(const float& y)
+{
+    m_rotation.y = y;
+    
+    if (m_rotation.y > 360.0)
+    {
+        m_rotation.y -= 360.0;
+    }
+    
+    m_isDirtyTransform = true;
+}
+
+void GameObject::SetRotateZ(const float& z)
+{
+    m_rotation.z = z;
     
     if (m_rotation.z > 360.0)
     {

@@ -15,6 +15,7 @@ class FrameBuffer;
 class Mesh;
 struct PointLightData;
 struct SpotLightData;
+struct SunLightData;
 
 enum SceneRendererPasses
 {
@@ -37,12 +38,12 @@ public:
     void drawDebugUI() override;
 
 private:
-    void renderBasePass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, RenderInfo& renderInfo);
+    void renderBasePass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, SunLightData& sunLightData, RenderInfo& renderInfo);
     void renderBoundPass(RenderInfo& renderInfo);
-    void renderLightObjectsPass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, RenderInfo& renderInfo);
+    void renderLightObjectsPass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, SunLightData& sunLightData, RenderInfo& renderInfo);
     void renderPostProcessingPass(RenderInfo& renderInfo);
     
-    void constructLightsData(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots);
+    void constructLightsData(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, SunLightData& sunLightData);
     
 private:
     bool m_renderBasePass;
@@ -70,6 +71,7 @@ private:
     Uniform* m_lightObjectMatrixViewUniform;
     Uniform* m_lightObjectMatrixProjectionUniform;
     Uniform* m_lightObjectColorUniform;
+    Uniform* m_lightObjectGammaUniform;
     
     Uniform* m_sceneTextureUniform;
     Uniform* m_chromaticAberrationUniform;
@@ -81,6 +83,8 @@ private:
 
     Uniform* m_basePassAlbedoUniform;
     Uniform* m_baseLightColorUniform;
+    Uniform* m_basePassSunDirectionUniform;
+    Uniform* m_basePassSunIntensityUniform;
     Uniform* m_basePassAmbientColorUniform;
     Uniform* m_basePasSmoothnessUniform;
     Uniform* m_basePassAmbientStrengthUniform;
@@ -118,4 +122,5 @@ private:
     
     Mesh* m_lightObjectMesh;
     Mesh* m_spotLightMesh;
+    Mesh* m_sunLightMesh;
 };

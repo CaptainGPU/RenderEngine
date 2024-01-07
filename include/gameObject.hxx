@@ -47,6 +47,10 @@ public:
     void addRotationY(const float& y);
     void addRotationZ(const float& z);
     
+    void SetRotateX(const float& x);
+    void SetRotateY(const float& y);
+    void SetRotateZ(const float& z);
+    
     float getRotationX();
     float getRotationY();
     float getRotationZ();

@@ -7,13 +7,15 @@
 #include "debugCamera.hxx"
 #include "pointLightGameObject.hxx"
 #include "spotLight.hxx"
+#include "sunLight.hxx"
 
 #define TWO_PI 6.283
 
 TestScene::TestScene()
 :Scene("TestScene"),
 m_time(.0f),
-m_whiteLight(nullptr)
+m_whiteLight(nullptr),
+m_sun(nullptr)
 {
 }
 
@@ -40,7 +42,7 @@ void TestScene::construct()
             gameObject->setPositionX((i * dist) - (4.5 * dist) );
             gameObject->setPositionZ((j * dist) - (4.5 * dist));
             
-            gameObject->addRotationY((6.28 / 10.0) * count);
+            gameObject->addRotationY((360.0f / 10.0) * i * j);
             
             addGameObject(gameObject);
             
@@ -74,7 +76,7 @@ void TestScene::construct()
     
     m_whiteLight = new SpotLight();
     m_whiteLight->setColor(glm::vec3(0.5f, 0.5f, 0.5f));
-    m_whiteLight->addRotationZ(glm::radians(-45.0f));
+    m_whiteLight->addRotationZ(-45.0f);
     addGameObject(m_whiteLight);
     
     m_plane = new TestGameObject("plane.mesh");
@@ -86,7 +88,7 @@ void TestScene::construct()
     
     m_spot1 = new SpotLight();
     m_spot1->setColor(glm::vec3(0.0f, .0f, 1.0f));
-    m_spot1->addRotationZ(glm::radians(-90.0f));
+    m_spot1->addRotationZ(-90.0f);
     m_spot1->setPositionZ(-10.5);
     m_spot1->setPositionY(4.0f);
     m_spot1->setPositionX(-10.5);
@@ -94,7 +96,7 @@ void TestScene::construct()
     
     m_spot2 = new SpotLight();
     m_spot2->setColor(glm::vec3(1.0f, .0f, 0.0f));
-    m_spot2->addRotationZ(glm::radians(-90.0f));
+    m_spot2->addRotationZ(-90.0f);
     m_spot2->setPositionZ(10.5);
     m_spot2->setPositionY(4.0f);
     
@@ -107,6 +109,15 @@ void TestScene::construct()
     addGameObject(m_spot1);
     addGameObject(m_spot2);
     addGameObject(m_spot3);
+    
+    SunLight* sun = new SunLight();
+    setSunLight(sun);
+    sun->setIntensity(0.2f);
+    sun->setColor(glm::vec3(.5f));
+    sun->setPositionY(8.0f);
+    addGameObject(sun);
+    
+    m_sun = sun;
 }
 
 void TestScene::update(float deltaTime)
@@ -117,7 +128,7 @@ void TestScene::update(float deltaTime)
     {
         
         //gameObject->addRotationZ(deltaTime);
-        gameObject->addRotationY(deltaTime);
+        gameObject->addRotationY(deltaTime * 100.0);
     }
     
     int index = 0;
@@ -146,12 +157,17 @@ void TestScene::update(float deltaTime)
     m_whiteLight->setPositionY(4.0);
     
     //m_whiteLight->addRotationX(deltaTime);
-    m_whiteLight->addRotationY(-deltaTime);
+    m_whiteLight->addRotationY(-deltaTime * 90.0f);
     //m_whiteLight->addRotationZ(deltaTime);
     
-    m_spot1->addRotationX(deltaTime * 1.5);
-    m_spot2->addRotationZ(deltaTime * 2.0);
-    m_spot3->addRotationZ(-deltaTime * 2.5);
+    m_spot1->addRotationX(deltaTime * 1.5 * 90.0f);
+    m_spot2->addRotationZ(deltaTime * 2.0  * 90.0f);
+    m_spot3->addRotationZ(-deltaTime * 2.5  * 90.0f);
+    
+    float sunMove = glm::cos(m_time * 0.5);
+    sunMove *= 60.0;
+    
+    m_sun->SetRotateZ(-90.0f + sunMove);
 }
 
 
