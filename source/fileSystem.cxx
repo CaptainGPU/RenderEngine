@@ -38,7 +38,8 @@ void mountFileSystemEmscripten()
         "/Models/crash_normal.mesh",
         "/Models/monkey_normal.mesh",
         "/Models/plane.mesh",
-        "/Models/spot.mesh"
+        "/Models/spot.mesh",
+        "/Models/sun.mesh"
     };
 
     for (size_t i = 0; i < files.size(); i++)
