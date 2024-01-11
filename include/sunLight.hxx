@@ -13,6 +13,7 @@ struct SunLightData
     glm::vec3 color;
     float intensity;
     glm::mat4 model;
+    glm::mat4 view;
 };
 
 class SunLight : public GameObject

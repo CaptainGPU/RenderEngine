@@ -16,7 +16,9 @@ Engine* Engine::g_Engine;
 Engine::Engine():
 m_all(1.0f),
 m_avr(30.0f),
-m_count(1.0f)
+m_count(1.0f),
+m_windowFrameBufferHeight(0),
+m_windowFrameBufferWidth(0)
 {
     m_deltaTime = .0;
     g_Engine = this;
@@ -122,6 +124,18 @@ void Engine::registreEngine(Engine* engine)
 float Engine::getGameTime()
 {
     return m_gameTime;
+}
+
+void Engine::setWindowBufferSize(unsigned int widht, unsigned int height)
+{
+    m_windowFrameBufferWidth = widht;
+    m_windowFrameBufferHeight = height;
+}
+
+void Engine::getWindowBufferSize(unsigned int& widht, unsigned int& height)
+{
+    widht = m_windowFrameBufferWidth;
+    height = m_windowFrameBufferHeight;
 }
 
 SceneManager* Engine::getSceneManager()

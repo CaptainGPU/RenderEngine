@@ -7,6 +7,7 @@
 
 #include "shaderLoader.hxx"
 #include "meshLoader.hxx"
+#include "engine.hxx"
 
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
@@ -22,6 +23,11 @@ void Render::clearView(float r, float g, float b, float a)
 {
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Render::clearDepth()
+{
+    glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 /**/
@@ -288,8 +294,8 @@ FrameBuffer* Render::createFrameBuffer()
     Texture* texture = Render::createTexture();
     
     unsigned int width, height;
-    width = 800;
-    height = 600;
+
+    Engine::get()->getWindowBufferSize(width, height);
     
     FrameBuffer* frameBuffer = new FrameBuffer();
     
@@ -344,6 +350,42 @@ FrameBuffer* Render::createFrameBuffer()
     frameBuffer->set_openGL_FBO(fbo);
     frameBuffer->setColorTexture(texture);
     
+    return frameBuffer;
+}
+
+FrameBuffer* Render::createDepthMapFrameBuffer()
+{
+    FrameBuffer* frameBuffer = new FrameBuffer();
+
+    unsigned int depthMapFBO;
+    glGenFramebuffers(1, &depthMapFBO);
+
+    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+
+    Texture* depthMapTexture = Render::createTexture();
+
+    unsigned int depthMap = depthMapTexture->get_OpenGL_Texture();
+    Render::useTexture(depthMapTexture);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    Render::unUseTexture();
+
+    frameBuffer->set_openGL_FBO(depthMapFBO);
+    frameBuffer->setDepthTexture(depthMapTexture);
+
     return frameBuffer;
 }
 

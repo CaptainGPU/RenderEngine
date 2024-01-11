@@ -6,6 +6,7 @@
 #include "window.hxx"
 #include "render.hxx"
 #include "input.hxx"
+#include "engine.hxx"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -72,7 +73,9 @@ Window::Window(int width, int height)
 	//Render::init();
 
 	// Set viewport to Window framebuffer size
-	Render::setViewport(0, 0, m_bufferWidth, m_bufferHeight);
+	//Render::setViewport(0, 0, m_bufferWidth, m_bufferHeight);
+
+	Engine::get()->setWindowBufferSize(m_bufferWidth, m_bufferHeight);
 }
 
 void Window::initInput()

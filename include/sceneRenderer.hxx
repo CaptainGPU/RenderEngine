@@ -19,6 +19,7 @@ struct SunLightData;
 
 enum SceneRendererPasses
 {
+    SUNLIGHT_SHADOW_PASS,
     BASE_PASS,
     BOUND_PASS,
     LIGHT_OBJECTS_PASS,
@@ -38,6 +39,7 @@ public:
     void drawDebugUI() override;
 
 private:
+    void renderSunLightShadowPass(SunLightData& sunLightData, RenderInfo& renderInfo);
     void renderBasePass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, SunLightData& sunLightData, RenderInfo& renderInfo);
     void renderBoundPass(RenderInfo& renderInfo);
     void renderLightObjectsPass(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, SunLightData& sunLightData, RenderInfo& renderInfo);
@@ -55,6 +57,12 @@ private:
     bool m_renderSpotLights;
 
     glm::vec3 m_boundColor;
+
+    Uniform* m_sunLightShadowPassModelUniform;
+    Uniform* m_sunLightShadowPassViewUniform;
+    Uniform* m_sunLightShadowPassProjectionUniform;
+
+    glm::mat4 m_sunLightProjectionMatrix;
 
     Uniform* m_matrixModelUniform;
     Uniform* m_matrixViewUniform;
@@ -90,6 +98,8 @@ private:
     Uniform* m_basePassAmbientStrengthUniform;
     Uniform* m_basePassSpecularStrengthUniform;
     Uniform* m_basePassCameraPosition;
+    Uniform* m_basePassSunSpaceMatrixUniform;
+    Uniform* m_basePassSunShadowTextureUniform;
 
     glm::vec3 m_basePassAlbedo;
     glm::vec3 m_basePassLightColor;
@@ -119,8 +129,15 @@ private:
     float m_gamma;
     
     FrameBuffer* m_frameBuffer;
+    FrameBuffer* m_sunLightShadowFrameBuffer;
     
     Mesh* m_lightObjectMesh;
     Mesh* m_spotLightMesh;
     Mesh* m_sunLightMesh;
+
+    unsigned int m_frameWidth;
+    unsigned int m_frameHeight;
+
+    unsigned int m_depthMapWidht;
+    unsigned int m_depthMapHeight;
 };

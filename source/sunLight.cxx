@@ -51,6 +51,13 @@ SunLightData SunLight::getSunLightData(SunLight* light)
         data.direction = forw;
         data.intensity = light->getIntensity();
         data.model = light->getModelMatrix();
+
+        glm::vec3 lightPos = light->getPosition();
+
+        //lightPos = glm::vec3(0.0, 0.0, 0.0);
+        //forw = glm::vec3(0.0, -1.0, .0);
+
+        data.view = glm::lookAt(lightPos, lightPos + forw, glm::vec3(0.0f, 1.0f, .0f));
     }
     else
     {

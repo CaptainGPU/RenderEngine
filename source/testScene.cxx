@@ -115,6 +115,7 @@ void TestScene::construct()
     sun->setIntensity(0.2f);
     sun->setColor(glm::vec3(.5f));
     sun->setPositionY(8.0f);
+    sun->SetRotateZ(-45.0f);
     addGameObject(sun);
     
     m_sun = sun;
@@ -164,10 +165,12 @@ void TestScene::update(float deltaTime)
     m_spot2->addRotationZ(deltaTime * 2.0  * 90.0f);
     m_spot3->addRotationZ(-deltaTime * 2.5  * 90.0f);
     
-    float sunMove = glm::cos(m_time * 0.5);
-    sunMove *= 60.0;
+    float sunMove = deltaTime * 45.0f;
+   // sunMove = 0.0;
     
-    m_sun->SetRotateZ(-90.0f + sunMove);
+    //m_sun->SetRotateZ(-90.0f + sunMove);
+
+    m_sun->addRotationY(sunMove);
 }
 
 

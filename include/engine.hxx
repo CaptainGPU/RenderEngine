@@ -29,6 +29,9 @@ public:
     static void registreEngine(Engine* engine);
 
     float getGameTime();
+
+    void setWindowBufferSize(unsigned int widht, unsigned int height);
+    void getWindowBufferSize(unsigned int& widht, unsigned int& height);
     
 private:
     void calculateDeltaTime();
@@ -45,6 +48,9 @@ private:
     float m_all;
     float m_avr;
     float m_count;
+
+    unsigned int m_windowFrameBufferWidth;
+    unsigned int m_windowFrameBufferHeight;
     
     static Engine* g_Engine;
     

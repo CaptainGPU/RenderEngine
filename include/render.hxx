@@ -35,6 +35,7 @@
 
 #include "frameBuffer.hxx"
 #include "texture.hxx"
+#include "depthMapFrameBuffer.hxx"
 
 // Static class that contains basic rendering functions
 class Render
@@ -61,6 +62,7 @@ public:
     static void unBindEBO();
 
 	static void clearView(float r, float g, float b, float a);
+	static void clearDepth();
 
 	static VertexShader* createVertexShader(std::string vertexProgram);
 	static FragmentShader* createFragmentShader(std::string fragmentProgram);
@@ -84,6 +86,8 @@ public:
     static void setUniformTexture(Uniform* uniform, Texture* texture);
     
     static FrameBuffer* createFrameBuffer();
+
+	static FrameBuffer* createDepthMapFrameBuffer();
     
     static Texture* createTexture();
     static void useTexture(Texture* texture);
