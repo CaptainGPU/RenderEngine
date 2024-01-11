@@ -35,7 +35,6 @@
 
 #include "frameBuffer.hxx"
 #include "texture.hxx"
-#include "depthMapFrameBuffer.hxx"
 
 // Static class that contains basic rendering functions
 class Render

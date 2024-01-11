@@ -31,6 +31,8 @@ void mountFileSystemEmscripten()
         "/shaders/WebGL/fullScreen.vert",
         "/shaders/WebGL/light.frag",
         "/shaders/WebGL/light.vert",
+        "/shaders/WebGL/sunLightShadow.vert",
+        "/shaders/WebGL/sunLightShadow.frag",
         "/Models/monkey.mesh",
         "/Models/monkey_hd.mesh",
         "/Models/quad.mesh",

@@ -367,17 +367,57 @@ FrameBuffer* Render::createDepthMapFrameBuffer()
     unsigned int depthMap = depthMapTexture->get_OpenGL_Texture();
     Render::useTexture(depthMapTexture);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    unsigned int wrapMode;
+    unsigned int depthFormat = GL_DEPTH_COMPONENT;
+    unsigned int depthTextureFormat = GL_FLOAT;
+
+#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
+    wrapMode = GL_CLAMP_TO_EDGE;
+    depthFormat = GL_DEPTH_COMPONENT16;
+    depthTextureFormat = GL_UNSIGNED_SHORT;
+#else
+    wrapMode = GL_CLAMP_TO_BORDER;
+#endif
+    glTexImage2D(GL_TEXTURE_2D, 0, depthFormat, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, depthTextureFormat, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+
+#if CURRENT_PLATFORM != PLATFORM_EMSCRIPTEN
     float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+#endif
 
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-    glDrawBuffer(GL_NONE);
+
+
+#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
+    Texture* colorTexture = Render::createTexture();
+
+    unsigned int format = GL_SRGB8_ALPHA8;
+    unsigned int chanels = GL_RGBA;
+    unsigned int dataFormat = GL_UNSIGNED_BYTE;
+
+    unsigned int frameBufferTexture = colorTexture->get_OpenGL_Texture();
+    Render::useTexture(colorTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, SHADOW_WIDTH, SHADOW_HEIGHT, 0, chanels, dataFormat, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
+
+#endif
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+
+    
+    //glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -1,5 +1,4 @@
 #version 300 es
-
 precision highp float;
 
 const float PI = 3.14159265359;
@@ -28,6 +27,7 @@ const int MAX_SPOT_LIGHTS = 4;
 in vec3 v_normal;
 in vec3 v_position;
 in vec3 vertexColor;
+in vec4 v_fragPosLightSpace;
 
 out vec4 color;
 uniform float u_time;
@@ -43,21 +43,22 @@ uniform PointLight u_pointLights[MAX_POINT_LIGHTS];
 uniform SpotLight u_spotLights[MAX_SPOT_LIGHTS];
 uniform int u_pointLightsCount;
 uniform int u_spotLightsCount;
+uniform vec3 u_sunDirection;
+uniform float u_sunItensity;
+uniform sampler2D u_texture_0;
 
 vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor)
 {
-    vec3 lightColor = u_pointLights[index].color;
+    vec3 lightColor = pow(u_pointLights[index].color, vec3(u_gamma));
     vec3 lightPosition = u_pointLights[index].position;
-
     vec3 lightDir = normalize(lightPosition - v_position);
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
 
     float diff = max(dot(normal, lightDir), 0.0);
-    
-    vec3 reflectDir = reflect(-lightDir, normal);
 
-    float specPos = mix(2.0, 512.0, u_smoothness);
+    float specPow = mix(2.0, 512.0, u_smoothness);
 
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), specPos);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), specPow);
     spec *= u_specularStrength;
 
     float distance = length(lightPosition - v_position);
@@ -69,17 +70,37 @@ vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor
     float quadratic = 75.0f/(range*range);
 
     float attenuation = 1.0 / (constant + linear * distance + quadratic * (distance * distance));
-    
+    attenuation = clamp(attenuation, .0, 1.0);
+
     vec3 ambient = u_ambientStrength * lightColor;
     vec3 diffuse = diff * lightColor;
     vec3 specular = spec * lightColor;
 
+    vec3 ToLight = lightPosition - v_position;
+    float DistanceSqr = dot(ToLight, ToLight);
+
+    attenuation = 1.0 / (DistanceSqr + 1.0);
+
+    float InvRadius = 1.0 / range;
+
+    float A = (InvRadius * InvRadius);
+    float B = DistanceSqr * A;
+    float C = B * B;
+    float D = 1.0 - C;
+    float E = clamp(D, 0.0, 1.0);
+    float F = E * E;
+
+    attenuation *= F;
+
+    //float LightRadiusMask = Square(E);
 
     ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
 
     return ambient + diffuse + specular;
+
+    //return vec3(attenuation);
 }
 
 vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
@@ -89,11 +110,12 @@ vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
     vec3 lightDirection = u_spotLights[index].direction;
     float diff = max(dot(normal, lightDir), 0.0);
     vec3 reflectDir = reflect(-lightDir, normal);
-    vec3 lightColor = u_spotLights[index].color;
+    vec3 lightColor = pow(u_spotLights[index].color, vec3(u_gamma));; 
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
 
-    float specPos = mix(2.0, 512.0, u_smoothness);
+    float specPow = mix(2.0, 512.0, u_smoothness);
 
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), specPos);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), specPow);
     spec *= u_specularStrength;
 
     float distance = length(lightPosition - v_position);
@@ -123,6 +145,56 @@ vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
     return ambient + diffuse + specular;
 }
 
+float calculateShadow()
+{
+    vec3 projCoords = v_fragPosLightSpace.xyz / v_fragPosLightSpace.w;
+    vec2 uvCoords;
+    uvCoords.x = 0.5 * projCoords.x + 0.5;
+    uvCoords.y = 0.5 * projCoords.y + 0.5;
+
+
+    float z = 0.5 * projCoords.z + 0.5;
+    float depth = texture(u_texture_0, uvCoords).x;
+    float bias = 0.0025;
+
+    float shadow = (depth + bias) < z ? 0.0 : 1.0;
+
+
+    shadow = uvCoords.x < 0.0 ? 1.0 : shadow;
+    shadow = uvCoords.y < 0.0 ? 1.0 : shadow;
+
+    shadow = uvCoords.x > 1.0 ? 1.0 : shadow;
+    shadow = uvCoords.y > 1.0 ? 1.0 : shadow;
+        
+    return shadow;
+}
+
+vec3 calculateDirectionLight(vec3 normal, vec3 viewDir)
+{
+    vec3 lightColor = pow(u_lightColor, vec3(u_gamma));
+    vec3 lightDirection = u_sunDirection;
+    vec3 lightDir = normalize(-lightDirection);
+    float diff = max(dot(normal, lightDir), 0.0);
+
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    
+    float specPow = mix(2.0, 512.0, u_smoothness);
+
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), specPow);
+    spec *= u_specularStrength;
+
+    vec3 ambient = u_ambientStrength * lightColor;
+    vec3 diffuse = diff * lightColor;
+    vec3 specular = spec * lightColor;
+
+    float shadow = calculateShadow();
+
+    vec3 finalColor = ambient + shadow * (diffuse + specular);
+    finalColor *= u_sunItensity;
+
+    return finalColor;
+}
+
 void main()
 {
     vec3 lighing  = vec3(0);
@@ -130,7 +202,7 @@ void main()
     vec3 normal = normalize(v_normal);
     vec3 viewDir = normalize(u_cameraPosition - v_position);
 
-    vec3 ambientColor = pow(u_ambientColor, vec3(u_gamma));
+    lighing += calculateDirectionLight(normal, viewDir);
 
     for (int i = 0; i < u_pointLightsCount; i++)
     {
@@ -143,37 +215,6 @@ void main()
     }
 
     vec3 finalColor = lighing;
-    color = vec4(finalColor, 0);
 
-    // vec3 objectColor = pow(u_albedo, vec3(u_gamma));
-    // //objectColor *= u_pointLights[0].color;
-
-    // vec3 lightPosition = u_pointLights[0].position;
-
-    // vec3 lightColor = pow(u_lightColor, vec3(u_gamma));
-    // vec3 ambientColor = pow(u_ambientColor, vec3(u_gamma));
-
-    // // ambient
-    // float ambientStrength = u_ambientStrength;
-    // vec3 ambient = ambientStrength * ambientColor;
-  	
-    // // diffuse 
-    // vec3 norm = normalize(v_normal);
-    // vec3 lightDir = normalize(lightPosition - v_position);
-    // float diff = max(dot(norm, lightDir), 0.0);
-    // vec3 diffuse = diff * lightColor;
-
-    // // specular
-    // float specularStrength = u_specularStrength;
-    // vec3 viewDir = normalize(u_cameraPosition - v_position);
-    // vec3 reflectDir = reflect(-lightDir, norm);
-
-    // float specPos = mix(2.0, 512.0, u_smoothness);
-
-    // float spec = pow(max(dot(viewDir, reflectDir), 0.0), specPos);
-    // vec3 specular = specularStrength * spec * lightColor;  
-
-    // vec3 result = (ambient + diffuse + specular) * objectColor;
-
-    // color = vec4(result, 1.0);
+    color = vec4(finalColor, 1.0);
 }  

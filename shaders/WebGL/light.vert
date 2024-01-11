@@ -12,12 +12,13 @@ uniform mat4 u_modelMatrix;
 uniform mat4 u_viewMatrix;
 uniform mat4 u_projectionMatrix;
 uniform vec3 u_color;
+uniform float u_gamma;
 
 void main()
 {
     v_normal = mat3(transpose(inverse(u_modelMatrix))) * a_normal;
     v_position = vec3(u_modelMatrix * vec4(a_position, 1.0));
 
-    vertexColor = u_color;
+    vertexColor = pow(u_color, vec3(u_gamma));
     gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(a_position * vec3(0.3), 1.0f);
 }
