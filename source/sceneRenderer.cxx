@@ -24,9 +24,6 @@ m_boundMatrixViewUniform(nullptr),
 m_boundMatrixProjectionUniform(nullptr),
 m_boundColorUniform(nullptr),
 m_sceneTextureUniform(nullptr),
-m_renderBoundPass(false),
-m_renderBasePass(true),
-m_renderLightObjectsPass(true),
 m_renderPostProcessing(true),
 m_boundColor(1.0),
 m_frameBuffer(nullptr),
@@ -59,6 +56,11 @@ m_sceneColor(glm::vec3(.0))
     
     m_renderPointLights = true;
     m_renderSpotLights = true;
+    m_renderSunLighShadowMap = false;
+
+    m_renderBoundPass = false;
+    m_renderBasePass = true;
+    m_renderLightObjectsPass = false;
 
     // SunLight shadow Pass
 
@@ -111,6 +113,11 @@ m_sceneColor(glm::vec3(.0))
     m_lightObjectMatrixViewUniform = nullptr;
     m_lightObjectMatrixProjectionUniform = nullptr;
     m_lightObjectColorUniform = nullptr;
+
+    // Post-processing pass
+
+    m_sunLightShadowTextureUniform = nullptr;
+    m_postProcessShowShadowMapUniform = nullptr;
 
     // Data
 
@@ -303,7 +310,7 @@ void SceneRenderer::init()
         
         if (pass == POSTPROCESSING_PASS)
         {
-            std::vector<std::string> uniformNames = { "u_texture_0", "u_chromaticAberration", "u_sepia", "u_filmGrain", "u_vignette", "u_time", "u_gamma"};
+            std::vector<std::string> uniformNames = { "u_texture_0", "u_chromaticAberration", "u_sepia", "u_filmGrain", "u_vignette", "u_time", "u_gamma", "u_texture_1", "u_showShadowMap"};
             
             renderPass = new ScreenRenderPass();
             renderPass->makeProgram("fullScreen", "fullScreen");
@@ -316,6 +323,8 @@ void SceneRenderer::init()
             m_vignetteUniform = renderPass->getUniform(uniformNames[4]);
             m_postProcessTimeUniform = renderPass->getUniform(uniformNames[5]);
             m_postProcessGammaUniform = renderPass->getUniform(uniformNames[6]);
+            m_sunLightShadowTextureUniform = renderPass->getUniform(uniformNames[7]);
+            m_postProcessShowShadowMapUniform = renderPass->getUniform(uniformNames[8]);
         }
 
         m_renderPasses[i] = renderPass;
@@ -334,6 +343,32 @@ void SceneRenderer::finish()
     Renderer::finish();
 }
 
+std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view)
+{
+    const glm::mat4 inv = glm::inverse(view);
+
+    std::vector<glm::vec4> frustumCorners;
+
+    for (unsigned int x = 0; x < 2; ++x)
+    {
+        for (unsigned int y = 0; y < 2; ++y)
+        {
+            for (unsigned int z = 0; z < 2; ++z)
+            {
+                const glm::vec4 pt = inv * glm::vec4(
+                    2.0f * x - 1.0f,
+                    2.0f * y - 1.0f,
+                    2.0f * z - 1.0f,
+                    1.0f
+                );
+                frustumCorners.push_back(pt / pt.w);
+            }
+        }
+    }
+
+    return frustumCorners;
+}
+
 void SceneRenderer::renderSunLightShadowPass(SunLightData& sunLightData, RenderInfo& renderInfo)
 {
     SceneManager* manager = Engine::get()->getSceneManager();
@@ -345,11 +380,14 @@ void SceneRenderer::renderSunLightShadowPass(SunLightData& sunLightData, RenderI
     RenderPass* renderPass = m_renderPasses[SceneRendererPasses::SUNLIGHT_SHADOW_PASS];
     Render::startRenderPass(renderPass, renderInfo);
 
-    glm::mat4& viewMatrix = sunLightData.view;
+    glm::mat4& viewMatrix = glm::lookAt(camera->getPosition(), camera->getPosition() + sunLightData.direction, glm::vec3(0.0f, 1.0, 0.0f));
     m_sunLightShadowPassViewUniform->setMatrix4x4(viewMatrix);
 
-    glm::mat4& projection_matrix = m_sunLightProjectionMatrix;
+    glm::mat4& projection_matrix = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, 0.0f, 100.0f);
     m_sunLightShadowPassProjectionUniform->setMatrix4x4(projection_matrix);
+
+    sunLightData.view = viewMatrix;
+    m_sunLightProjectionMatrix = projection_matrix;
 
     for (size_t i = 0; i < numGameObject; i++)
     {
@@ -410,7 +448,7 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vec
     m_basePassSunSpaceMatrixUniform->setMatrix4x4(sunSpaceMatrix);
 
     Texture* texture = m_sunLightShadowFrameBuffer->getDepthTexture();
-    m_basePassSunShadowTextureUniform->setTexture(texture);
+    m_basePassSunShadowTextureUniform->setTexture(texture, 0);
     
     int lightsCount = lights.size();
     int spotLightCount = spots.size();
@@ -570,10 +608,14 @@ void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
     ScreenRenderPass* pass = dynamic_cast<ScreenRenderPass*>(renderPass);
 
     Render::startRenderPass(renderPass, renderInfo);
+
+    int showShadowMap = m_renderSunLighShadowMap ? 1 : 0;
+    m_postProcessShowShadowMapUniform->setInt(showShadowMap);
     
     Texture* texture = m_frameBuffer->getColorTexture();
-    //Texture* texture = m_sunLightShadowFrameBuffer->getDepthTexture();
-    m_sceneTextureUniform->setTexture(texture);
+    Texture* sunLightTexture = m_sunLightShadowFrameBuffer->getColorTexture();
+    m_sceneTextureUniform->setTexture(texture, 0);
+    m_sunLightShadowTextureUniform->setTexture(sunLightTexture, 1);
     
     float aberrationPower = 0.0;
     float sepia = .0;
@@ -618,7 +660,7 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     Render::setViewport(0, 0, m_depthMapWidht, m_depthMapHeight);
     Render::useFrameBuffer(m_sunLightShadowFrameBuffer);
     
-    Render::clearDepth();
+    Render::clearView(0.0, 0.0, 0.0, 1.0);
 
     renderSunLightShadowPass(sunLightData, renderInfo);
 
@@ -677,6 +719,7 @@ void SceneRenderer::drawDebugUI()
     ImGui::Checkbox("Spot Lights Enable", &m_renderSpotLights);
     ImGui::Checkbox("Point Lights Enable", &m_renderPointLights);
     ImGui::Checkbox("Post-Processing Pass", &m_renderPostProcessing);
+    ImGui::Checkbox("Show ShadowMap", &m_renderSunLighShadowMap);
 
     float* f = glm::value_ptr(m_boundColor);
     ImGui::ColorEdit3("bound", f);

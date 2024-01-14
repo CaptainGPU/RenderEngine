@@ -31,7 +31,7 @@ public:
     void setMatrix4x4(glm::mat4& matrix);
     void setFloat(float& value);
     void setInt(int& value);
-    void setTexture(Texture* texture);
+    void setTexture(Texture* texture, unsigned int slot);
     
 private:
     GLint m_ogl_uniformID;

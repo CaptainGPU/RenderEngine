@@ -7,7 +7,7 @@
 #include "input.hxx"
 
 DebugCamera::DebugCamera() :
-Camera("DebugCamera"),
+Camera("DebugCamera", 45.0f, 0.1, 100.0f),
 m_speed(10),
 m_turnSpeed(.2f)
 {

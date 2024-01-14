@@ -28,6 +28,7 @@ public:
     GameObject* getGameObject(size_t index);
 
     Camera* getCamera();
+    Camera* getDefaultCamera();
     void setCamera(Camera* camera);
     
     virtual void construct();

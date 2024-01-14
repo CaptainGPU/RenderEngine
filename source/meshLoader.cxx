@@ -243,3 +243,87 @@ Mesh* loadMesh(std::string modelName)
 
 	return mesh;
 }
+
+MeshBound* createCorterBound(std::vector<glm::vec4>& corners)
+{
+	//std::vector<glm::vec4> corners = getCorners(proj, view);
+	std::vector<Vertex> vertices;
+
+	for (const auto& v : corners)
+	{
+		Vertex vert = { glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f) };
+		vert.pos = glm::vec3(v);
+		vertices.push_back(vert);
+	}
+
+	std::vector<uint32_t> indices = {
+		0, 1,
+		1, 5,
+		5, 4,
+		4, 0,
+		2, 3,
+		3, 7,
+		7, 6,
+		6, 2,
+		0, 2,
+		3, 1,
+		7, 5,
+		6, 4
+	};
+
+	MeshBound* bound = new MeshBound();
+
+	VertexAttributeObject* vao = new VertexAttributeObject();
+	vao->init();
+
+	ElementBufferObject* ebo = new ElementBufferObject(indices.size());
+	ebo->init();
+
+	GLuint vbo1, vao1, ebo1;
+	vao1 = vao->getOpenGLVAO();
+	ebo1 = ebo->get_OpenGL_EBO();
+
+	Render::bindVAO(vao);
+
+	glGenBuffers(1, &vbo1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo1);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo1);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices[0]) * indices.size(), &indices[0], GL_STATIC_DRAW);
+
+	int POS_LOC = 0;
+	int UV_LOC = 1;
+	int NORMAL_LOC = 2;
+
+	size_t NumFloats = 0;
+
+
+	// XYZ data
+	glEnableVertexAttribArray(POS_LOC);
+	glVertexAttribPointer(POS_LOC, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(NumFloats * sizeof(float)));
+	NumFloats += 3;
+
+	// UV data
+	glEnableVertexAttribArray(UV_LOC);
+	glVertexAttribPointer(UV_LOC, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(NumFloats * sizeof(float)));
+	NumFloats += 2;
+
+	// normals
+	glEnableVertexAttribArray(NORMAL_LOC);
+	glVertexAttribPointer(NORMAL_LOC, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(NumFloats * sizeof(float)));
+	NumFloats += 3;
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	generateStaticMeshBound(bound);
+
+	bound->set_OpenGL_VBO(vbo1);
+	bound->setVAO(vao);
+	bound->setEBO(ebo);
+
+	return bound;
+}

@@ -16,7 +16,7 @@ m_sunLight(nullptr)
 
 void Scene::construct()
 {
-    m_defaultCamera = new Camera("Defailt Camera");
+    m_defaultCamera = new Camera("Defailt Camera", 45.0f, 0.1, 5.0f);
     addGameObject(m_defaultCamera);
 }
 
@@ -135,6 +135,11 @@ void Scene::finish()
 Camera* Scene::getCamera()
 {
     return m_camera ? m_camera : m_defaultCamera;
+}
+
+Camera* Scene::getDefaultCamera()
+{
+    return m_defaultCamera;
 }
 
 void Scene::setCamera(Camera* camera)

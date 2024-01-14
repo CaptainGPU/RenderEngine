@@ -82,7 +82,7 @@ public:
     static void setUniformMatrix4x4(Uniform* uniform, glm::mat4& matrix);
 	static void setUniformFloatValue(Uniform* uniform, float& value);
     static void setUniformIntValue(Uniform* uniform, int& value);
-    static void setUniformTexture(Uniform* uniform, Texture* texture);
+    static void setUniformTexture(Uniform* uniform, Texture* texture, unsigned int slot);
     
     static FrameBuffer* createFrameBuffer();
 

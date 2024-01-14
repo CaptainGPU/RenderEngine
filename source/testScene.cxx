@@ -53,9 +53,9 @@ void TestScene::construct()
     DebugCamera* camera = new DebugCamera();
     addGameObject(camera);
     setCamera(camera);
-    camera->setPosition(glm::vec3(0.0f, 22.0, 30.5f));
-    camera->setPitch(-34.65f);
-    camera->setYaw(-90.0f);
+    //camera->setPosition(glm::vec3(0.0f, 22.0, 30.5f));
+    //camera->setPitch(-34.65f);
+    //camera->setYaw(-90.0f);
     
     PoinLightGameObject* pointLight = nullptr;
     
@@ -115,7 +115,7 @@ void TestScene::construct()
     sun->setIntensity(0.2f);
     sun->setColor(glm::vec3(.5f));
     sun->setPositionY(8.0f);
-    sun->SetRotateZ(-45.0f);
+    //sun->SetRotateZ(-45.0f);
     addGameObject(sun);
     
     m_sun = sun;
@@ -170,7 +170,9 @@ void TestScene::update(float deltaTime)
     
     //m_sun->SetRotateZ(-90.0f + sunMove);
 
-    m_sun->addRotationY(sunMove);
+    m_sun->addRotationZ(sunMove);
+
+    getDefaultCamera()->addRotationY(sunMove);
 }
 
 

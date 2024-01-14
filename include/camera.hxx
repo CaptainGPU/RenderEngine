@@ -11,7 +11,7 @@
 class Camera : public GameObject
 {
 public:
-	Camera(std::string name);
+	Camera(std::string name, float fov, float nearZ, float farZ);
 
 	glm::mat4& getProjectionMatrix();
 	glm::mat4& getViewMatrix();
@@ -42,4 +42,6 @@ protected:
 	float m_yaw;
 	float m_pitch;
 	float m_fov;
+	float m_nearZ;
+	float m_farZ;
 };

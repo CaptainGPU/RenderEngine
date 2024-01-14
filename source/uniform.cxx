@@ -43,7 +43,7 @@ void Uniform::setInt(int& value)
     Render::setUniformIntValue(this, value);
 }
 
-void Uniform::setTexture(Texture* texture)
+void Uniform::setTexture(Texture* texture, unsigned int slot)
 {
-    Render::setUniformTexture(this, texture);
+    Render::setUniformTexture(this, texture, slot);
 }

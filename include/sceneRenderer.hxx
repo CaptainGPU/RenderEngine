@@ -52,6 +52,7 @@ private:
     bool m_renderBoundPass;
     bool m_renderLightObjectsPass;
     bool m_renderPostProcessing;
+    bool m_renderSunLighShadowMap;
     
     bool m_renderPointLights;
     bool m_renderSpotLights;
@@ -82,12 +83,14 @@ private:
     Uniform* m_lightObjectGammaUniform;
     
     Uniform* m_sceneTextureUniform;
+    Uniform* m_sunLightShadowTextureUniform;
     Uniform* m_chromaticAberrationUniform;
     Uniform* m_sepiaUniform;
     Uniform* m_filmGrainUniform;
     Uniform* m_postProcessTimeUniform;
     Uniform* m_vignetteUniform;
     Uniform* m_postProcessGammaUniform;
+    Uniform* m_postProcessShowShadowMapUniform;
 
     Uniform* m_basePassAlbedoUniform;
     Uniform* m_baseLightColorUniform;

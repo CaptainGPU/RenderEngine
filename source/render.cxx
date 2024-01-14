@@ -282,11 +282,12 @@ void Render::setUniformIntValue(Uniform* uniform, int& value)
     glUniform1i(id, value);
 }
 
-void Render::setUniformTexture(Uniform* uniform, Texture* texture)
+void Render::setUniformTexture(Uniform* uniform, Texture* texture, unsigned int slot)
 {
+    Render::activateTexture(texture, slot);
     Render::useTexture(texture);
     GLint id = uniform->get_OpenGL_uniformID();
-    glUniform1i(id, 0);
+    glUniform1i(id, slot);
 }
 
 FrameBuffer* Render::createFrameBuffer()
@@ -393,7 +394,7 @@ FrameBuffer* Render::createDepthMapFrameBuffer()
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
 
 
-#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
+//#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
     Texture* colorTexture = Render::createTexture();
 
     unsigned int format = GL_SRGB8_ALPHA8;
@@ -410,7 +411,7 @@ FrameBuffer* Render::createDepthMapFrameBuffer()
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
 
-#endif
+//#endif
     /// <summary>
     /// 
     /// </summary>
@@ -425,6 +426,7 @@ FrameBuffer* Render::createDepthMapFrameBuffer()
 
     frameBuffer->set_openGL_FBO(depthMapFBO);
     frameBuffer->setDepthTexture(depthMapTexture);
+    frameBuffer->setColorTexture(colorTexture);
 
     return frameBuffer;
 }
@@ -456,5 +458,4 @@ void Render::unUseTexture()
 void Render::activateTexture(Texture* texture, unsigned int slot)
 {
     glActiveTexture(GL_TEXTURE0 + slot);
-    Render::useTexture(texture);
 }
