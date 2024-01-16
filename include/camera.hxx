@@ -8,6 +8,9 @@
 
 #include <glm/glm.hpp>
 
+class RenderInfo;
+class Uniform;
+
 class Camera : public GameObject
 {
 public:
@@ -23,6 +26,15 @@ public:
     
     void setPitch(const float& pitch);
     void setYaw(const float& yaw);
+
+	float getFOV();
+	float getNearZ();
+	float getFarZ();
+
+	float getShadowDistance();
+	void setShadowDistance(float distance);
+
+	void renderBounds(Uniform* boundColorUniform, RenderInfo& renderInfo);
     
 private:
 	void calculateCameraVectors();
@@ -44,4 +56,7 @@ protected:
 	float m_fov;
 	float m_nearZ;
 	float m_farZ;
+	float m_shadowDistance;
+	MeshBound* m_frustumBound;
+	MeshBound* m_lightBound;
 };

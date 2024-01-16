@@ -104,6 +104,8 @@ private:
     Uniform* m_basePassSunSpaceMatrixUniform;
     Uniform* m_basePassSunShadowTextureUniform;
 
+    Uniform* m_basePassShadowDistanceUniform;
+
     glm::vec3 m_basePassAlbedo;
     glm::vec3 m_basePassLightColor;
     glm::vec3 m_basePassAmbientColor;

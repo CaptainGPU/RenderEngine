@@ -47,6 +47,8 @@ SunLightData SunLight::getSunLightData(SunLight* light)
         forw = glm::rotate(forw, glm::radians(light->getRotationZ()), glm::vec3(0.0, .0, 1.0));
         forw = glm::rotate(forw, glm::radians(light->getRotationY()), glm::vec3(0.0, 1.0, .0));
         forw = glm::rotate(forw, glm::radians(light->getRotationX()), glm::vec3(1.0, .0, .0));
+
+        forw = glm::normalize(forw);
         
         data.direction = forw;
         data.intensity = light->getIntensity();

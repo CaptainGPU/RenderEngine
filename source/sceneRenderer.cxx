@@ -11,6 +11,7 @@
 #include "spotLight.hxx"
 #include "meshLoader.hxx"
 #include "sunLight.hxx"
+#include "math.hxx"
 #include <glm/gtc/type_ptr.hpp>
 
 SceneRenderer::SceneRenderer()
@@ -60,7 +61,7 @@ m_sceneColor(glm::vec3(.0))
 
     m_renderBoundPass = false;
     m_renderBasePass = true;
-    m_renderLightObjectsPass = false;
+    m_renderLightObjectsPass = true;
 
     // SunLight shadow Pass
 
@@ -100,6 +101,7 @@ m_sceneColor(glm::vec3(.0))
     
     m_basePassPointLightsCount = nullptr;
     m_basePassSpotLightsCount = nullptr;
+    m_basePassShadowDistanceUniform = nullptr;
     
     // Light objects PASS
     
@@ -152,7 +154,7 @@ void SceneRenderer::init()
 
         if (pass == BASE_PASS)
         {
-            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time", "u_gamma", "u_albedo", "u_lightColor", "u_ambientColor", "u_smoothness", "u_ambientStrength", "u_specularStrength", "u_cameraPosition", "u_pointLightsCount", "u_spotLightsCount", "u_sunDirection", "u_sunItensity", "u_sunLightSpaceMatrix"};
+            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time", "u_gamma", "u_albedo", "u_lightColor", "u_ambientColor", "u_smoothness", "u_ambientStrength", "u_specularStrength", "u_cameraPosition", "u_pointLightsCount", "u_spotLightsCount", "u_sunDirection", "u_sunItensity", "u_sunLightSpaceMatrix", "u_texture_0", "u_shadowDistance"};
             
             for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
             {
@@ -226,6 +228,7 @@ void SceneRenderer::init()
             m_basePassSunIntensityUniform = renderPass->getUniform(uniformNames[15]);
             m_basePassSunSpaceMatrixUniform = renderPass->getUniform(uniformNames[16]);
             m_basePassSunShadowTextureUniform = renderPass->getUniform(uniformNames[17]);
+            m_basePassShadowDistanceUniform = renderPass->getUniform(uniformNames[18]);
 
             
             for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
@@ -343,7 +346,7 @@ void SceneRenderer::finish()
     Renderer::finish();
 }
 
-std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view)
+/*std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view)
 {
     const glm::mat4 inv = glm::inverse(view);
 
@@ -367,7 +370,7 @@ std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const 
     }
 
     return frustumCorners;
-}
+}*/
 
 void SceneRenderer::renderSunLightShadowPass(SunLightData& sunLightData, RenderInfo& renderInfo)
 {
@@ -380,14 +383,20 @@ void SceneRenderer::renderSunLightShadowPass(SunLightData& sunLightData, RenderI
     RenderPass* renderPass = m_renderPasses[SceneRendererPasses::SUNLIGHT_SHADOW_PASS];
     Render::startRenderPass(renderPass, renderInfo);
 
-    glm::mat4& viewMatrix = glm::lookAt(camera->getPosition(), camera->getPosition() + sunLightData.direction, glm::vec3(0.0f, 1.0, 0.0f));
-    m_sunLightShadowPassViewUniform->setMatrix4x4(viewMatrix);
+    glm::vec3 lightDir = sunLightData.direction;
+    glm::vec3 lightWorldPos = glm::vec3(0.0f, 0.0, 10.0);
+    //lightDir = glm::vec3(0.0f, -1.0f, 0.0f);
 
-    glm::mat4& projection_matrix = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, 0.0f, 100.0f);
-    m_sunLightShadowPassProjectionUniform->setMatrix4x4(projection_matrix);
+    glm::mat4 viewMatrix = glm::lookAt(lightWorldPos, lightWorldPos + lightDir, glm::vec3(0.0f, 1.0f, 0.0f));
+    //m_sunLightShadowPassViewUniform->setMatrix4x4(viewMatrix);
+
+    glm::mat4 projection_matrix = glm::ortho(-10.0, 10.0, -5.0, 5.0, -5.0, 5.0);
+    //m_sunLightShadowPassProjectionUniform->setMatrix4x4(projection_matrix);
 
     sunLightData.view = viewMatrix;
-    m_sunLightProjectionMatrix = projection_matrix;
+    m_sunLightProjectionMatrix = projection_matrix * viewMatrix;
+    m_sunLightProjectionMatrix = calculateLightProjectionViewMatrix(lightDir, camera);
+    m_sunLightShadowPassProjectionUniform->setMatrix4x4(m_sunLightProjectionMatrix);
 
     for (size_t i = 0; i < numGameObject; i++)
     {
@@ -443,8 +452,11 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vec
     m_basePassAmbientStrengthUniform->setFloat(m_basePassAmbientStrength);
     m_basePassSpecularStrengthUniform->setFloat(m_basePassSpecularStrength);
     m_basePassCameraPosition->setVec3(cameraPosition);
+    
+    float shadowDistance = camera->getShadowDistance();
+    m_basePassShadowDistanceUniform->setFloat(shadowDistance);
 
-    glm::mat4 sunSpaceMatrix = m_sunLightProjectionMatrix * sunLightData.view;
+    glm::mat4 sunSpaceMatrix = m_sunLightProjectionMatrix;// *sunLightData.view;
     m_basePassSunSpaceMatrixUniform->setMatrix4x4(sunSpaceMatrix);
 
     Texture* texture = m_sunLightShadowFrameBuffer->getDepthTexture();
@@ -541,6 +553,17 @@ void SceneRenderer::renderBoundPass(RenderInfo& renderInfo)
         m_boundMatrixModelUniform->setMatrix4x4(modelMatrix);
 
         Render::drawMeshBound(mesh->getMeshBound(), renderInfo);
+    }
+
+    if (false)
+    {
+        Camera* defaultCamera = scene->getDefaultCamera();
+        if (defaultCamera)
+        {
+            glm::mat4 modelMatrix = glm::mat4(1.0);
+            m_boundMatrixModelUniform->setMatrix4x4(modelMatrix);
+            defaultCamera->renderBounds(m_boundColorUniform, renderInfo);
+        }
     }
 
     Render::endRenderPass(renderPass);
@@ -748,6 +771,29 @@ void SceneRenderer::drawDebugUI()
     ImGui::SliderFloat("Specular Strength", &m_basePassSpecularStrength, .0f, 1.0f);
 
     ImGui::SliderFloat("smoothness", &m_basePassSmoothness, .001f, 1.0f);
+
+    if (false)
+    {
+        SunLight* sun = scene->getSunLight();
+        float x = sun->getRotationX();
+        float y = sun->getRotationY();
+        float z = sun->getRotationZ();
+
+        ImGui::SliderFloat("sunX", &x, 0.0f, 360.0f);
+        ImGui::SliderFloat("sunY", &y, 0.0f, 360.0f);
+        ImGui::SliderFloat("sunZ", &z, 0.0f, 360.0f);
+
+        sun->SetRotateX(x);
+        sun->SetRotateY(y);
+        sun->SetRotateZ(z);
+    }
+
+    {
+        Camera* camera = scene->getCamera();
+        float shadowDistance = camera->getShadowDistance();
+        ImGui::SliderFloat("Shadow Distance", &shadowDistance, 0.0f, 1.0f);
+        camera->setShadowDistance(shadowDistance);
+    }
 
     ImGui::End();
 }
