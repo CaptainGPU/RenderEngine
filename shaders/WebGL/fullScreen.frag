@@ -3,12 +3,14 @@
 precision highp float;
 
 uniform sampler2D u_texture_0;
+uniform sampler2D u_texture_1;
 uniform float u_chromaticAberration;
 uniform float u_sepia;
 uniform float u_filmGrain;
 uniform float u_time;
 uniform float u_vignette;
 uniform float u_gamma;
+uniform int u_showShadowMap;
 
 in vec2 v_texcoord;
 
@@ -143,6 +145,11 @@ void main()
 
     vec3 finalColor = sepiaColor;
     finalColor = pow(finalColor, vec3(1.0 / u_gamma));
+
+    if (u_showShadowMap == 1)
+    {
+        finalColor = texture(u_texture_1, uv).rgb;
+    }
 
     color = vec4(finalColor, 1.0f);
 }

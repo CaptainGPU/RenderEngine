@@ -1,4 +1,5 @@
 #version 300 es
+
 precision highp float;
 
 const float PI = 3.14159265359;
@@ -28,6 +29,7 @@ in vec3 v_normal;
 in vec3 v_position;
 in vec3 vertexColor;
 in vec4 v_fragPosLightSpace;
+in float v_clipSpacePosition;
 
 out vec4 color;
 uniform float u_time;
@@ -46,6 +48,7 @@ uniform int u_spotLightsCount;
 uniform vec3 u_sunDirection;
 uniform float u_sunItensity;
 uniform sampler2D u_texture_0;
+uniform float u_shadowDistance;
 
 vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor)
 {
@@ -151,20 +154,18 @@ float calculateShadow()
     vec2 uvCoords;
     uvCoords.x = 0.5 * projCoords.x + 0.5;
     uvCoords.y = 0.5 * projCoords.y + 0.5;
-
-
     float z = 0.5 * projCoords.z + 0.5;
+
+    if (z > 1.0)
+    {
+        return 1.0;
+    }
+
     float depth = texture(u_texture_0, uvCoords).x;
+
     float bias = 0.0025;
 
     float shadow = (depth + bias) < z ? 0.0 : 1.0;
-
-
-    shadow = uvCoords.x < 0.0 ? 1.0 : shadow;
-    shadow = uvCoords.y < 0.0 ? 1.0 : shadow;
-
-    shadow = uvCoords.x > 1.0 ? 1.0 : shadow;
-    shadow = uvCoords.y > 1.0 ? 1.0 : shadow;
         
     return shadow;
 }
@@ -188,6 +189,8 @@ vec3 calculateDirectionLight(vec3 normal, vec3 viewDir)
     vec3 specular = spec * lightColor;
 
     float shadow = calculateShadow();
+
+    shadow = v_clipSpacePosition < u_shadowDistance ? shadow : 1.0;
 
     vec3 finalColor = ambient + shadow * (diffuse + specular);
     finalColor *= u_sunItensity;
@@ -214,7 +217,7 @@ void main()
         lighing += calculateSpotLight(i, normal, viewDir);
     }
 
-    vec3 finalColor = lighing;
+    vec3 finalColor = vec3(lighing);
 
     color = vec4(finalColor, 1.0);
 }  

@@ -8,6 +8,7 @@ out vec3 v_normal;
 out vec3 v_position;
 out vec3 vertexColor;
 out vec4 v_fragPosLightSpace;
+out float v_clipSpacePosition;
 
 uniform mat4 u_modelMatrix;
 uniform mat4 u_viewMatrix;
@@ -24,4 +25,5 @@ void main()
     vec3 color = (a_position + 1.0) * 0.5;
     vertexColor = color;
     gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(a_position, 1.0f);
+    v_clipSpacePosition = gl_Position.z / 100.0;
 }

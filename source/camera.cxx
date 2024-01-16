@@ -25,10 +25,11 @@ m_pitch(.0f),
 m_fov(fov),
 m_nearZ(nearZ),
 m_farZ(farZ),
-m_shadowDistance(1.0f)
+m_shadowDistance(0.5f)
 {
 	//setPositionX(20.0f);
 
+	/*
 	std::vector<glm::vec4> corners = getFrustumCornersWorldSpace(getProjectionMatrix(), getViewMatrix());
 	m_frustumBound = createCorterBound(corners);
 
@@ -42,7 +43,8 @@ m_shadowDistance(1.0f)
 	corners = getFrustumCornersWorldSpace(lP * lV);
 	m_lightBound = createCorterBound(corners);
 
-	/*glm::vec3 camRotation = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	glm::vec3 camRotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 camDirection = getDirectionFromRotation(camRotation);
 	glm::mat4 cameraViewMatrix = glm::lookAt(glm::vec3(0.0), camDirection, glm::vec3(0.0, 1.0, 0.0));
 
@@ -107,7 +109,7 @@ m_shadowDistance(1.0f)
 
 	std::vector<glm::vec4> lightCorners = getFrustumCornersWorldSpace(lightProj, lightView);
 
-	m_lightBound = createCorterBound(lightCorners);
+	m_lightBound = createCorterBound(lightCorners);*/
 
 	/*AABB aabb;
 	glm::vec3 center = glm::vec3(0, 0, 0);

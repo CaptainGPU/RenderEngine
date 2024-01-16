@@ -82,7 +82,7 @@ vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor
     vec3 ToLight = lightPosition - v_position;
     float DistanceSqr = dot(ToLight, ToLight);
 
-    attenuation = 1 / (DistanceSqr + 1);
+    attenuation = 1.0 / (DistanceSqr + 1.0);
 
     float InvRadius = 1.0 / range;
 
