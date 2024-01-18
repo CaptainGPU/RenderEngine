@@ -20,6 +20,7 @@ struct SunLightData;
 enum SceneRendererPasses
 {
     SUNLIGHT_SHADOW_PASS,
+    SPOTLIGHT_SHADOW_PASS,
     BASE_PASS,
     BOUND_PASS,
     LIGHT_OBJECTS_PASS,
@@ -103,8 +104,9 @@ private:
     Uniform* m_basePassCameraPosition;
     Uniform* m_basePassSunSpaceMatrixUniform;
     Uniform* m_basePassSunShadowTextureUniform;
-
     Uniform* m_basePassShadowDistanceUniform;
+    Uniform* m_basePassSpotLightsShadowMapVP[MAX_SPOT_LIGHTS];
+    Uniform* m_basePassSpotLightsShadowMapTextureUniform[MAX_SPOT_LIGHTS];
 
     glm::vec3 m_basePassAlbedo;
     glm::vec3 m_basePassLightColor;

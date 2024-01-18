@@ -75,7 +75,7 @@ void TestScene::construct()
     m_lights.push_back(pointLight);
     
     m_whiteLight = new SpotLight();
-    m_whiteLight->setColor(glm::vec3(0.5f, 0.5f, 0.5f));
+    m_whiteLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
     m_whiteLight->addRotationZ(-45.0f);
     addGameObject(m_whiteLight);
     
@@ -87,21 +87,21 @@ void TestScene::construct()
     
     
     m_spot1 = new SpotLight();
-    m_spot1->setColor(glm::vec3(0.0f, .0f, 1.0f));
-    m_spot1->addRotationZ(-90.0f);
+    m_spot1->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    m_spot1->addRotationZ(-89.0f);
     m_spot1->setPositionZ(-10.5);
     m_spot1->setPositionY(4.0f);
     m_spot1->setPositionX(-10.5);
     
     
     m_spot2 = new SpotLight();
-    m_spot2->setColor(glm::vec3(1.0f, .0f, 0.0f));
-    m_spot2->addRotationZ(-90.0f);
+    m_spot2->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    m_spot2->addRotationZ(-89.0f);
     m_spot2->setPositionZ(10.5);
     m_spot2->setPositionY(4.0f);
     
     m_spot3 = new SpotLight();
-    m_spot3->setColor(glm::vec3(0.0f, 1.0f, .0f));
+    m_spot3->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
     m_spot3->setPositionZ(-10.5);
     m_spot3->setPositionY(4.0f);
     m_spot3->setPositionX(10.5);
@@ -112,7 +112,7 @@ void TestScene::construct()
     
     SunLight* sun = new SunLight();
     setSunLight(sun);
-    sun->setIntensity(0.2f);
+    sun->setIntensity(0.0f);
     sun->setColor(glm::vec3(.5f));
     sun->setPositionY(8.0f);
     sun->SetRotateZ(-45.0f);
@@ -162,9 +162,19 @@ void TestScene::update(float deltaTime)
     m_whiteLight->addRotationY(-deltaTime * 90.0f);
     //m_whiteLight->addRotationZ(deltaTime);
     
-    m_spot1->addRotationX(deltaTime * 1.5 * 90.0f);
+    /*m_spot1->addRotationX(deltaTime * 1.5 * 90.0f);
     m_spot2->addRotationZ(deltaTime * 2.0  * 90.0f);
-    m_spot3->addRotationZ(-deltaTime * 2.5  * 90.0f);
+    m_spot3->addRotationZ(-deltaTime * 2.5  * 90.0f);*/
+
+    float move = glm::cos(m_time);
+    m_spot1->setPositionZ(-10.5 * move);
+    m_spot2->setPositionX(-10.5 * move);
+    m_spot3->setPositionZ( 10.5 * move);
+
+    move = glm::cos(m_time * 2.0f);
+    m_spot1->SetRotateX(move * 90.0f);
+    m_spot2->SetRotateZ(-90.0f + move * 90.0f);
+    m_spot3->SetRotateZ(-90.0f + move * 90.0f);
     
     float sunMove = deltaTime * 45.0f;
    // sunMove = 0.0;

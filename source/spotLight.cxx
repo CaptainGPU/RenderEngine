@@ -14,7 +14,8 @@ m_constant(.0f),
 m_linear(.0f),
 m_quadratic(.0f),
 m_innerCut(.0f),
-m_outCut(.0f)
+m_outCut(.0f),
+m_outCutFov(0.0f)
 {
     setRange(20.0f);
     setCutOffs(20.0f, 25.0f);
@@ -43,6 +44,7 @@ SpotLightData SpotLight::getData()
     
     data.innerCut = m_innerCut;
     data.outCut = m_outCut;
+    data.FOV = m_outCutFov;
     
     return data;
 }
@@ -64,4 +66,5 @@ void SpotLight::setCutOffs(float inner, float out)
 {
     m_innerCut = glm::cos(glm::radians(inner));
     m_outCut = glm::cos(glm::radians(out));
+    m_outCutFov = glm::radians(out * 2.0);
 }

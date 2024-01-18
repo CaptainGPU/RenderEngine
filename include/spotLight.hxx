@@ -13,6 +13,7 @@ struct SpotLightData
     glm::vec3 color;
     glm::mat4 model;
     glm::vec3 direction;
+    glm::mat4 vpMatrix;
     
     float constant;
     float linear;
@@ -20,6 +21,7 @@ struct SpotLightData
     
     float innerCut;
     float outCut;
+    float FOV;
 };
 
 class SpotLight : public GameObject
@@ -40,4 +42,5 @@ private:
     float m_quadratic;
     float m_innerCut;
     float m_outCut;
+    float m_outCutFov;
 };

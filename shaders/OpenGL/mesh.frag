@@ -30,6 +30,7 @@ in vec3 v_position;
 in vec3 vertexColor;
 in vec4 v_fragPosLightSpace;
 in float v_clipSpacePosition;
+in vec4 v_fragPosSpotLightSpace[MAX_SPOT_LIGHTS];
 
 out vec4 color;
 uniform float u_time;
@@ -49,6 +50,11 @@ uniform vec3 u_sunDirection;
 uniform float u_sunItensity;
 uniform sampler2D u_texture_0;
 uniform float u_shadowDistance;
+// spots shadowmaps
+uniform sampler2D u_texture_1;
+uniform sampler2D u_texture_2;
+uniform sampler2D u_texture_3;
+uniform sampler2D u_texture_4;
 
 vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor)
 {
@@ -106,6 +112,55 @@ vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor
     //return vec3(attenuation);
 }
 
+float sampleSpotLightShadowMask(int index, vec2 uv)
+{
+    float mask = 1.0;
+
+    if (index == 0)
+    {
+        mask = texture(u_texture_1, uv).x;
+    }
+
+    if (index == 1)
+    {
+        mask = texture(u_texture_2, uv).x;
+    }
+
+     if (index == 2)
+    {
+        mask = texture(u_texture_3, uv).x;
+    }
+
+     if (index == 3)
+    {
+        mask = texture(u_texture_4, uv).x;
+    }
+
+    return mask;
+}
+
+float calculateSpotLightShadow(int index)
+{
+    vec3 projCoords = v_fragPosSpotLightSpace[index].xyz / v_fragPosSpotLightSpace[index].w;
+    vec2 uvCoords;
+    uvCoords.x = 0.5 * projCoords.x + 0.5;
+    uvCoords.y = 0.5 * projCoords.y + 0.5;
+    float z = 0.5 * projCoords.z + 0.5;
+
+    if (z > 1.0)
+    {
+        return 1.0;
+    }
+
+    float depth = sampleSpotLightShadowMask(index, uvCoords);
+
+    float bias = 0.0025;
+
+    float shadow = (depth + bias) < z ? 0.0 : 1.0;
+        
+    return shadow;
+}
+
 vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
 {
     vec3 lightPosition = u_spotLights[index].position;
@@ -145,7 +200,11 @@ vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
     diffuse *= attenuation * intensity;
     specular *= attenuation * intensity;
 
-    return ambient + diffuse + specular;
+    float shadow = calculateSpotLightShadow(index);
+
+    vec3 finalColor = ambient + shadow * (diffuse + specular);
+    
+    return finalColor;
 }
 
 float calculateShadow()

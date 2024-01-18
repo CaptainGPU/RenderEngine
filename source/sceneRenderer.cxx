@@ -12,6 +12,7 @@
 #include "meshLoader.hxx"
 #include "sunLight.hxx"
 #include "math.hxx"
+#include "spotLightShadow.hxx"
 #include <glm/gtc/type_ptr.hpp>
 
 SceneRenderer::SceneRenderer()
@@ -55,7 +56,7 @@ m_basePassCameraPosition(nullptr),
 m_sceneColor(glm::vec3(.0))
 {
     
-    m_renderPointLights = true;
+    m_renderPointLights = false;
     m_renderSpotLights = true;
     m_renderSunLighShadowMap = false;
 
@@ -85,6 +86,8 @@ m_sceneColor(glm::vec3(.0))
     {   
         m_basePassPointLightColor[i] = nullptr;
         m_basePassPointLightsPosition[i] = nullptr;
+        m_basePassSpotLightsShadowMapVP[i] = nullptr;
+        m_basePassSpotLightsShadowMapTextureUniform[i] = nullptr;
     }
     
     for (size_t i = 0; i < MAX_SPOT_LIGHTS; i++)
@@ -152,9 +155,14 @@ void SceneRenderer::init()
             m_sunLightShadowPassProjectionUniform = renderPass->getUniform(uniformNames[2]);
         }
 
+        if (pass == SPOTLIGHT_SHADOW_PASS)
+        {
+            renderPass = registerSpotLightShadowPass();
+        }
+
         if (pass == BASE_PASS)
         {
-            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time", "u_gamma", "u_albedo", "u_lightColor", "u_ambientColor", "u_smoothness", "u_ambientStrength", "u_specularStrength", "u_cameraPosition", "u_pointLightsCount", "u_spotLightsCount", "u_sunDirection", "u_sunItensity", "u_sunLightSpaceMatrix", "u_texture_0", "u_shadowDistance"};
+            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time", "u_gamma", "u_albedo", "u_lightColor", "u_ambientColor", "u_smoothness", "u_ambientStrength", "u_specularStrength", "u_cameraPosition", "u_pointLightsCount", "u_spotLightsCount", "u_sunDirection", "u_sunItensity", "u_sunLightSpaceMatrix", "u_texture_0", "u_shadowDistance", "u_texture_1", "u_texture_2", "u_texture_3", "u_texture_4" };
             
             for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
             {
@@ -204,6 +212,10 @@ void SceneRenderer::init()
                 snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].outCut", i);
                 name = std::string(locBuff);
                 uniformNames.push_back(name);
+
+                snprintf(locBuff, sizeof(locBuff), "u_spotLightsVPMatrix[%zu]", i);
+                name = std::string(locBuff);
+                uniformNames.push_back(name);
             }
             
             renderPass = new RenderPass();
@@ -229,6 +241,10 @@ void SceneRenderer::init()
             m_basePassSunSpaceMatrixUniform = renderPass->getUniform(uniformNames[16]);
             m_basePassSunShadowTextureUniform = renderPass->getUniform(uniformNames[17]);
             m_basePassShadowDistanceUniform = renderPass->getUniform(uniformNames[18]);
+            m_basePassSpotLightsShadowMapTextureUniform[0] = renderPass->getUniform(uniformNames[19]);
+            m_basePassSpotLightsShadowMapTextureUniform[1] = renderPass->getUniform(uniformNames[20]);
+            m_basePassSpotLightsShadowMapTextureUniform[2] = renderPass->getUniform(uniformNames[21]);
+            m_basePassSpotLightsShadowMapTextureUniform[3] = renderPass->getUniform(uniformNames[22]);
 
             
             for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
@@ -279,6 +295,10 @@ void SceneRenderer::init()
                 snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].outCut", i);
                 name = std::string(locBuff);
                 m_basePassSpotLightsOutCut[i] = renderPass->getUniform(name);
+
+                snprintf(locBuff, sizeof(locBuff), "u_spotLightsVPMatrix[%zu]", i);
+                name = std::string(locBuff);
+                m_basePassSpotLightsShadowMapVP[i] = renderPass->getUniform(name);
             }
         }
 
@@ -460,6 +480,7 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vec
     m_basePassSunSpaceMatrixUniform->setMatrix4x4(sunSpaceMatrix);
 
     Texture* texture = m_sunLightShadowFrameBuffer->getDepthTexture();
+    //Texture* texture = getSpotLightShadowMapTexture();
     m_basePassSunShadowTextureUniform->setTexture(texture, 0);
     
     int lightsCount = lights.size();
@@ -486,7 +507,9 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vec
         m_basePassPointLightColor[i]->setVec3(data.color);
         m_basePassPointLightsPosition[i]->setVec3(data.position);
     }
+
     
+    std::vector<Texture*> spotLightShadowMaps = getSpotLightShadowMapTexture();
     for (size_t i = 0; i < spotLightCount; i++)
     {
         SpotLightData data = spots[i];
@@ -498,6 +521,11 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vec
         m_basePassSpotLightsQuadratic[i]->setFloat(data.quadratic);
         m_basePassSpotLightsOutCut[i]->setFloat(data.outCut);
         m_basePassSpotLightsInnerCut[i]->setFloat(data.innerCut);
+        m_basePassSpotLightsShadowMapVP[i]->setMatrix4x4(data.vpMatrix);
+        //m_basePassSpotLightShadowMapVPUniform->setMatrix4x4(data.vpMatrix);
+
+        Texture* texture = spotLightShadowMaps[i];
+        m_basePassSpotLightsShadowMapTextureUniform[i]->setTexture(texture, 1 + i);
     }
     
     for (size_t i = 0; i < numGameObject; i++)
@@ -636,7 +664,8 @@ void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
     m_postProcessShowShadowMapUniform->setInt(showShadowMap);
     
     Texture* texture = m_frameBuffer->getColorTexture();
-    Texture* sunLightTexture = m_sunLightShadowFrameBuffer->getColorTexture();
+    //Texture* sunLightTexture = m_sunLightShadowFrameBuffer->getColorTexture();
+    Texture* sunLightTexture = getSpotLightShadowMapTexture()[1];
     m_sceneTextureUniform->setTexture(texture, 0);
     m_sunLightShadowTextureUniform->setTexture(sunLightTexture, 1);
     
@@ -688,6 +717,11 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     renderSunLightShadowPass(sunLightData, renderInfo);
 
     Render::unUseFrameBuffer();
+
+    // Render SpotLight Shadow Pass
+
+    RenderPass* renderPass = m_renderPasses[SceneRendererPasses::SPOTLIGHT_SHADOW_PASS];
+    renderSpotlightShadowsPass(renderPass, renderInfo, spots);
 
     // Render Base Pass
     Render::setViewport(0, 0, m_frameWidth, m_frameHeight);
