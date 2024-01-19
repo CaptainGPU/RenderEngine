@@ -121,11 +121,7 @@ private:
     Uniform* m_basePassSpotLightsDirection[MAX_POINT_LIGHTS];
     Uniform* m_basePassSpotLightsPosition[MAX_POINT_LIGHTS];
     Uniform* m_basePassSpotLightsColor[MAX_POINT_LIGHTS];
-    Uniform* m_basePassSpotLightsLinear[MAX_POINT_LIGHTS];
-    Uniform* m_basePassSpotLightsConstant[MAX_POINT_LIGHTS];
-    Uniform* m_basePassSpotLightsQuadratic[MAX_POINT_LIGHTS];
-    Uniform* m_basePassSpotLightsInnerCut[MAX_POINT_LIGHTS];
-    Uniform* m_basePassSpotLightsOutCut[MAX_POINT_LIGHTS];
+    Uniform* m_basePassSpotLightsInvRange[MAX_POINT_LIGHTS];
     glm::vec3 m_sceneColor;
 
     

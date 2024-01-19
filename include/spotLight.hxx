@@ -14,14 +14,19 @@ struct SpotLightData
     glm::mat4 model;
     glm::vec3 direction;
     glm::mat4 vpMatrix;
+
+    float FOV;
+    float range;
+    float invRange;
     
-    float constant;
+    /*float constant;
     float linear;
     float quadratic;
     
     float innerCut;
     float outCut;
     float FOV;
+    float range;*/
 };
 
 class SpotLight : public GameObject
@@ -32,6 +37,8 @@ public:
     void setColor(glm::vec3 color);
     void setRange(float range);
     void setCutOffs(float inner, float out);
+    MeshBound* getMeshBound();
+    void generateBound();
     
 private:
     glm::vec3 m_color;
@@ -43,4 +50,5 @@ private:
     float m_innerCut;
     float m_outCut;
     float m_outCutFov;
+    MeshBound* m_lightBound;
 };

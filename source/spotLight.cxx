@@ -4,6 +4,8 @@
 //
 
 #include "spotLight.hxx"
+#include "math.hxx"
+#include "meshLoader.hxx"
 #include "glm/gtx/rotate_vector.hpp"
 
 SpotLight::SpotLight():
@@ -15,9 +17,10 @@ m_linear(.0f),
 m_quadratic(.0f),
 m_innerCut(.0f),
 m_outCut(.0f),
-m_outCutFov(0.0f)
+m_outCutFov(0.0f),
+m_lightBound(nullptr)
 {
-    setRange(20.0f);
+    setRange(40.0f);
     setCutOffs(20.0f, 25.0f);
 }
 
@@ -38,13 +41,20 @@ SpotLightData SpotLight::getData()
     
     data.direction = forw;
     
-    data.constant = m_constant;
-    data.linear = m_linear;
-    data.quadratic = m_quadratic;
-    
-    data.innerCut = m_innerCut;
-    data.outCut = m_outCut;
     data.FOV = m_outCutFov;
+    data.range = m_range;
+    data.invRange = 1.0 / m_range;
+
+    glm::vec3 eye = data.position + glm::vec3(0.001f, 0.0f, 0.0f);
+    glm::vec3 center = eye + data.direction;
+    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    glm::mat4 viewMatrix = glm::lookAt(eye, center, up);
+    glm::mat4 projMatrix = glm::perspective(data.FOV, 1.0f, 0.1f, data.range);
+
+    glm::mat4 vpMatrix = projMatrix * viewMatrix;
+
+    data.vpMatrix = vpMatrix;
     
     return data;
 }
@@ -66,5 +76,26 @@ void SpotLight::setCutOffs(float inner, float out)
 {
     m_innerCut = glm::cos(glm::radians(inner));
     m_outCut = glm::cos(glm::radians(out));
-    m_outCutFov = glm::radians(out * 2.0);
+    m_outCutFov = glm::radians(60.0f);
+}
+
+MeshBound* SpotLight::getMeshBound()
+{
+    return m_lightBound;
+}
+
+void SpotLight::generateBound()
+{
+    glm::vec3 eye = glm::vec3(0.0);
+    glm::vec3 center = glm::vec3(1.0, 0.0, 0.0);
+    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    glm::mat4 viewMatrix = glm::lookAt(eye, center, up);
+    glm::mat4 projMatrix = glm::perspective(m_outCutFov, 1.0f, 0.1f, m_range);
+
+    glm::mat4 space = projMatrix * viewMatrix;
+
+    std::vector<glm::vec4> corners = getFrustumCornersWorldSpace(space);
+
+    m_lightBound = createCorterBound(corners);
 }

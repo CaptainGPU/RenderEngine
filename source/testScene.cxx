@@ -76,18 +76,19 @@ void TestScene::construct()
     
     m_whiteLight = new SpotLight();
     m_whiteLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-    m_whiteLight->addRotationZ(-45.0f);
+    m_whiteLight->setPosition(glm::vec3(-10.0f, 4.0f, 0.0f));
+    //m_whiteLight->addRotationZ(-45.0f);
     addGameObject(m_whiteLight);
     
     m_plane = new TestGameObject("plane.mesh");
     addGameObject(m_plane);
     
-    m_plane->setScale(glm::vec3(20.0));
+    m_plane->setScale(glm::vec3(50.0));
     m_plane->setPosition(glm::vec3(0.0, -1.0, 0.0));
     
     
     m_spot1 = new SpotLight();
-    m_spot1->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    m_spot1->setColor(glm::vec3(1.0f, 0.0f, 0.0f));
     m_spot1->addRotationZ(-89.0f);
     m_spot1->setPositionZ(-10.5);
     m_spot1->setPositionY(4.0f);
@@ -95,20 +96,22 @@ void TestScene::construct()
     
     
     m_spot2 = new SpotLight();
-    m_spot2->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    m_spot2->setColor(glm::vec3(0.0f, 1.0f, 0.0f));
     m_spot2->addRotationZ(-89.0f);
     m_spot2->setPositionZ(10.5);
     m_spot2->setPositionY(4.0f);
     
     m_spot3 = new SpotLight();
-    m_spot3->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    m_spot3->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
     m_spot3->setPositionZ(-10.5);
     m_spot3->setPositionY(4.0f);
     m_spot3->setPositionX(10.5);
     
-    addGameObject(m_spot1);
-    addGameObject(m_spot2);
-    addGameObject(m_spot3);
+    //addGameObject(m_spot1);
+    //addGameObject(m_spot2);
+    //addGameObject(m_spot3);
+
+    m_whiteLight->generateBound();
     
     SunLight* sun = new SunLight();
     setSunLight(sun);
@@ -156,11 +159,11 @@ void TestScene::update(float deltaTime)
     float x = glm::cos(m_time);
     x *= 30;
     
-    m_whiteLight->setPositionY(4.0);
+    //m_whiteLight->setPositionY(4.0);
     
     //m_whiteLight->addRotationX(deltaTime);
-    m_whiteLight->addRotationY(-deltaTime * 90.0f);
-    //m_whiteLight->addRotationZ(deltaTime);
+    //m_whiteLight->addRotationY(-deltaTime * 90.0f);
+    //m_whiteLight  ->addRotationZ(deltaTime);
     
     /*m_spot1->addRotationX(deltaTime * 1.5 * 90.0f);
     m_spot2->addRotationZ(deltaTime * 2.0  * 90.0f);

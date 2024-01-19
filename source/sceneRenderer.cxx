@@ -95,11 +95,7 @@ m_sceneColor(glm::vec3(.0))
         m_basePassSpotLightsPosition[i] = nullptr;
         m_basePassSpotLightsDirection[i] = nullptr;
         m_basePassSpotLightsColor[i] = nullptr;
-        m_basePassSpotLightsLinear[i] = nullptr;
-        m_basePassSpotLightsConstant[i] = nullptr;
-        m_basePassSpotLightsQuadratic[i] = nullptr;
-        m_basePassSpotLightsInnerCut[i] = nullptr;
-        m_basePassSpotLightsOutCut[i] = nullptr;
+        m_basePassSpotLightsInvRange[i] = nullptr;
     }
     
     m_basePassPointLightsCount = nullptr;
@@ -192,24 +188,8 @@ void SceneRenderer::init()
                 snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].color", i);
                 name = std::string(locBuff);
                 uniformNames.push_back(name);
-                
-                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].linear", i);
-                name = std::string(locBuff);
-                uniformNames.push_back(name);
-                
-                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].quadratic", i);
-                name = std::string(locBuff);
-                uniformNames.push_back(name);
-                
-                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].constant", i);
-                name = std::string(locBuff);
-                uniformNames.push_back(name);
-                
-                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].innerCut", i);
-                name = std::string(locBuff);
-                uniformNames.push_back(name);
-                
-                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].outCut", i);
+
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].invRange", i);
                 name = std::string(locBuff);
                 uniformNames.push_back(name);
 
@@ -275,26 +255,10 @@ void SceneRenderer::init()
                 snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].color", i);
                 name = std::string(locBuff);
                 m_basePassSpotLightsColor[i] = renderPass->getUniform(name);
-                
-                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].linear", i);
+
+                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].invRange", i);
                 name = std::string(locBuff);
-                m_basePassSpotLightsLinear[i] = renderPass->getUniform(name);
-                
-                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].constant", i);
-                name = std::string(locBuff);
-                m_basePassSpotLightsConstant[i] = renderPass->getUniform(name);
-                
-                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].quadratic", i);
-                name = std::string(locBuff);
-                m_basePassSpotLightsQuadratic[i] = renderPass->getUniform(name);
-                
-                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].innerCut", i);
-                name = std::string(locBuff);
-                m_basePassSpotLightsInnerCut[i] = renderPass->getUniform(name);
-                
-                snprintf(locBuff, sizeof(locBuff), "u_spotLights[%zu].outCut", i);
-                name = std::string(locBuff);
-                m_basePassSpotLightsOutCut[i] = renderPass->getUniform(name);
+                m_basePassSpotLightsInvRange[i] = renderPass->getUniform(name);
 
                 snprintf(locBuff, sizeof(locBuff), "u_spotLightsVPMatrix[%zu]", i);
                 name = std::string(locBuff);
@@ -516,13 +480,10 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vec
         m_basePassSpotLightsDirection[i]->setVec3(data.direction);
         m_basePassSpotLightsPosition[i]->setVec3(data.position);
         m_basePassSpotLightsColor[i]->setVec3(data.color);
-        m_basePassSpotLightsLinear[i]->setFloat(data.linear);
-        m_basePassSpotLightsConstant[i]->setFloat(data.constant);
-        m_basePassSpotLightsQuadratic[i]->setFloat(data.quadratic);
-        m_basePassSpotLightsOutCut[i]->setFloat(data.outCut);
-        m_basePassSpotLightsInnerCut[i]->setFloat(data.innerCut);
+
+        m_basePassSpotLightsInvRange[i]->setFloat(data.invRange);
+
         m_basePassSpotLightsShadowMapVP[i]->setMatrix4x4(data.vpMatrix);
-        //m_basePassSpotLightShadowMapVPUniform->setMatrix4x4(data.vpMatrix);
 
         Texture* texture = spotLightShadowMaps[i];
         m_basePassSpotLightsShadowMapTextureUniform[i]->setTexture(texture, 1 + i);
@@ -567,10 +528,18 @@ void SceneRenderer::renderBoundPass(RenderInfo& renderInfo)
 
     m_boundColorUniform->setVec3(m_boundColor);
 
+    std::vector<SpotLight*> spots;
+
     for (size_t i = 0; i < numGameObject; i++)
     {
         GameObject* gameObject = scene->getGameObject(i);
         Mesh* mesh = gameObject->getMesh();
+
+        SpotLight* spot = dynamic_cast<SpotLight*>(gameObject);
+        if (spot)
+        {
+            spots.push_back(spot);
+        }
 
         if (!mesh || !gameObject->isRenderingObject())
         {
@@ -591,6 +560,27 @@ void SceneRenderer::renderBoundPass(RenderInfo& renderInfo)
             glm::mat4 modelMatrix = glm::mat4(1.0);
             m_boundMatrixModelUniform->setMatrix4x4(modelMatrix);
             defaultCamera->renderBounds(m_boundColorUniform, renderInfo);
+        }
+    }
+
+    {
+        glm::vec3 spotBoundColor = glm::vec3(1.0, 1.0, 0.0);
+        m_boundColorUniform->setVec3(spotBoundColor);
+
+        for (SpotLight* spot : spots)
+        {
+            MeshBound* bound = spot->getMeshBound();
+
+            if (spot && bound)
+            {
+
+                glm::mat4 modelMatrix = spot->getModelMatrix();
+                m_boundMatrixModelUniform->setMatrix4x4(modelMatrix);
+
+
+
+                Render::drawMeshBound(bound, renderInfo);
+            }
         }
     }
 
@@ -665,7 +655,7 @@ void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
     
     Texture* texture = m_frameBuffer->getColorTexture();
     //Texture* sunLightTexture = m_sunLightShadowFrameBuffer->getColorTexture();
-    Texture* sunLightTexture = getSpotLightShadowMapTexture()[1];
+    Texture* sunLightTexture = getSpotLightShadowMapColorTexture()[0];
     m_sceneTextureUniform->setTexture(texture, 0);
     m_sunLightShadowTextureUniform->setTexture(sunLightTexture, 1);
     

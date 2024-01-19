@@ -20,8 +20,6 @@ Uniform* modelMatrixUniform = nullptr;
 Uniform* projectionMatrixUniform = nullptr;
 FrameBuffer* spotLightShadowMapFrameBuffer[4];
 
-glm::mat4 spotLightVPMatrix;
-
 RenderPass* registerSpotLightShadowPass()
 {
     std::vector<std::string> uniformNames = {"u_modelMatrix", "u_projectionMatrix"};
@@ -48,20 +46,8 @@ void renderSpotLight(SpotLightData& spotLightData, RenderInfo& renderInfo)
     Camera* camera = scene->getCamera();
 
     size_t numGameObject = scene->getGameObjectCount();
-    
-    glm::vec3 eye = spotLightData.position + glm::vec3(0.001f, 0.0f, 0.0f);
-    glm::vec3 center = eye + spotLightData.direction;
-    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-    
-    glm::mat4 viewMatrix = glm::lookAt(eye, center, up);
-    glm::mat4 projMatrix = glm::perspective(spotLightData.FOV, 1.0f, 0.1f, 30.0f);
 
-    glm::mat4 vpMatrix = projMatrix * viewMatrix;
-
-    spotLightData.vpMatrix = vpMatrix;
-    spotLightVPMatrix = vpMatrix;
-
-    projectionMatrixUniform->setMatrix4x4(vpMatrix);
+    projectionMatrixUniform->setMatrix4x4(spotLightData.vpMatrix);
 
     for (size_t i = 0; i < numGameObject; i++)
     {
