@@ -13,7 +13,7 @@
 
 #include <string>
 
-const int SPOTLIGHT_SHADOWMAP_WIDTH = 1024;
+const int SPOTLIGHT_SHADOWMAP_WIDTH = 512;
 const int SPOTLIGHT_SHADOWMAP_HEIGHT = SPOTLIGHT_SHADOWMAP_WIDTH;
 
 Uniform* modelMatrixUniform = nullptr;
@@ -33,7 +33,7 @@ RenderPass* registerSpotLightShadowPass()
 
     for (int i = 0; i < 4; i++)
     {
-        spotLightShadowMapFrameBuffer[i] = Render::createDepthMapFrameBuffer();
+        spotLightShadowMapFrameBuffer[i] = Render::createDepthMapFrameBuffer(SPOTLIGHT_SHADOWMAP_WIDTH, SPOTLIGHT_SHADOWMAP_HEIGHT);
     }
 
     return renderPass;

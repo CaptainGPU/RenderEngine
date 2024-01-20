@@ -307,12 +307,6 @@ FrameBuffer* Render::createFrameBuffer()
     unsigned int format = GL_RGB16F;
     unsigned int chanels = GL_RGB;
     unsigned int dataFormat = GL_UNSIGNED_BYTE;
-
-    
-#if CURRENT_PLATFORM == PLATFORM_MAC
-    width *= 2;
-    height *= 2;
-#endif
     
 #if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
     format = GL_SRGB8_ALPHA8;
@@ -354,14 +348,14 @@ FrameBuffer* Render::createFrameBuffer()
     return frameBuffer;
 }
 
-FrameBuffer* Render::createDepthMapFrameBuffer()
+FrameBuffer* Render::createDepthMapFrameBuffer(unsigned int width, unsigned int height)
 {
     FrameBuffer* frameBuffer = new FrameBuffer();
 
     unsigned int depthMapFBO;
     glGenFramebuffers(1, &depthMapFBO);
 
-    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    //const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
     Texture* depthMapTexture = Render::createTexture();
 
@@ -379,7 +373,7 @@ FrameBuffer* Render::createDepthMapFrameBuffer()
 #else
     wrapMode = GL_CLAMP_TO_BORDER;
 #endif
-    glTexImage2D(GL_TEXTURE_2D, 0, depthFormat, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, depthTextureFormat, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, depthFormat, width, height, 0, GL_DEPTH_COMPONENT, depthTextureFormat, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
@@ -403,7 +397,7 @@ FrameBuffer* Render::createDepthMapFrameBuffer()
 
     unsigned int frameBufferTexture = colorTexture->get_OpenGL_Texture();
     Render::useTexture(colorTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, SHADOW_WIDTH, SHADOW_HEIGHT, 0, chanels, dataFormat, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, chanels, dataFormat, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

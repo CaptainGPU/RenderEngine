@@ -86,7 +86,7 @@ public:
     
     static FrameBuffer* createFrameBuffer();
 
-	static FrameBuffer* createDepthMapFrameBuffer();
+	static FrameBuffer* createDepthMapFrameBuffer(unsigned int width, unsigned int height);
     
     static Texture* createTexture();
     static void useTexture(Texture* texture);

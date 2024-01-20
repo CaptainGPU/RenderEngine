@@ -12,15 +12,12 @@ SpotLight::SpotLight():
 GameObject("Spot Light"),
 m_color(glm::vec3(1.0f)),
 m_range(.0f),
-m_constant(.0f),
-m_linear(.0f),
-m_quadratic(.0f),
 m_innerCut(.0f),
 m_outCut(.0f),
 m_outCutFov(0.0f),
 m_lightBound(nullptr)
 {
-    setRange(40.0f);
+    setRange(20.0f);
     setCutOffs(20.0f, 25.0f);
 }
 
@@ -56,6 +53,9 @@ SpotLightData SpotLight::getData()
 
     data.vpMatrix = vpMatrix;
     
+    data.innerCut = m_innerCut;
+    data.outCut = m_outCut;
+    
     return data;
 }
 
@@ -64,19 +64,21 @@ void SpotLight::setColor(glm::vec3 color)
     m_color = color;
 }
 
+glm::vec3 SpotLight::getColor()
+{
+    return m_color;
+}
+
 void SpotLight::setRange(float range)
 {
     m_range = range;
-    m_constant = 1.0f;
-    m_linear = 4.5 / range;
-    m_quadratic = 75.0f/(range*range);
 }
 
 void SpotLight::setCutOffs(float inner, float out)
 {
     m_innerCut = glm::cos(glm::radians(inner));
     m_outCut = glm::cos(glm::radians(out));
-    m_outCutFov = glm::radians(60.0f);
+    m_outCutFov = glm::radians(out * 2.0);
 }
 
 MeshBound* SpotLight::getMeshBound()

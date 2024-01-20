@@ -107,6 +107,8 @@ private:
     Uniform* m_basePassShadowDistanceUniform;
     Uniform* m_basePassSpotLightsShadowMapVP[MAX_SPOT_LIGHTS];
     Uniform* m_basePassSpotLightsShadowMapTextureUniform[MAX_SPOT_LIGHTS];
+    Uniform* m_basePassSpotlightsCutOff[MAX_SPOT_LIGHTS];
+    Uniform* m_basePassSpotlightsOutCutOff[MAX_SPOT_LIGHTS];
 
     glm::vec3 m_basePassAlbedo;
     glm::vec3 m_basePassLightColor;

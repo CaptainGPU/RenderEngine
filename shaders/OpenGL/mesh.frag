@@ -16,6 +16,9 @@ struct SpotLight
     vec3 color;
     vec3 position;
     float invRange;
+
+    float cutOff;
+    float outerCutOff;
 };
 
 const int MAX_POINT_LIGHTS = 4;
@@ -135,7 +138,7 @@ float sampleSpotLightShadowMask(int index, vec2 uv)
     return mask;
 }
 
-vec3 calculateSpotLightShadow(int index, vec3 normal, vec3 lightDir)
+float calculateSpotLightShadow(int index, vec3 normal, vec3 lightDir)
 {
     vec3 projCoords = v_fragPosSpotLightSpace[index].xyz / v_fragPosSpotLightSpace[index].w;
     vec2 uvCoords;
@@ -145,7 +148,7 @@ vec3 calculateSpotLightShadow(int index, vec3 normal, vec3 lightDir)
 
     if (z > 1.0)
     {
-        return vec3(3.0);
+        return 1.0;
     }
 
     float depth = sampleSpotLightShadowMask(index, uvCoords);
@@ -153,12 +156,11 @@ vec3 calculateSpotLightShadow(int index, vec3 normal, vec3 lightDir)
     float factor = dot(normal, lightDir);
     factor = clamp(factor, 0.0, 1.0);
 
-    float bias = mix(0.00008, 0.00009, factor);
-    bias = 0.0002;
+    float bias = 0.0005;
 
     float shadow = (depth + bias) < z ? 0.0 : 1.0;
         
-    return vec3(shadow);
+    return shadow;
 }
 
 vec3 spotLightShadow(int index)
@@ -193,8 +195,11 @@ vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
 
     float theta = dot(ToLightN, -lightDirection);
 
-    float cutOff = cos(0.436332313);
-    float outerCutOff = cos(0.523598776);
+    // float cutOff = cos(0.436332313);
+    // float outerCutOff = cos(0.523598776);
+
+    float cutOff = u_spotLights[index].cutOff;
+    float outerCutOff = u_spotLights[index].outerCutOff;
 
     float epsilon = cutOff - outerCutOff;
     float intensity = clamp((theta - outerCutOff) / epsilon, 0.0, 1.0);
@@ -214,10 +219,9 @@ vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
     float E = clamp(D, 0.0, 1.0);
     float F = E * E;
 
-    attenuation *= F;
+    attenuation = F;
 
-    vec3 shadow = calculateSpotLightShadow(index, normal, ToLightN);
-
+    float shadow = calculateSpotLightShadow(index, normal, ToLightN);
 
     float diff = max(dot(normal, ToLightN), 0.0);
     vec3 reflectDir = reflect(-ToLightN, normal);
@@ -240,8 +244,6 @@ vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
 
 
     vec3 finalColor = ambient + shadow * (diffuse + specular);
-
-    finalColor = vec3(shadow);
     
     return finalColor;
 

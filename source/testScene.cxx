@@ -76,8 +76,8 @@ void TestScene::construct()
     
     m_whiteLight = new SpotLight();
     m_whiteLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-    m_whiteLight->setPosition(glm::vec3(-10.0f, 4.0f, 0.0f));
-    //m_whiteLight->addRotationZ(-45.0f);
+    m_whiteLight->setPosition(glm::vec3(0.0f, 4.0f, 0.0f));
+    m_whiteLight->addRotationZ(-45.0f);
     addGameObject(m_whiteLight);
     
     m_plane = new TestGameObject("plane.mesh");
@@ -107,11 +107,14 @@ void TestScene::construct()
     m_spot3->setPositionY(4.0f);
     m_spot3->setPositionX(10.5);
     
-    //addGameObject(m_spot1);
-    //addGameObject(m_spot2);
-    //addGameObject(m_spot3);
+    addGameObject(m_spot1);
+    addGameObject(m_spot2);
+    addGameObject(m_spot3);
 
     m_whiteLight->generateBound();
+    m_spot1->generateBound();
+    m_spot2->generateBound();
+    m_spot3->generateBound();
     
     SunLight* sun = new SunLight();
     setSunLight(sun);
@@ -162,7 +165,7 @@ void TestScene::update(float deltaTime)
     //m_whiteLight->setPositionY(4.0);
     
     //m_whiteLight->addRotationX(deltaTime);
-    //m_whiteLight->addRotationY(-deltaTime * 90.0f);
+    m_whiteLight->addRotationY(-deltaTime * 90.0f);
     //m_whiteLight  ->addRotationZ(deltaTime);
     
     /*m_spot1->addRotationX(deltaTime * 1.5 * 90.0f);
@@ -177,7 +180,7 @@ void TestScene::update(float deltaTime)
     move = glm::cos(m_time * 2.0f);
     m_spot1->SetRotateX(move * 90.0f);
     m_spot2->SetRotateZ(-90.0f + move * 90.0f);
-    m_spot3->SetRotateZ(-90.0f + move * 90.0f);
+    m_spot3->SetRotateZ(-90.0f + move * -90.0f);
     
     float sunMove = deltaTime * 45.0f;
    // sunMove = 0.0;

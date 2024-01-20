@@ -19,6 +19,9 @@ struct SpotLightData
     float range;
     float invRange;
     
+    float innerCut;
+    float outCut;
+    
     /*float constant;
     float linear;
     float quadratic;
@@ -35,6 +38,7 @@ public:
     SpotLight();
     SpotLightData getData();
     void setColor(glm::vec3 color);
+    glm::vec3 getColor();
     void setRange(float range);
     void setCutOffs(float inner, float out);
     MeshBound* getMeshBound();
@@ -44,9 +48,6 @@ private:
     glm::vec3 m_color;
     
     float m_range;
-    float m_constant;
-    float m_linear;
-    float m_quadratic;
     float m_innerCut;
     float m_outCut;
     float m_outCutFov;
