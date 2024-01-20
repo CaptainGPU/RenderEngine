@@ -6,6 +6,7 @@
 #include "spotLight.hxx"
 #include "math.hxx"
 #include "meshLoader.hxx"
+#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/rotate_vector.hpp"
 
 SpotLight::SpotLight():

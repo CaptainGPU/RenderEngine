@@ -8,7 +8,6 @@
 #include "meshLoader.hxx"
 #include "render.hxx"
 #include <iostream>
-#include <glm/gtx/string_cast.hpp>
 #include <imgui.h>
 
 Camera::Camera(std::string name, float fov, float nearZ, float farZ):
