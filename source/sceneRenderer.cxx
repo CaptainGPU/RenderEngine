@@ -731,8 +731,11 @@ void SceneRenderer::render(RenderInfo& renderInfo)
 
     // Render SpotLight Shadow Pass
 
-    RenderPass* renderPass = m_renderPasses[SceneRendererPasses::SPOTLIGHT_SHADOW_PASS];
-    renderSpotlightShadowsPass(renderPass, renderInfo, spots);
+    if (m_renderSpotLights)
+    {
+        RenderPass* renderPass = m_renderPasses[SceneRendererPasses::SPOTLIGHT_SHADOW_PASS];
+        renderSpotlightShadowsPass(renderPass, renderInfo, spots);
+    }
 
     // Render Base Pass
     Render::setViewport(0, 0, m_frameWidth, m_frameHeight);
