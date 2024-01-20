@@ -112,7 +112,7 @@ message(STATUS "Import GLFW - ${IMPORT_GLFW} | branch - ${IGG_GLFW_TAG}")
 
 # GLM PARAMS
 if (IMPORT_GLM)
-    set(IGG_GLM_TAG master CACHE STRING "Defines the glm version (e.g. master, 0.9.9.8, 0.9.9.7, ...")
+    set(IGG_GLM_TAG 0.9.9.8 CACHE STRING "Defines the glm version (e.g. master, 0.9.9.8, 0.9.9.7, ...")
 else ()
     unset(IGG_GLM_TAG CACHE)
 endif ()
