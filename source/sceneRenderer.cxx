@@ -13,6 +13,7 @@
 #include "sunLight.hxx"
 #include "math.hxx"
 #include "spotLightShadow.hxx"
+#include "pointLightShadow.hxx"
 #include <glm/gtc/type_ptr.hpp>
 
 SceneRenderer::SceneRenderer()
@@ -56,8 +57,8 @@ m_basePassCameraPosition(nullptr),
 m_sceneColor(glm::vec3(.0))
 {
     
-    m_renderPointLights = false;
-    m_renderSpotLights = true;
+    m_renderPointLights = true;
+    m_renderSpotLights = false;
     m_renderSunLighShadowMap = false;
 
     m_renderBoundPass = false;
@@ -86,10 +87,7 @@ m_sceneColor(glm::vec3(.0))
     {   
         m_basePassPointLightColor[i] = nullptr;
         m_basePassPointLightsPosition[i] = nullptr;
-        m_basePassSpotLightsShadowMapVP[i] = nullptr;
-        m_basePassSpotLightsShadowMapTextureUniform[i] = nullptr;
-        m_basePassSpotlightsOutCutOff[i] = nullptr;
-        m_basePassSpotlightsCutOff[i] = nullptr;
+        m_basePassPointLightsRadiusUniform[i] = nullptr;
     }
     
     for (size_t i = 0; i < MAX_SPOT_LIGHTS; i++)
@@ -98,6 +96,10 @@ m_sceneColor(glm::vec3(.0))
         m_basePassSpotLightsDirection[i] = nullptr;
         m_basePassSpotLightsColor[i] = nullptr;
         m_basePassSpotLightsInvRange[i] = nullptr;
+        m_basePassSpotLightsShadowMapVP[i] = nullptr;
+        m_basePassSpotLightsShadowMapTextureUniform[i] = nullptr;
+        m_basePassSpotlightsOutCutOff[i] = nullptr;
+        m_basePassSpotlightsCutOff[i] = nullptr;
     }
     
     m_basePassPointLightsCount = nullptr;
@@ -158,9 +160,42 @@ void SceneRenderer::init()
             renderPass = registerSpotLightShadowPass();
         }
 
+        if (pass == POINTLIGHT_SHADOW_PASS)
+        {
+            renderPass = registerPointLightShadowPass();
+        }
+
         if (pass == BASE_PASS)
         {
-            std::vector<std::string> uniformNames = {"u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "time", "u_gamma", "u_albedo", "u_lightColor", "u_ambientColor", "u_smoothness", "u_ambientStrength", "u_specularStrength", "u_cameraPosition", "u_pointLightsCount", "u_spotLightsCount", "u_sunDirection", "u_sunItensity", "u_sunLightSpaceMatrix", "u_texture_0", "u_shadowDistance", "u_texture_1", "u_texture_2", "u_texture_3", "u_texture_4" };
+            std::vector<std::string> uniformNames = {
+                "u_modelMatrix",                        // 0
+                "u_viewMatrix",                         // 1
+                "u_projectionMatrix", 
+                "time", 
+                "u_gamma", 
+                "u_albedo", 
+                "u_lightColor", 
+                "u_ambientColor", 
+                "u_smoothness", 
+                "u_ambientStrength", 
+                "u_specularStrength", 
+                "u_cameraPosition", 
+                "u_pointLightsCount", 
+                "u_spotLightsCount", 
+                "u_sunDirection", 
+                "u_sunItensity", 
+                "u_sunLightSpaceMatrix", 
+                "u_texture_0", 
+                "u_shadowDistance", 
+                "u_texture_1", 
+                "u_texture_2", 
+                "u_texture_3", 
+                "u_texture_4", 
+                "u_texture_5", 
+                "u_texture_6",
+                "u_texture_7",
+                "u_texture_8"
+            };
             
             for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
             {
@@ -171,6 +206,10 @@ void SceneRenderer::init()
                 uniformNames.push_back(name);
                 
                 snprintf(locBuff, sizeof(locBuff), "u_pointLights[%zu].position", i);
+                name = std::string(locBuff);
+                uniformNames.push_back(name);
+
+                snprintf(locBuff, sizeof(locBuff), "u_pointLights[%zu].radius", i);
                 name = std::string(locBuff);
                 uniformNames.push_back(name);
             }
@@ -235,6 +274,10 @@ void SceneRenderer::init()
             m_basePassSpotLightsShadowMapTextureUniform[1] = renderPass->getUniform(uniformNames[20]);
             m_basePassSpotLightsShadowMapTextureUniform[2] = renderPass->getUniform(uniformNames[21]);
             m_basePassSpotLightsShadowMapTextureUniform[3] = renderPass->getUniform(uniformNames[22]);
+            m_basePassPointLightCubeTexture[0] = renderPass->getUniform(uniformNames[23]);
+            m_basePassPointLightCubeTexture[1] = renderPass->getUniform(uniformNames[24]);
+            m_basePassPointLightCubeTexture[2] = renderPass->getUniform(uniformNames[25]);
+            m_basePassPointLightCubeTexture[3] = renderPass->getUniform(uniformNames[26]);
 
             
             for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
@@ -248,6 +291,10 @@ void SceneRenderer::init()
                 snprintf(locBuff, sizeof(locBuff), "u_pointLights[%zu].position", i);
                 name = std::string(locBuff);
                 m_basePassPointLightsPosition[i] = renderPass->getUniform(name);
+
+                snprintf(locBuff, sizeof(locBuff), "u_pointLights[%zu].radius", i);
+                name = std::string(locBuff);
+                m_basePassPointLightsRadiusUniform[i] = renderPass->getUniform(name);
             }
             
             for (size_t i = 0; i < MAX_SPOT_LIGHTS; i++)
@@ -482,12 +529,18 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vec
     m_basePassSpotLightsCount->setInt(spotLightCount);
     
     glm::vec3 lColor = glm::vec3(1.0, .0, .0);
+
+    std::vector<Texture*> pointLightShadowMaps = getPointLightShadowMapTexture();
     
     for (size_t i = 0; i < lightsCount; i++)
     {
         PointLightData data = lights[i];
         m_basePassPointLightColor[i]->setVec3(data.color);
         m_basePassPointLightsPosition[i]->setVec3(data.position);
+        m_basePassPointLightsRadiusUniform[i]->setFloat(data.radius);
+
+        Texture* texture = pointLightShadowMaps[i];
+        m_basePassPointLightCubeTexture[i]->setCubeTexture(texture, 5 + i);
     }
 
     
@@ -735,6 +788,14 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     {
         RenderPass* renderPass = m_renderPasses[SceneRendererPasses::SPOTLIGHT_SHADOW_PASS];
         renderSpotlightShadowsPass(renderPass, renderInfo, spots);
+    }
+
+    // Render PointLight Shadow Pass
+
+    if (m_renderPointLights)
+    {
+        RenderPass* renderPass = m_renderPasses[SceneRendererPasses::POINTLIGHT_SHADOW_PASS];
+        renderPointLightShadowsPass(renderPass, renderInfo, lights);
     }
 
     // Render Base Pass

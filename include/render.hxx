@@ -83,15 +83,22 @@ public:
 	static void setUniformFloatValue(Uniform* uniform, float& value);
     static void setUniformIntValue(Uniform* uniform, int& value);
     static void setUniformTexture(Uniform* uniform, Texture* texture, unsigned int slot);
+	static void setUniformCubeTexture(Uniform* uniform, Texture* texture, unsigned int slot);
     
     static FrameBuffer* createFrameBuffer();
 
 	static FrameBuffer* createDepthMapFrameBuffer(unsigned int width, unsigned int height);
+	static FrameBuffer* createDepthCubeMapFrameBuffer(unsigned int width, unsigned int height);
     
     static Texture* createTexture();
     static void useTexture(Texture* texture);
     static void unUseTexture();
     static void activateTexture(Texture* texure, unsigned int slot);
+
+	static void bindCubeMapTexture(Texture* texture);
+	static void unBindCubeMapTexture();
+
+	static void setFrameBufferCubeSideRender(FrameBuffer* frameBuffer, unsigned int side);
 
 	static void drawMesh(Mesh* mesh, RenderInfo& info);
 	static void drawMeshBound(MeshBound* bound, RenderInfo& info);

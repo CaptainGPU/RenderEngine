@@ -290,6 +290,14 @@ void Render::setUniformTexture(Uniform* uniform, Texture* texture, unsigned int 
     glUniform1i(id, slot);
 }
 
+void Render::setUniformCubeTexture(Uniform* uniform, Texture* texture, unsigned int slot)
+{
+    Render::activateTexture(texture, slot);
+    Render::bindCubeMapTexture(texture);
+    GLint id = uniform->get_OpenGL_uniformID();
+    glUniform1i(id, slot);
+}
+
 FrameBuffer* Render::createFrameBuffer()
 {
     Texture* texture = Render::createTexture();
@@ -425,6 +433,92 @@ FrameBuffer* Render::createDepthMapFrameBuffer(unsigned int width, unsigned int 
     return frameBuffer;
 }
 
+FrameBuffer* Render::createDepthCubeMapFrameBuffer(unsigned int width, unsigned int height)
+{
+    FrameBuffer* frameBuffer = new FrameBuffer();
+
+    unsigned int FBO;
+    glGenFramebuffers(1, &FBO);
+
+    Texture* shadowCubeMap = createTexture();
+
+    Render::bindCubeMapTexture(shadowCubeMap);
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    unsigned int format = GL_RGBA;
+    unsigned int chanels = GL_RGBA;
+    unsigned int dataFormat = GL_UNSIGNED_BYTE;
+
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+
+    Render::unBindCubeMapTexture();
+
+    Texture* shadowCubeMapDepth = createTexture();
+
+    Render::bindCubeMapTexture(shadowCubeMapDepth);
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    format = GL_DEPTH_COMPONENT;
+    chanels = GL_DEPTH_COMPONENT;
+    dataFormat = GL_FLOAT;
+
+#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
+    depthFormat = GL_DEPTH_COMPONENT16;
+    depthTextureFormat = GL_UNSIGNED_SHORT;
+#endif
+
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+
+    Render::unBindCubeMapTexture();
+
+    Render::useFrameBuffer(frameBuffer);
+
+    /*unsigned int rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);*/
+
+    int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+    if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+    {
+        std::cout << "Framebuffer error:" << fboStatus << std::endl;
+    }
+
+    Render::unUseFrameBuffer();
+
+    frameBuffer->set_openGL_FBO(FBO);
+    frameBuffer->setCubeTexture(shadowCubeMap);
+    frameBuffer->setCubeDepthTexture(shadowCubeMapDepth);
+
+    return frameBuffer;
+}
+
 Texture* Render::createTexture()
 {
     Texture* texture = new Texture();
@@ -452,4 +546,38 @@ void Render::unUseTexture()
 void Render::activateTexture(Texture* texture, unsigned int slot)
 {
     glActiveTexture(GL_TEXTURE0 + slot);
+}
+
+void Render::bindCubeMapTexture(Texture* texture)
+{
+    unsigned int oglTexture = texture->get_OpenGL_Texture();
+    glBindTexture(GL_TEXTURE_CUBE_MAP, oglTexture);
+}
+
+void Render::unBindCubeMapTexture()
+{
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+
+void Render::setFrameBufferCubeSideRender(FrameBuffer* frameBuffer, unsigned int side)
+{
+    Texture* cubeTexture = frameBuffer->getCubeTexture();
+    unsigned int texture = cubeTexture->get_OpenGL_Texture();
+    cubeTexture = frameBuffer->getCubeDepthTexture();
+    unsigned int depthTexture = cubeTexture->get_OpenGL_Texture();
+
+    unsigned int sideOGL = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+
+    switch (side)
+    {
+    case 0: sideOGL = GL_TEXTURE_CUBE_MAP_POSITIVE_X; break;
+    case 1: sideOGL = GL_TEXTURE_CUBE_MAP_NEGATIVE_X; break;
+    case 2: sideOGL = GL_TEXTURE_CUBE_MAP_POSITIVE_Z; break;
+    case 3: sideOGL = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z; break;
+    case 4: sideOGL = GL_TEXTURE_CUBE_MAP_POSITIVE_Y; break;
+    case 5: sideOGL = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y; break;
+    }
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, sideOGL, texture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, sideOGL, depthTexture, 0);
 }

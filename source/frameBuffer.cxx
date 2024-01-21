@@ -9,7 +9,9 @@
 FrameBuffer::FrameBuffer():
 m_openGL_FBO(0),
 m_colorTexture(nullptr),
-m_depthTexture(nullptr)
+m_depthTexture(nullptr),
+m_cubeMapTexture(nullptr),
+m_cubeDepthTexture(nullptr)
 {
     
 }
@@ -37,6 +39,26 @@ Texture* FrameBuffer::getDepthTexture()
 void FrameBuffer::set_openGL_FBO(unsigned int fbo)
 {
     m_openGL_FBO = fbo;
+}
+
+void FrameBuffer::setCubeTexture(Texture* texture)
+{
+    m_cubeMapTexture = texture;
+}
+
+Texture* FrameBuffer::getCubeTexture()
+{
+    return m_cubeMapTexture;
+}
+
+void FrameBuffer::setCubeDepthTexture(Texture* texture)
+{
+    m_cubeDepthTexture = texture;
+}
+
+Texture* FrameBuffer::getCubeDepthTexture()
+{
+    return m_cubeDepthTexture;
 }
 
 unsigned int FrameBuffer::get_openGL_FBO()

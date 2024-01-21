@@ -37,7 +37,7 @@ void TestScene::construct()
         {
             count += 1.0;
             
-            TestGameObject* gameObject = new TestGameObject("monkey_normal.mesh");
+            TestGameObject* gameObject = new TestGameObject("monkey.mesh");
             
             gameObject->setPositionX((i * dist) - (4.5 * dist) );
             gameObject->setPositionZ((j * dist) - (4.5 * dist));
@@ -60,7 +60,8 @@ void TestScene::construct()
     PoinLightGameObject* pointLight = nullptr;
     
     pointLight = new PoinLightGameObject();
-    pointLight->setColor(glm::vec3(1.0f, 0.0f, 0.0f));
+    pointLight->setColor(glm::vec3(1.0f, 0.0f, 1.0f));
+    pointLight->setPosition(glm::vec3(0.0, 4.0, 0.0));
     addGameObject(pointLight);
     m_lights.push_back(pointLight);
 
@@ -70,7 +71,12 @@ void TestScene::construct()
     m_lights.push_back(pointLight);
 
     pointLight = new PoinLightGameObject();
-    pointLight->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
+    pointLight->setColor(glm::vec3(0.0f, 1.0f, 1.0f));
+    addGameObject(pointLight);
+    m_lights.push_back(pointLight);
+
+    pointLight = new PoinLightGameObject();
+    pointLight->setColor(glm::vec3(1.0f, 1.0f, 0.0f));
     addGameObject(pointLight);
     m_lights.push_back(pointLight);
     
@@ -118,7 +124,7 @@ void TestScene::construct()
     
     SunLight* sun = new SunLight();
     setSunLight(sun);
-    sun->setIntensity(0.0f);
+    sun->setIntensity(0.02f);
     sun->setColor(glm::vec3(.5f));
     sun->setPositionY(8.0f);
     sun->SetRotateZ(-45.0f);
@@ -154,7 +160,7 @@ void TestScene::update(float deltaTime)
         cos *= radius;
         
         gameObject->setPositionX(sin);
-        gameObject->setPositionY(1.0);
+        gameObject->setPositionY(4.0);
         gameObject->setPositionZ(cos);
         
     }

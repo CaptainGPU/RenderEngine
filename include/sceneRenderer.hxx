@@ -21,6 +21,7 @@ enum SceneRendererPasses
 {
     SUNLIGHT_SHADOW_PASS,
     SPOTLIGHT_SHADOW_PASS,
+    POINTLIGHT_SHADOW_PASS,
     BASE_PASS,
     BOUND_PASS,
     LIGHT_OBJECTS_PASS,
@@ -109,6 +110,7 @@ private:
     Uniform* m_basePassSpotLightsShadowMapTextureUniform[MAX_SPOT_LIGHTS];
     Uniform* m_basePassSpotlightsCutOff[MAX_SPOT_LIGHTS];
     Uniform* m_basePassSpotlightsOutCutOff[MAX_SPOT_LIGHTS];
+    Uniform* m_basePassPointLightCubeTexture[MAX_POINT_LIGHTS];
 
     glm::vec3 m_basePassAlbedo;
     glm::vec3 m_basePassLightColor;
@@ -118,6 +120,7 @@ private:
     float m_basePassSpecularStrength;
     Uniform* m_basePassPointLightColor[MAX_POINT_LIGHTS];
     Uniform* m_basePassPointLightsPosition[MAX_POINT_LIGHTS];
+    Uniform* m_basePassPointLightsRadiusUniform[MAX_POINT_LIGHTS];
     Uniform* m_basePassPointLightsCount;
     Uniform* m_basePassSpotLightsCount;
     Uniform* m_basePassSpotLightsDirection[MAX_POINT_LIGHTS];

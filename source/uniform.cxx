@@ -47,3 +47,8 @@ void Uniform::setTexture(Texture* texture, unsigned int slot)
 {
     Render::setUniformTexture(this, texture, slot);
 }
+
+void Uniform::setCubeTexture(Texture* texture, unsigned int slot)
+{
+    Render::setUniformCubeTexture(this, texture, slot);
+}
