@@ -131,11 +131,12 @@ void renderPointLight(size_t index, RenderPass* renderPass, RenderInfo& renderIn
     }
 }
 
-void renderPointLightShadowsPass(RenderPass* renderPass, RenderInfo& renderInfo, std::vector<PointLightData>& points)
+void renderPointLightShadowsPass(RenderPass* renderPass, RenderInfo& renderInfo, std::vector<PointLightData>& points, int shadowCount)
 {
     Render::setViewport(0, 0, POINTLIGHT_SHADOWMAP_WIDTH, POINTLIGHT_SHADOWMAP_HEIGHT);
 
-    size_t pointLightCount = points.size();
+    size_t pointLightCount = shadowCount;
+    
     if (pointLightCount > POINTLIGHT_SHADOW_COUNT)
     {
         pointLightCount = POINTLIGHT_SHADOW_COUNT;

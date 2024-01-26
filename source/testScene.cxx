@@ -37,7 +37,7 @@ void TestScene::construct()
         {
             count += 1.0;
             
-            TestGameObject* gameObject = new TestGameObject("monkey.mesh");
+            TestGameObject* gameObject = new TestGameObject("monkey_normal.mesh");
             
             gameObject->setPositionX((i * dist) - (4.5 * dist) );
             gameObject->setPositionZ((j * dist) - (4.5 * dist));

@@ -58,7 +58,7 @@ m_sceneColor(glm::vec3(.0))
 {
     
     m_renderPointLights = true;
-    m_renderSpotLights = false;
+    m_renderSpotLights = true;
     m_renderSunLighShadowMap = false;
 
     m_renderBoundPass = false;
@@ -82,6 +82,8 @@ m_sceneColor(glm::vec3(.0))
     m_basePassSunIntensityUniform = nullptr;
     m_basePassSunSpaceMatrixUniform = nullptr;
     m_basePassSunShadowTextureUniform = nullptr;
+    m_basePassSpotLightsShadowCountUniform = nullptr;
+    m_basePassPointLightsShadowCountUniform = nullptr;
     
     for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
     {   
@@ -129,6 +131,9 @@ m_sceneColor(glm::vec3(.0))
     Engine::get()->getWindowBufferSize(m_frameWidth, m_frameHeight);
     m_depthMapWidht = 1024;
     m_depthMapHeight = 1024;
+    
+    m_pointLightDynamicShadowCount = MAX_POINT_LIGHTS;
+    m_spotLightDynamicShadowCount = MAX_SPOT_LIGHTS;
 }
 
 void SceneRenderer::init()
@@ -186,7 +191,7 @@ void SceneRenderer::init()
                 "u_sunItensity", 
                 "u_sunLightSpaceMatrix", 
                 "u_texture_0", 
-                "u_shadowDistance", 
+                "u_shadowDistance",
                 "u_texture_1", 
                 "u_texture_2", 
                 "u_texture_3", 
@@ -194,7 +199,9 @@ void SceneRenderer::init()
                 "u_texture_5", 
                 "u_texture_6",
                 "u_texture_7",
-                "u_texture_8"
+                "u_texture_8",
+                "u_spotLightShadowCount",
+                "u_pointLightShadowCount"
             };
             
             for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
@@ -278,6 +285,8 @@ void SceneRenderer::init()
             m_basePassPointLightCubeTexture[1] = renderPass->getUniform(uniformNames[24]);
             m_basePassPointLightCubeTexture[2] = renderPass->getUniform(uniformNames[25]);
             m_basePassPointLightCubeTexture[3] = renderPass->getUniform(uniformNames[26]);
+            m_basePassSpotLightsShadowCountUniform = renderPass->getUniform(uniformNames[27]);
+            m_basePassPointLightsShadowCountUniform = renderPass->getUniform(uniformNames[28]);
 
             
             for (size_t i = 0; i < MAX_POINT_LIGHTS; i++)
@@ -527,6 +536,8 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vec
     
     m_basePassPointLightsCount->setInt(lightsCount);
     m_basePassSpotLightsCount->setInt(spotLightCount);
+    m_basePassSpotLightsShadowCountUniform->setInt(m_spotLightDynamicShadowCount);
+    m_basePassPointLightsShadowCountUniform->setInt(m_pointLightDynamicShadowCount);
     
     glm::vec3 lColor = glm::vec3(1.0, .0, .0);
 
@@ -787,7 +798,7 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     if (m_renderSpotLights)
     {
         RenderPass* renderPass = m_renderPasses[SceneRendererPasses::SPOTLIGHT_SHADOW_PASS];
-        renderSpotlightShadowsPass(renderPass, renderInfo, spots);
+        renderSpotlightShadowsPass(renderPass, renderInfo, spots, m_spotLightDynamicShadowCount);
     }
 
     // Render PointLight Shadow Pass
@@ -795,7 +806,7 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     if (m_renderPointLights)
     {
         RenderPass* renderPass = m_renderPasses[SceneRendererPasses::POINTLIGHT_SHADOW_PASS];
-        renderPointLightShadowsPass(renderPass, renderInfo, lights);
+        renderPointLightShadowsPass(renderPass, renderInfo, lights, m_pointLightDynamicShadowCount);
     }
 
     // Render Base Pass
@@ -852,6 +863,9 @@ void SceneRenderer::drawDebugUI()
     ImGui::Checkbox("Point Lights Enable", &m_renderPointLights);
     ImGui::Checkbox("Post-Processing Pass", &m_renderPostProcessing);
     ImGui::Checkbox("Show ShadowMap", &m_renderSunLighShadowMap);
+    
+    ImGui::SliderInt("PointLight Shadows", &m_pointLightDynamicShadowCount, 0, MAX_POINT_LIGHTS);
+    ImGui::SliderInt("SpotLight Shadows", &m_spotLightDynamicShadowCount, 0, MAX_SPOT_LIGHTS);
 
     float* f = glm::value_ptr(m_boundColor);
     ImGui::ColorEdit3("bound", f);

@@ -121,12 +121,14 @@ private:
     Uniform* m_basePassPointLightColor[MAX_POINT_LIGHTS];
     Uniform* m_basePassPointLightsPosition[MAX_POINT_LIGHTS];
     Uniform* m_basePassPointLightsRadiusUniform[MAX_POINT_LIGHTS];
+    Uniform* m_basePassPointLightsShadowCountUniform;
     Uniform* m_basePassPointLightsCount;
     Uniform* m_basePassSpotLightsCount;
     Uniform* m_basePassSpotLightsDirection[MAX_POINT_LIGHTS];
     Uniform* m_basePassSpotLightsPosition[MAX_POINT_LIGHTS];
     Uniform* m_basePassSpotLightsColor[MAX_POINT_LIGHTS];
     Uniform* m_basePassSpotLightsInvRange[MAX_POINT_LIGHTS];
+    Uniform* m_basePassSpotLightsShadowCountUniform;
     glm::vec3 m_sceneColor;
 
     
@@ -148,4 +150,7 @@ private:
 
     unsigned int m_depthMapWidht;
     unsigned int m_depthMapHeight;
+    
+    int m_pointLightDynamicShadowCount;
+    int m_spotLightDynamicShadowCount;
 };

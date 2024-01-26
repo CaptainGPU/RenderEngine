@@ -50,6 +50,8 @@ uniform vec3 u_sunDirection;
 uniform float u_sunItensity;
 uniform sampler2D u_texture_0;
 uniform float u_shadowDistance;
+uniform int u_spotLightShadowCount;
+uniform int u_pointLightShadowCount;
 // spots shadowmaps
 uniform sampler2D u_texture_1;
 uniform sampler2D u_texture_2;
@@ -159,7 +161,12 @@ vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor
     diffuse *= attenuation;
     specular *= attenuation;
 
-    float shadow = calculatePointLightShadow(index);
+    float shadow = 1.0;
+    
+    if (index < u_pointLightShadowCount)
+    {
+        shadow = calculatePointLightShadow(index);
+    }
 
     return ambient + shadow * (diffuse + specular);
 
@@ -276,7 +283,12 @@ vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
 
     attenuation = F;
 
-    float shadow = calculateSpotLightShadow(index, normal, ToLightN);
+    float shadow = 1.0;
+    
+    if (index < u_spotLightShadowCount)
+    {
+        shadow = calculateSpotLightShadow(index, normal, ToLightN);
+    }
 
     float diff = max(dot(normal, ToLightN), 0.0);
     vec3 reflectDir = reflect(-ToLightN, normal);

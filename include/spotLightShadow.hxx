@@ -13,7 +13,7 @@ struct SpotLightData;
 
 RenderPass* registerSpotLightShadowPass();
 
-void renderSpotlightShadowsPass(RenderPass* renderPass, RenderInfo& renderInfo, std::vector<SpotLightData>& spots);
+void renderSpotlightShadowsPass(RenderPass* renderPass, RenderInfo& renderInfo, std::vector<SpotLightData>& spots, int shadowCount);
 
 std::vector<Texture*> getSpotLightShadowMapTexture();
 std::vector<Texture*> getSpotLightShadowMapColorTexture();

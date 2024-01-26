@@ -66,11 +66,11 @@ void renderSpotLight(SpotLightData& spotLightData, RenderInfo& renderInfo)
     }
 }
 
-void renderSpotlightShadowsPass(RenderPass* renderPass, RenderInfo& renderInfo, std::vector<SpotLightData>& spots)
+void renderSpotlightShadowsPass(RenderPass* renderPass, RenderInfo& renderInfo, std::vector<SpotLightData>& spots, int shadowCount)
 {
     Render::setViewport(0, 0, SPOTLIGHT_SHADOWMAP_WIDTH, SPOTLIGHT_SHADOWMAP_HEIGHT);
 
-    size_t spotLightCount = spots.size();
+    size_t spotLightCount = shadowCount;
     if (spotLightCount > 4)
     {
         spotLightCount = 4;
