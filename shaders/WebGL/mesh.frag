@@ -8,6 +8,7 @@ struct PointLight
 {
     vec3 position;
     vec3 color;
+    float radius;
 };
 
 struct SpotLight
@@ -15,11 +16,10 @@ struct SpotLight
     vec3 direction;
     vec3 color;
     vec3 position;
-    float linear;
-    float quadratic;
-    float constant;
-    float innerCut;
-    float outCut;
+    float invRange;
+
+    float cutOff;
+    float outerCutOff;
 };
 
 const int MAX_POINT_LIGHTS = 4;
@@ -30,6 +30,7 @@ in vec3 v_position;
 in vec3 vertexColor;
 in vec4 v_fragPosLightSpace;
 in float v_clipSpacePosition;
+in vec4 v_fragPosSpotLightSpace[MAX_SPOT_LIGHTS];
 
 out vec4 color;
 uniform float u_time;
@@ -49,6 +50,65 @@ uniform vec3 u_sunDirection;
 uniform float u_sunItensity;
 uniform sampler2D u_texture_0;
 uniform float u_shadowDistance;
+uniform int u_spotLightShadowCount;
+uniform int u_pointLightShadowCount;
+// spots shadowmaps
+uniform sampler2D u_texture_1;
+uniform sampler2D u_texture_2;
+uniform sampler2D u_texture_3;
+uniform sampler2D u_texture_4;
+
+uniform samplerCube u_texture_5;
+uniform samplerCube u_texture_6;
+uniform samplerCube u_texture_7;
+uniform samplerCube u_texture_8;
+
+float selectPointLightDep(int index, vec3 uv)
+{
+    float depth = 1.0;
+    
+    if(index == 0) 
+    {
+        depth = texture(u_texture_5, uv).r;
+    }
+
+    if(index == 1) 
+    {
+        depth = texture(u_texture_6, uv).r;
+    }
+
+    if(index == 2) 
+    {
+        depth = texture(u_texture_7, uv).r;
+    }
+
+    if(index == 3) 
+    {
+        depth = texture(u_texture_8, uv).r;
+    }
+
+    return depth;
+}
+
+float calculatePointLightShadow(int index)
+{
+    vec3 lightPos = u_pointLights[index].position;
+    vec3 toLight = v_position - lightPos;
+    vec3 dir = normalize(toLight);
+
+    float radius = u_pointLights[index].radius;
+    
+    float closestDepth = selectPointLightDep(index, dir);
+    vec3 color = texture(u_texture_5, dir).rgb;
+
+    float currentDepth = length(toLight);
+    currentDepth /= radius;
+
+    float bias = 0.01; 
+    float shadow = currentDepth -  bias > closestDepth ? 0.0 : 1.0;
+
+    return shadow;
+}
 
 vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor)
 {
@@ -101,41 +161,145 @@ vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor
     diffuse *= attenuation;
     specular *= attenuation;
 
-    return ambient + diffuse + specular;
+    float shadow = 1.0;
+    
+    if (index < u_pointLightShadowCount)
+    {
+        shadow = calculatePointLightShadow(index);
+    }
+
+    return ambient + shadow * (diffuse + specular);
 
     //return vec3(attenuation);
+}
+
+float sampleSpotLightShadowMask(int index, vec2 uv)
+{
+    float mask = 1.0;
+
+    if (index == 0)
+    {
+        mask = texture(u_texture_1, uv).x;
+    }
+
+    if (index == 1)
+    {
+        mask = texture(u_texture_2, uv).x;
+    }
+
+     if (index == 2)
+    {
+        mask = texture(u_texture_3, uv).x;
+    }
+
+     if (index == 3)
+    {
+        mask = texture(u_texture_4, uv).x;
+    }
+
+    return mask;
+}
+
+float calculateSpotLightShadow(int index, vec3 normal, vec3 lightDir)
+{
+    vec3 projCoords = v_fragPosSpotLightSpace[index].xyz / v_fragPosSpotLightSpace[index].w;
+    vec2 uvCoords;
+    uvCoords.x = 0.5 * projCoords.x + 0.5;
+    uvCoords.y = 0.5 * projCoords.y + 0.5;
+    float z = 0.5 * projCoords.z + 0.5;
+
+    if (z > 1.0)
+    {
+        return 1.0;
+    }
+
+    float depth = sampleSpotLightShadowMask(index, uvCoords);
+
+    float factor = dot(normal, lightDir);
+    factor = clamp(factor, 0.0, 1.0);
+
+    float bias = 0.0005;
+
+    float shadow = (depth + bias) < z ? 0.0 : 1.0;
+        
+    return shadow;
+}
+
+vec3 spotLightShadow(int index)
+{
+    vec3 projCoords = v_fragPosSpotLightSpace[index].xyz / v_fragPosSpotLightSpace[index].w;
+    vec2 uvCoords;
+    uvCoords.x = 0.5 * projCoords.x + 0.5;
+    uvCoords.y = 0.5 * projCoords.y + 0.5;
+    float z = 0.5 * projCoords.z + 0.5;
+
+    if (z > 1.0)
+    {
+        return vec3(1.0);
+    }
+
+    float depth = sampleSpotLightShadowMask(index, uvCoords);
+
+    float bias = 0.0025;
+
+    float shadow = (depth + bias) < z ? 0.0 : 1.0;
+        
+    return vec3(shadow);
 }
 
 vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
 {
     vec3 lightPosition = u_spotLights[index].position;
-    vec3 lightDir = normalize(lightPosition - v_position);
     vec3 lightDirection = u_spotLights[index].direction;
-    float diff = max(dot(normal, lightDir), 0.0);
-    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 ToLight = lightPosition - v_position;
+
+    vec3 ToLightN = normalize(ToLight);
+
+    float theta = dot(ToLightN, -lightDirection);
+
+    // float cutOff = cos(0.436332313);
+    // float outerCutOff = cos(0.523598776);
+
+    float cutOff = u_spotLights[index].cutOff;
+    float outerCutOff = u_spotLights[index].outerCutOff;
+
+    float epsilon = cutOff - outerCutOff;
+    float intensity = clamp((theta - outerCutOff) / epsilon, 0.0, 1.0);
+
+    float col = theta > cutOff ? 1.0 : 0.0;
+
+    float DistanceSqr = dot(ToLight, ToLight);
+
+    float attenuation = 1.0 / (DistanceSqr + 1.0);
+
+    float InvRadius = u_spotLights[index].invRange;
+
+    float A = (InvRadius * InvRadius);
+    float B = DistanceSqr * A;
+    float C = B * B;
+    float D = 1.0 - C;
+    float E = clamp(D, 0.0, 1.0);
+    float F = E * E;
+
+    attenuation = F;
+
+    float shadow = 1.0;
+    
+    if (index < u_spotLightShadowCount)
+    {
+        shadow = calculateSpotLightShadow(index, normal, ToLightN);
+    }
+
+    float diff = max(dot(normal, ToLightN), 0.0);
+    vec3 reflectDir = reflect(-ToLightN, normal);
     vec3 lightColor = pow(u_spotLights[index].color, vec3(u_gamma));; 
-    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    vec3 halfwayDir = normalize(ToLightN + viewDir);  
 
     float specPow = mix(2.0, 512.0, u_smoothness);
 
     float spec = pow(max(dot(normal, halfwayDir), 0.0), specPow);
     spec *= u_specularStrength;
 
-    float distance = length(lightPosition - v_position);
-
-    float constant = u_spotLights[index].constant;
-    float linear = u_spotLights[index].linear;
-    float quadratic = u_spotLights[index].quadratic;
-
-    float attenuation = 1.0 / (constant + linear * distance + quadratic * (distance * distance));
-
-    float theta = dot(lightDir, -lightDirection);
-
-    float cutOff = u_spotLights[index].innerCut;
-    float outerCutOff = u_spotLights[index].outCut;
-
-    float epsilon = cutOff - outerCutOff;
-    float intensity = clamp((theta - outerCutOff) / epsilon, 0.0, 1.0);
 
     vec3 ambient = u_ambientStrength * lightColor;
     vec3 diffuse = diff * lightColor;
@@ -145,7 +309,10 @@ vec3 calculateSpotLight(int index, vec3 normal, vec3 viewDir)
     diffuse *= attenuation * intensity;
     specular *= attenuation * intensity;
 
-    return ambient + diffuse + specular;
+
+    vec3 finalColor = ambient + shadow * (diffuse + specular);
+    
+    return finalColor;
 }
 
 float calculateShadow()

@@ -480,8 +480,8 @@ FrameBuffer* Render::createDepthCubeMapFrameBuffer(unsigned int width, unsigned 
     dataFormat = GL_FLOAT;
 
 #if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
-    depthFormat = GL_DEPTH_COMPONENT16;
-    depthTextureFormat = GL_UNSIGNED_SHORT;
+    format = GL_DEPTH_COMPONENT16;
+    dataFormat = GL_UNSIGNED_SHORT;
 #endif
 
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, format, width, height, 0, chanels, dataFormat, nullptr);
