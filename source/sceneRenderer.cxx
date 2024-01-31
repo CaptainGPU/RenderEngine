@@ -41,7 +41,7 @@ m_vignette(0.0),
 m_postProcessGammaUniform(nullptr),
 m_gamma(2.2),
 m_basePassGammaUniform(nullptr),
-m_basePassAlbedoUniform(nullptr),
+m_basePassMaterialBaseColorUniform(nullptr),
 m_basePassAlbedo(glm::vec3(1.0)),
 m_baseLightColorUniform(nullptr),
 m_basePassLightColor(glm::vec3(1.0)),
@@ -178,7 +178,7 @@ void SceneRenderer::init()
                 "u_projectionMatrix", 
                 "time", 
                 "u_gamma", 
-                "u_albedo", 
+                "u_materialBaseColor", 
                 "u_lightColor", 
                 "u_ambientColor", 
                 "u_smoothness", 
@@ -263,7 +263,7 @@ void SceneRenderer::init()
             m_matrixProjectionUniform = renderPass->getUniform(uniformNames[2]);
             m_timeUniform = renderPass->getUniform(uniformNames[3]);
             m_basePassGammaUniform = renderPass->getUniform(uniformNames[4]);
-            m_basePassAlbedoUniform = renderPass->getUniform(uniformNames[5]);
+            m_basePassMaterialBaseColorUniform = renderPass->getUniform(uniformNames[5]);
             m_baseLightColorUniform = renderPass->getUniform(uniformNames[6]);
             m_basePassAmbientColorUniform = renderPass->getUniform(uniformNames[7]);
             m_basePasSmoothnessUniform = renderPass->getUniform(uniformNames[8]);
@@ -459,9 +459,9 @@ void SceneRenderer::renderSunLightShadowPass(SunLightData& sunLightData, RenderI
     for (size_t i = 0; i < numGameObject; i++)
     {
         GameObject* gameObject = scene->getGameObject(i);
-        Mesh* mesh = gameObject->getMesh();
+        unsigned int meshCount = gameObject->getMeshCount();
 
-        if (!mesh || !gameObject->isRenderingObject())
+        if (meshCount == 0 || !gameObject->isRenderingObject())
         {
             continue;
         }
@@ -469,7 +469,12 @@ void SceneRenderer::renderSunLightShadowPass(SunLightData& sunLightData, RenderI
         glm::mat4 modelMatrix = gameObject->getModelMatrix();
         m_sunLightShadowPassModelUniform->setMatrix4x4(modelMatrix);
 
-        Render::drawMesh(mesh, renderInfo);
+        for (size_t j = 0; j < meshCount; j++)
+        {
+            Mesh* mesh = gameObject->getMesh(j);
+
+            Render::drawMesh(mesh, renderInfo);
+        }
     }
 
 
@@ -504,7 +509,7 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vec
     m_basePassSunIntensityUniform->setFloat(sunLightData.intensity);
 
     m_basePassGammaUniform->setFloat(m_gamma);
-    m_basePassAlbedoUniform->setVec3(m_basePassAlbedo);
+  
     m_basePassAmbientColorUniform->setVec3(m_basePassAmbientColor);
     m_basePasSmoothnessUniform->setFloat(m_basePassSmoothness);
     m_basePassAmbientStrengthUniform->setFloat(m_basePassAmbientStrength);
@@ -573,13 +578,13 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vec
         Texture* texture = spotLightShadowMaps[i];
         m_basePassSpotLightsShadowMapTextureUniform[i]->setTexture(texture, 1 + i);
     }
-    
+
     for (size_t i = 0; i < numGameObject; i++)
     {
         GameObject* gameObject = scene->getGameObject(i);
-        Mesh* mesh = gameObject->getMesh();
+        unsigned int meshCount = gameObject->getMeshCount();
 
-        if (!mesh || !gameObject->isRenderingObject())
+        if (meshCount == 0 || !gameObject->isRenderingObject())
         {
             continue;
         }
@@ -587,7 +592,14 @@ void SceneRenderer::renderBasePass(std::vector<PointLightData>& lights, std::vec
         glm::mat4 modelMatrix = gameObject->getModelMatrix();
         m_matrixModelUniform->setMatrix4x4(modelMatrix);
 
-        Render::drawMesh(mesh, renderInfo);
+        for (size_t j = 0; j < meshCount; j++)
+        {
+            Mesh* mesh = gameObject->getMesh(j);
+            Material* material = mesh->getMaterial();
+            m_basePassMaterialBaseColorUniform->setVec3(material->color);
+
+            Render::drawMesh(mesh, renderInfo);
+        }
     }
 
     Render::endRenderPass(renderPass);
@@ -618,7 +630,7 @@ void SceneRenderer::renderBoundPass(RenderInfo& renderInfo)
     for (size_t i = 0; i < numGameObject; i++)
     {
         GameObject* gameObject = scene->getGameObject(i);
-        Mesh* mesh = gameObject->getMesh();
+        Mesh* mesh = nullptr; // gameObject->getMesh();
 
         SpotLight* spot = dynamic_cast<SpotLight*>(gameObject);
         if (spot)

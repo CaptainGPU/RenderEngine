@@ -14,6 +14,7 @@
 #include <map>
 
 static std::map<std::string, Mesh*> meshMap;
+static std::map< std::string, std::vector<Mesh*>> meshesMap;
 
 void generateStaticMeshBound(MeshBound* bound)
 {
@@ -326,4 +327,205 @@ MeshBound* createCorterBound(std::vector<glm::vec4>& corners)
 	bound->setEBO(ebo);
 
 	return bound;
+}
+
+Mesh* registerMesh(std::string modelFilePath, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
+{
+	Mesh* mesh = nullptr;
+
+	if (meshMap.find(modelFilePath) != meshMap.end())
+	{
+		mesh = meshMap.at(modelFilePath);
+	}
+
+	if (mesh)
+	{
+		return mesh;
+	}
+
+	mesh = new Mesh();
+
+	MeshBound* bound = new MeshBound();
+
+	VertexAttributeObject* vao = new VertexAttributeObject();
+	vao->init();
+
+	ElementBufferObject* ebo = new ElementBufferObject(indices.size());
+	ebo->init();
+
+	GLuint vbo1, vao1, ebo1;
+	vao1 = vao->getOpenGLVAO();
+	ebo1 = ebo->get_OpenGL_EBO();
+
+	Render::bindVAO(vao);
+
+	glGenBuffers(1, &vbo1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo1);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo1);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices[0]) * indices.size(), &indices[0], GL_STATIC_DRAW);
+
+	int POS_LOC = 0;
+	int UV_LOC = 1;
+	int NORMAL_LOC = 2;
+
+	size_t NumFloats = 0;
+
+
+	// XYZ data
+	glEnableVertexAttribArray(POS_LOC);
+	glVertexAttribPointer(POS_LOC, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(NumFloats * sizeof(float)));
+	NumFloats += 3;
+
+	// UV data
+	glEnableVertexAttribArray(UV_LOC);
+	glVertexAttribPointer(UV_LOC, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(NumFloats * sizeof(float)));
+	NumFloats += 2;
+
+	// normals
+	glEnableVertexAttribArray(NORMAL_LOC);
+	glVertexAttribPointer(NORMAL_LOC, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(NumFloats * sizeof(float)));
+	NumFloats += 3;
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	generateStaticMeshBound(bound);
+
+	mesh->set_OpenGL_VBO(vbo1);
+	mesh->setVAO(vao);
+	mesh->setEBO(ebo);
+	mesh->setNumVertex(vertices.size());
+	mesh->setMeshBound(bound);
+
+	meshMap.insert(std::pair<std::string, Mesh*>(modelFilePath, mesh));
+
+	return mesh;
+}
+
+std::vector<Mesh*> loadMeshes(std::string modelName)
+{
+	std::string modelFolder = "../Models/";
+
+#if CURRENT_PLATFORM == PLATFORM_MAC
+	modelFolder = "../../Models/";
+#endif
+
+	std::string modelFilePath = modelFolder + modelName;
+
+	std::vector<Mesh*> subMeshes;
+
+	if (meshesMap.find(modelFilePath) != meshesMap.end())
+	{
+		subMeshes = meshesMap.at(modelFilePath);
+	}
+
+	if (meshesMap.size() > 0)
+	{
+		return subMeshes;
+	}
+
+	tinyobj::ObjReaderConfig reader_config;
+	reader_config.mtl_search_path = modelFolder;
+
+	tinyobj::ObjReader reader;
+
+	if (!reader.ParseFromFile(modelFilePath, reader_config)) {
+		if (!reader.Error().empty()) {
+			std::cerr << "TinyObjReader: " << reader.Error();
+		}
+		exit(1);
+	}
+
+	if (!reader.Warning().empty()) {
+		std::cout << "TinyObjReader: " << reader.Warning();
+	}
+
+	auto& attrib = reader.GetAttrib();
+	auto& shapes = reader.GetShapes();
+	auto& materials = reader.GetMaterials();
+
+	std::vector<std::vector<Vertex>> subVertices;
+	std::vector<std::vector<uint32_t>> subIndices;
+
+	subVertices.resize(materials.size());
+	subIndices.resize(materials.size());
+
+	std::vector<Vertex> vertices;
+	std::vector<uint32_t> indices;
+
+	for (size_t s = 0; s < shapes.size(); s++) {
+		// Loop over faces(polygon)
+		size_t index_offset = 0;
+		for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
+			size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
+
+			int materialID = shapes[s].mesh.material_ids[f];
+
+			{
+
+				// Loop over vertices in the face.
+				for (size_t v = 0; v < fv; v++) {
+					// access to vertex
+					Vertex vert;
+
+					tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
+					tinyobj::real_t vx = attrib.vertices[3 * size_t(idx.vertex_index) + 0];
+					tinyobj::real_t vy = attrib.vertices[3 * size_t(idx.vertex_index) + 1];
+					tinyobj::real_t vz = attrib.vertices[3 * size_t(idx.vertex_index) + 2];
+
+					vert.pos = glm::vec3(vx, vy, vz);
+
+					// Check if `normal_index` is zero or positive. negative = no normal data
+					if (idx.normal_index >= 0) {
+						tinyobj::real_t nx = attrib.normals[3 * size_t(idx.normal_index) + 0];
+						tinyobj::real_t ny = attrib.normals[3 * size_t(idx.normal_index) + 1];
+						tinyobj::real_t nz = attrib.normals[3 * size_t(idx.normal_index) + 2];
+						vert.normal = glm::vec3(nx, ny, nz);
+					}
+
+					// Check if `texcoord_index` is zero or positive. negative = no texcoord data
+					if (idx.texcoord_index >= 0) {
+						tinyobj::real_t tx = attrib.texcoords[2 * size_t(idx.texcoord_index) + 0];
+						tinyobj::real_t ty = attrib.texcoords[2 * size_t(idx.texcoord_index) + 1];
+						vert.uv = glm::vec2(tx, ty);
+					}
+
+					subIndices[materialID].push_back(subVertices[materialID].size());
+					subVertices[materialID].push_back(vert);
+
+					// Optional: vertex colors
+					// tinyobj::real_t red   = attrib.colors[3*size_t(idx.vertex_index)+0];
+					// tinyobj::real_t green = attrib.colors[3*size_t(idx.vertex_index)+1];
+					// tinyobj::real_t blue  = attrib.colors[3*size_t(idx.vertex_index)+2];
+				}
+			}
+
+
+			index_offset += fv;
+
+			// per-face material
+			//shapes[s].mesh.material_ids[f];
+		}
+	}
+
+	subMeshes.resize(materials.size());
+
+	for (size_t i = 0; i < materials.size(); i++)
+	{
+		Material* material = new Material();
+
+		material->color = glm::vec3(materials[i].diffuse[0], materials[i].diffuse[1], materials[i].diffuse[2]);
+
+		Mesh* mesh = registerMesh(modelFilePath + std::string("_sub_") + std::to_string(i), subVertices[i], subIndices[i]);
+		mesh->setMaterial(material);
+		subMeshes[i] = mesh;
+	}
+
+	meshesMap.insert(std::pair<std::string, std::vector<Mesh*>>(modelFilePath, subMeshes));
+
+	return subMeshes;
 }

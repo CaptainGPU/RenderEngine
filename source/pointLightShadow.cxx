@@ -91,9 +91,9 @@ void renderSide(unsigned int side, RenderInfo& renderInfo, PointLightData& light
     for (size_t i = 0; i < numGameObject; i++)
     {
         GameObject* gameObject = scene->getGameObject(i);
-        Mesh* mesh = gameObject->getMesh();
+        unsigned int meshCount = gameObject->getMeshCount();
 
-        if (!mesh || !gameObject->isRenderingObject())
+        if (meshCount == 0 || !gameObject->isRenderingObject())
         {
             continue;
         }
@@ -101,7 +101,12 @@ void renderSide(unsigned int side, RenderInfo& renderInfo, PointLightData& light
         glm::mat4 modelMatrix = gameObject->getModelMatrix();
         plModelMatrixUniform->setMatrix4x4(modelMatrix);
 
-        Render::drawMesh(mesh, renderInfo);
+        for (size_t j = 0; j < meshCount; j++)
+        {
+            Mesh* mesh = gameObject->getMesh(j);
+
+            Render::drawMesh(mesh, renderInfo);
+        }
     }
 }
 
@@ -140,6 +145,11 @@ void renderPointLightShadowsPass(RenderPass* renderPass, RenderInfo& renderInfo,
     if (pointLightCount > POINTLIGHT_SHADOW_COUNT)
     {
         pointLightCount = POINTLIGHT_SHADOW_COUNT;
+    }
+
+    if (pointLightCount > points.size())
+    {
+        pointLightCount = points.size();
     }
 
     for (size_t i = 0; i < pointLightCount; i++)

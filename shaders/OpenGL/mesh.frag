@@ -35,7 +35,7 @@ in vec4 v_fragPosSpotLightSpace[MAX_SPOT_LIGHTS];
 out vec4 color;
 uniform float u_time;
 uniform float u_gamma;
-uniform vec3 u_albedo;
+uniform vec3 u_materialBaseColor;
 uniform vec3 u_lightColor;
 uniform vec3 u_ambientColor;
 uniform float u_smoothness;
@@ -384,7 +384,7 @@ void main()
         lighing += calculateSpotLight(i, normal, viewDir);
     }
 
-    vec3 finalColor = vec3(lighing);
+    vec3 finalColor = lighing * u_materialBaseColor;
 
     color = vec4(finalColor, 1.0);
 }  

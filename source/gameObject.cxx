@@ -63,9 +63,14 @@ glm::mat4 GameObject::getModelMatrix()
     return m_modelMatrix;
 }
 
-Mesh* GameObject::getMesh()
+Mesh* GameObject::getMesh(unsigned int id)
 {
-    return m_mesh;
+    return m_meshes[id];
+}
+
+unsigned int GameObject::getMeshCount()
+{
+    return m_meshes.size();
 }
 
 bool GameObject::isRenderingObject()

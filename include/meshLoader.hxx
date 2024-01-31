@@ -12,3 +12,5 @@
 
 Mesh* loadMesh(std::string modelName);
 MeshBound* createCorterBound(std::vector<glm::vec4>& corners);
+
+std::vector<Mesh*> loadMeshes(std::string modelName);

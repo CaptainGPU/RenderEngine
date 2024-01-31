@@ -52,9 +52,9 @@ void renderSpotLight(SpotLightData& spotLightData, RenderInfo& renderInfo)
     for (size_t i = 0; i < numGameObject; i++)
     {
         GameObject* gameObject = scene->getGameObject(i);
-        Mesh* mesh = gameObject->getMesh();
+        unsigned int meshCount = gameObject->getMeshCount();
 
-        if (!mesh || !gameObject->isRenderingObject())
+        if (meshCount == 0 || !gameObject->isRenderingObject())
         {
             continue;
         }
@@ -62,8 +62,15 @@ void renderSpotLight(SpotLightData& spotLightData, RenderInfo& renderInfo)
         glm::mat4 modelMatrix = gameObject->getModelMatrix();
         modelMatrixUniform->setMatrix4x4(modelMatrix);
 
-        Render::drawMesh(mesh, renderInfo);
+        for (size_t j = 0; j < meshCount; j++)
+        {
+            Mesh* mesh = gameObject->getMesh(j);
+
+            Render::drawMesh(mesh, renderInfo);
+        }
     }
+
+    
 }
 
 void renderSpotlightShadowsPass(RenderPass* renderPass, RenderInfo& renderInfo, std::vector<SpotLightData>& spots, int shadowCount)
@@ -74,6 +81,11 @@ void renderSpotlightShadowsPass(RenderPass* renderPass, RenderInfo& renderInfo, 
     if (spotLightCount > 4)
     {
         spotLightCount = 4;
+    }
+
+    if (spotLightCount > spots.size())
+    {
+        spotLightCount = spots.size();
     }
 
     for (size_t i = 0; i < spotLightCount; i++)

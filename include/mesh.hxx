@@ -6,6 +6,8 @@
 
 #include "vao.hxx"
 #include "ebo.hxx"
+#include "material.hxx"
+
 #include <stdint.h>
 #include <glm/glm.hpp>
 #include <vector>
@@ -69,11 +71,15 @@ public:
 
 	void setMeshBound(MeshBound* bound);
 	MeshBound* getMeshBound();
+
+	void setMaterial(Material* material);
+	Material* getMaterial();
     
 private:
 	MeshBound* m_meshBound;
 	VertexAttributeObject* m_vao;
     ElementBufferObject* m_ebo;
+	Material* m_material;
     
     uint32_t m_numVertex;
 

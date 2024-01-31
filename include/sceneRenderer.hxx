@@ -94,7 +94,7 @@ private:
     Uniform* m_postProcessGammaUniform;
     Uniform* m_postProcessShowShadowMapUniform;
 
-    Uniform* m_basePassAlbedoUniform;
+    Uniform* m_basePassMaterialBaseColorUniform;
     Uniform* m_baseLightColorUniform;
     Uniform* m_basePassSunDirectionUniform;
     Uniform* m_basePassSunIntensityUniform;

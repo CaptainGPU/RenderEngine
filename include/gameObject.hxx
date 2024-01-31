@@ -28,7 +28,8 @@ public:
     
     glm::mat4 getModelMatrix();
 
-    Mesh* getMesh();
+    Mesh* getMesh(unsigned int id);
+    unsigned int getMeshCount();
 
     bool isRenderingObject();
     void setIsRenderingObject(bool isRenderingObject);
@@ -78,4 +79,5 @@ protected:
 
 protected:
     Mesh* m_mesh;
+    std::vector<Mesh*> m_meshes;
 };

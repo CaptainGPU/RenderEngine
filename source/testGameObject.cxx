@@ -17,7 +17,8 @@ m_time(.0)
 {
     m_deltaTime = .0;
     
-    m_mesh = loadMesh(modelName);
+    //m_mesh = loadMesh(modelName);
+    m_meshes = loadMeshes(modelName);
 }
 
 void TestGameObject::update(float deltaTime)

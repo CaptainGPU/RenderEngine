@@ -8,7 +8,8 @@
 Mesh::Mesh():
 m_vao(nullptr),
 m_vbo(0),
-m_numVertex(0)
+m_numVertex(0),
+m_material(nullptr)
 {
 }
 
@@ -72,6 +73,16 @@ void Mesh::setMeshBound(MeshBound* bound)
 MeshBound* Mesh::getMeshBound()
 {
 	return m_meshBound;
+}
+
+void Mesh::setMaterial(Material* material)
+{
+	m_material = material;
+}
+
+Material* Mesh::getMaterial()
+{
+	return m_material;
 }
 
 MeshBound::MeshBound():
