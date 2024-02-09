@@ -11,6 +11,8 @@
 class Material
 {
 public:
+	Material();
+
 	glm::vec3 color;
 	std::string m_name;
 };

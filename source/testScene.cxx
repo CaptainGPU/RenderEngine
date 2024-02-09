@@ -9,6 +9,8 @@
 #include "spotLight.hxx"
 #include "sunLight.hxx"
 
+#include "meshLoader.hxx"
+
 #define TWO_PI 6.283
 
 TestScene::TestScene()
@@ -27,7 +29,7 @@ void TestScene::construct()
 {
     Scene::construct();
 
-    TestGameObject* quadColor = new TestGameObject("scene74.mesh");
+    TestGameObject* quadColor = new TestGameObject("");
     //quadColor->setScale(glm::vec3(10.0));
     addGameObject(quadColor);
 
@@ -65,12 +67,12 @@ void TestScene::construct()
 
     pointLight = new PoinLightGameObject();
     pointLight->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
-    addGameObject(pointLight);
+    //addGameObject(pointLight);
     m_lights.push_back(pointLight);
 
     pointLight = new PoinLightGameObject();
     pointLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-    addGameObject(pointLight);
+    //addGameObject(pointLight);
     m_lights.push_back(pointLight);
 
     m_whiteLight = new SpotLight();
@@ -79,11 +81,11 @@ void TestScene::construct()
     m_whiteLight->addRotationZ(-45.0f);
     addGameObject(m_whiteLight);
 
-    m_plane = new TestGameObject("test_color_quad.mesh");
-    addGameObject(m_plane);
+    //m_plane = new TestGameObject("test_color_quad.mesh");
+    //addGameObject(m_plane);
 
-    m_plane->setScale(glm::vec3(50.0));
-    m_plane->setPosition(glm::vec3(0.0, -1.0, 0.0));
+    /*/m_plane->setScale(glm::vec3(50.0));
+    m_plane->setPosition(glm::vec3(0.0, -1.0, 0.0));*/
 
 
     m_spot1 = new SpotLight();
@@ -114,6 +116,8 @@ void TestScene::construct()
     m_spot1->generateBound();
     m_spot2->generateBound();
     m_spot3->generateBound();
+
+    loadGLTFtoScene(this, "gltf/CubeGLTF.gltf");
 
 
     return;

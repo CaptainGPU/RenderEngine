@@ -28,6 +28,7 @@ public:
     
     glm::mat4 getModelMatrix();
 
+    void addMesh(Mesh*);
     Mesh* getMesh(unsigned int id);
     unsigned int getMeshCount();
 
@@ -51,6 +52,8 @@ public:
     void SetRotateX(const float& x);
     void SetRotateY(const float& y);
     void SetRotateZ(const float& z);
+
+    void setRotation(const glm::vec3& rotation);
     
     float getRotationX();
     float getRotationY();

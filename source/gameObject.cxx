@@ -12,6 +12,7 @@ GameObject::GameObject(std::string name):
 m_isDirtyTransform(true),
 m_renderingObject(true),
 m_mesh(nullptr),
+mesh(nullptr),
 m_lightComponent(nullptr)
 {
     m_name = name;
@@ -20,6 +21,7 @@ m_lightComponent(nullptr)
     m_scale = glm::vec3(1.);
     m_rotation = glm::vec3(.0);
 }
+
 
 void GameObject::startPlay()
 {
@@ -53,14 +55,21 @@ glm::mat4 GameObject::getModelMatrix()
     {
         m_modelMatrix = glm::mat4(1.0f);
         m_modelMatrix = glm::translate(m_modelMatrix, m_position);
-        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, .0f));
-        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, .0f));
+        
+        
         m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, .0f));
+        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, .0f));
         m_modelMatrix = glm::scale(m_modelMatrix, m_scale);
         m_isDirtyTransform = false;
     }
     
     return m_modelMatrix;
+}
+
+void GameObject::addMesh(Mesh* mesh)
+{
+    m_meshes.push_back(mesh);
 }
 
 Mesh* GameObject::getMesh(unsigned int id)
@@ -189,6 +198,12 @@ void GameObject::SetRotateZ(const float& z)
         m_rotation.z -= 360.0;
     }
     
+    m_isDirtyTransform = true;
+}
+
+void GameObject::setRotation(const glm::vec3& rotation)
+{
+    m_rotation = rotation;
     m_isDirtyTransform = true;
 }
 

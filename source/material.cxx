@@ -4,3 +4,8 @@
 //
 
 #include "material.hxx"
+
+Material::Material()
+{
+	color = glm::vec3(1.0);
+}
