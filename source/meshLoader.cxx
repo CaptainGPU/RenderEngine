@@ -546,6 +546,8 @@ Mesh* parseGLTFMesh(const tinygltf::Model& model, const tinygltf::Mesh& mesh, co
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 
+	MeshBound* bound = new MeshBound();
+
 	for (size_t j = 0; j < mesh.primitives.size(); j++)
 	{
 
@@ -580,6 +582,7 @@ Mesh* parseGLTFMesh(const tinygltf::Model& model, const tinygltf::Mesh& mesh, co
 			vert.normal = glm::normalize(glm::vec3(bufferNormals ? glm::make_vec3(&bufferNormals[v * normByteStride]) : glm::vec3(0.0f)));
 
 			vertices.push_back(vert);
+			bound->updateBound(vert);
 		}
 
 		bool hasIndices = primitive.indices > -1;
@@ -631,8 +634,11 @@ Mesh* parseGLTFMesh(const tinygltf::Model& model, const tinygltf::Mesh& mesh, co
 		int a = 10;
 	}
 
+	generateStaticMeshBound(bound);
+
 	Mesh* meshModel = registerMesh(modelFilePath, vertices, indices);
 	meshModel->setMaterial(new Material());
+	meshModel->setMeshBound(bound);
 	/*if (meshModel)
 	{
 		

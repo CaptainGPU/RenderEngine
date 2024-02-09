@@ -630,7 +630,8 @@ void SceneRenderer::renderBoundPass(RenderInfo& renderInfo)
     for (size_t i = 0; i < numGameObject; i++)
     {
         GameObject* gameObject = scene->getGameObject(i);
-        Mesh* mesh = nullptr; // gameObject->getMesh();
+        
+        unsigned int meshCount = gameObject->getMeshCount();
 
         SpotLight* spot = dynamic_cast<SpotLight*>(gameObject);
         if (spot)
@@ -638,7 +639,7 @@ void SceneRenderer::renderBoundPass(RenderInfo& renderInfo)
             spots.push_back(spot);
         }
 
-        if (!mesh || !gameObject->isRenderingObject())
+        if (meshCount == 0 || !gameObject->isRenderingObject())
         {
             continue;
         }
@@ -646,7 +647,14 @@ void SceneRenderer::renderBoundPass(RenderInfo& renderInfo)
         glm::mat4 modelMatrix = gameObject->getModelMatrix();
         m_boundMatrixModelUniform->setMatrix4x4(modelMatrix);
 
-        Render::drawMeshBound(mesh->getMeshBound(), renderInfo);
+        for (size_t j = 0; j < meshCount; j++)
+        {
+            Mesh* mesh = gameObject->getMesh(j);
+            if (mesh)
+            {
+                Render::drawMeshBound(mesh->getMeshBound(), renderInfo);
+            }
+        }
     }
 
     if (false)
