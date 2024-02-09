@@ -67,12 +67,12 @@ void TestScene::construct()
 
     pointLight = new PoinLightGameObject();
     pointLight->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
-    //addGameObject(pointLight);
+    addGameObject(pointLight);
     m_lights.push_back(pointLight);
 
     pointLight = new PoinLightGameObject();
     pointLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-    //addGameObject(pointLight);
+    addGameObject(pointLight);
     m_lights.push_back(pointLight);
 
     m_whiteLight = new SpotLight();
@@ -90,7 +90,7 @@ void TestScene::construct()
 
     m_spot1 = new SpotLight();
     m_spot1->setColor(glm::vec3(1.0f, 0.0f, 0.0f));
-    m_spot1->addRotationZ(-89.0f);
+    m_spot1->addRotationZ(-45.0f);
     m_spot1->setPositionZ(-10.5);
     m_spot1->setPositionY(4.0f);
     m_spot1->setPositionX(-10.5);

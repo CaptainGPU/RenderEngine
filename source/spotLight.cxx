@@ -32,9 +32,9 @@ SpotLightData SpotLight::getData()
     
     glm::vec3 forw = glm::vec3(1.0, .0, .0);
 
-    forw = glm::rotate(forw, glm::radians(getRotationZ()), glm::vec3(0.0, .0, 1.0));
-    forw = glm::rotate(forw, glm::radians(getRotationY()), glm::vec3(0.0, 1.0, .0));
     forw = glm::rotate(forw, glm::radians(getRotationX()), glm::vec3(1.0, .0, .0));
+    forw = glm::rotate(forw, glm::radians(getRotationY()), glm::vec3(0.0, 1.0, .0));
+    forw = glm::rotate(forw, glm::radians(getRotationZ()), glm::vec3(0.0, .0, 1.0));
     
     data.direction = forw;
     

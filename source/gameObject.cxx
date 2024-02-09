@@ -12,7 +12,6 @@ GameObject::GameObject(std::string name):
 m_isDirtyTransform(true),
 m_renderingObject(true),
 m_mesh(nullptr),
-mesh(nullptr),
 m_lightComponent(nullptr)
 {
     m_name = name;

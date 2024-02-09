@@ -45,7 +45,8 @@ void mountFileSystemEmscripten()
         "/Models/spot.mesh",
         "/Models/sun.mesh",
         "/Models/scene74.mesh",
-        "/Models/scene74.mtl"
+        "/Models/scene74.mtl",
+        "/Models/gltf/CubeGLTF.gltf"
     };
 
     for (size_t i = 0; i < files.size(); i++)
