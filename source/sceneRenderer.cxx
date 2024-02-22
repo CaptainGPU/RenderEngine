@@ -14,6 +14,9 @@
 #include "math.hxx"
 #include "spotLightShadow.hxx"
 #include "pointLightShadow.hxx"
+
+#include "forwardBasePass.hxx"
+
 #include <glm/gtc/type_ptr.hpp>
 
 SceneRenderer::SceneRenderer()
@@ -338,6 +341,11 @@ void SceneRenderer::init()
                 name = std::string(locBuff);
                 m_basePassSpotLightsShadowMapVP[i] = renderPass->getUniform(name);
             }
+        }
+
+        if (pass == FORWARD_BASE_PASS)
+        {
+            renderPass = registerForwardBasePass();
         }
 
         if (pass == BOUND_PASS)
@@ -758,7 +766,8 @@ void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
     int showShadowMap = m_renderSunLighShadowMap ? 1 : 0;
     m_postProcessShowShadowMapUniform->setInt(showShadowMap);
     
-    Texture* texture = m_frameBuffer->getColorTexture();
+    //Texture* texture = m_frameBuffer->getColorTexture();
+    Texture* texture = getForwardBasePassFrameBuffer()->getColorTexture();
     //Texture* sunLightTexture = m_sunLightShadowFrameBuffer->getColorTexture();
     Texture* sunLightTexture = getSpotLightShadowMapColorTexture()[0];
     m_sceneTextureUniform->setTexture(texture, 0);
@@ -829,32 +838,38 @@ void SceneRenderer::render(RenderInfo& renderInfo)
         renderPointLightShadowsPass(renderPass, renderInfo, lights, m_pointLightDynamicShadowCount);
     }
 
-    // Render Base Pass
-    Render::setViewport(0, 0, m_frameWidth, m_frameHeight);
-    Render::useFrameBuffer(m_frameBuffer);
-
-    float gamma = m_gamma;
-
-    glm::vec3 sceneColor = glm::pow(m_sceneColor, glm::vec3(gamma));
-    
-    Render::clearView(sceneColor.r, sceneColor.g, sceneColor.b, 1.0);
-
     if (m_renderBasePass)
     {
-        renderBasePass(lights, spots, sunLightData, renderInfo);
+        RenderPass* renderPass = m_renderPasses[SceneRendererPasses::FORWARD_BASE_PASS];
+        renderForwardBasePass(m_frameWidth, m_frameHeight, renderPass, renderInfo);
     }
 
-    if (m_renderBoundPass)
-    {
-        renderBoundPass(renderInfo);
-    }
-    
-    if (m_renderLightObjectsPass)
-    {
-        renderLightObjectsPass(lights, spots, sunLightData, renderInfo);
-    }
-    
-    Render::unUseFrameBuffer();
+    //// Render Base Pass
+    //Render::setViewport(0, 0, m_frameWidth, m_frameHeight);
+    //Render::useFrameBuffer(m_frameBuffer);
+
+    //float gamma = m_gamma;
+
+    //glm::vec3 sceneColor = glm::pow(m_sceneColor, glm::vec3(gamma));
+    //
+    //Render::clearView(sceneColor.r, sceneColor.g, sceneColor.b, 1.0);
+
+    //if (m_renderBasePass)
+    //{
+    //    renderBasePass(lights, spots, sunLightData, renderInfo);
+    //}
+
+    //if (m_renderBoundPass)
+    //{
+    //    renderBoundPass(renderInfo);
+    //}
+    //
+    //if (m_renderLightObjectsPass)
+    //{
+    //    renderLightObjectsPass(lights, spots, sunLightData, renderInfo);
+    //}
+    //
+    //Render::unUseFrameBuffer();
 
     // Render PostProcess Pass
     
