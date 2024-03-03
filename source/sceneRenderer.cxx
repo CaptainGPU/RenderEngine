@@ -413,10 +413,18 @@ void SceneRenderer::init()
     m_sunLightMesh = loadMesh("sun.mesh");
 
     initMobileSSAOPassData();
+
+    m_aoRenderContext = new AORenderContext();
+    m_aoRenderContext->radius = 0.5f;
+    m_aoRenderContext->bias = 0.03;
+    m_aoRenderContext->kernels = 64;
 }
 
 void SceneRenderer::finish()
 {
+    delete m_aoRenderContext;
+    m_aoRenderContext = nullptr;
+
     Renderer::finish();
 }
 
@@ -861,7 +869,7 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     if (m_renderMobileSSAOPass)
     {
         RenderPass* renderPass = m_renderPasses[SceneRendererPasses::MOBILE_SSAO_PASS];
-        renderMobileSSAOPass(renderPass, renderInfo);
+        renderMobileSSAOPass(renderPass, renderInfo, *m_aoRenderContext);
     }
 
     //// Render Base Pass
@@ -907,6 +915,9 @@ void SceneRenderer::drawDebugUI()
     ImGui::SliderFloat("Film Grain", &m_filmGrain, .0f, 1.0f);
     ImGui::SliderFloat("Vignette", &m_vignette, .0f, 2.0f);
     ImGui::SliderFloat("Gamma", &m_gamma, 1.0f, 3.0f);
+    ImGui::SliderFloat("SSAO Radius", &m_aoRenderContext->radius, 0.1, 5.0);
+    ImGui::SliderFloat("SSAO Bias", &m_aoRenderContext->bias, 0.01, 0.5);
+    ImGui::SliderInt("SSAO Kernels", &m_aoRenderContext->kernels, 1, 64);
     
     ImGui::End();
 

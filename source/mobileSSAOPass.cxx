@@ -35,6 +35,9 @@ namespace MobileSSAOPass
 	Texture* HSI_noiseTexture = nullptr;
 	Uniform* HSI_noiseTextureUniform = nullptr;
 	Uniform* HSI_projectionMatrixUniform = nullptr;
+	Uniform* HSI_AORadiusUniform = nullptr;
+	Uniform* HSI_AOBiasUniform = nullptr;
+	Uniform* HSI_AOKernelsUniform = nullptr;
 	std::vector<Uniform*> HSI_samplesUniform;
 }
 
@@ -179,7 +182,7 @@ RenderPass* registerMobileSSAOORenderPass()
 
 	// Horison Search Integrall Pass
 
-	std::vector<std::string> HSIPassUniformNames = { "u_texture_0", "u_texture_1", "u_texture_2", "u_projectionMatrix"};
+	std::vector<std::string> HSIPassUniformNames = { "u_texture_0", "u_texture_1", "u_texture_2", "u_projectionMatrix", "u_aoRadius", "u_aoBias", "u_aoKernels"};
 
 	for (size_t i = 0; i < 64; i++)
 	{
@@ -198,6 +201,9 @@ RenderPass* registerMobileSSAOORenderPass()
 	MobileSSAOPass::HSI_worldNormalTextureUniform = MobileSSAOPass::horizonSerchIntegralPass->getUniform(HSIPassUniformNames[1]);
 	MobileSSAOPass::HSI_noiseTextureUniform = MobileSSAOPass::horizonSerchIntegralPass->getUniform(HSIPassUniformNames[2]);
 	MobileSSAOPass::HSI_projectionMatrixUniform = MobileSSAOPass::horizonSerchIntegralPass->getUniform(HSIPassUniformNames[3]);
+	MobileSSAOPass::HSI_AORadiusUniform = MobileSSAOPass::horizonSerchIntegralPass->getUniform(HSIPassUniformNames[4]);
+	MobileSSAOPass::HSI_AOBiasUniform = MobileSSAOPass::horizonSerchIntegralPass->getUniform(HSIPassUniformNames[5]);
+	MobileSSAOPass::HSI_AOKernelsUniform = MobileSSAOPass::horizonSerchIntegralPass->getUniform(HSIPassUniformNames[6]);
 
 	for (size_t i = 0; i < 64; i++)
 	{
@@ -269,7 +275,7 @@ void depthPrePass(RenderInfo& renderInfo)
 	Render::unUseFrameBuffer();
 }
 
-void horisonSearchIntegralRender(RenderInfo& renderInfo)
+void horisonSearchIntegralRender(RenderInfo& renderInfo, AORenderContext& context)
 {
 	Texture* worldPos = MobileSSAOPass::depthPrePassFrameBuffer->getColorTexture();
 	Texture* worldNormal = MobileSSAOPass::depthPrePassFrameBuffer->getColorTexture1();
@@ -278,6 +284,10 @@ void horisonSearchIntegralRender(RenderInfo& renderInfo)
 	MobileSSAOPass::HSI_worldPositionTextureUniform->setTexture(worldPos, 0);
 	MobileSSAOPass::HSI_worldNormalTextureUniform->setTexture(worldNormal, 1);
 	MobileSSAOPass::HSI_noiseTextureUniform->setTexture(noise, 2);
+
+	MobileSSAOPass::HSI_AORadiusUniform->setFloat(context.radius);
+	MobileSSAOPass::HSI_AOBiasUniform->setFloat(context.bias);
+	MobileSSAOPass::HSI_AOKernelsUniform->setInt(context.kernels);
 
 	SceneManager* manager = Engine::get()->getSceneManager();
 	Scene* scene = manager->getScene();
@@ -297,7 +307,7 @@ void horisonSearchIntegralRender(RenderInfo& renderInfo)
 	MobileSSAOPass::horizonSerchIntegralPass->draw(renderInfo);
 }
 
-void horisonSearchIntegral(RenderInfo& renderInfo)
+void horisonSearchIntegral(RenderInfo& renderInfo, AORenderContext& context)
 {
 	Render::setViewport(0, 0, 800, 600);
 	Render::useFrameBuffer(MobileSSAOPass::HSIPassFrameBuffer);
@@ -306,18 +316,18 @@ void horisonSearchIntegral(RenderInfo& renderInfo)
 
 	Render::clearView(1.0, 1.0, 1.0, 1.0);
 
-	horisonSearchIntegralRender(renderInfo);
+	horisonSearchIntegralRender(renderInfo, context);
 
 	Render::endRenderPass(MobileSSAOPass::horizonSerchIntegralPass);
 
 	Render::unUseFrameBuffer();
 }
 
-void renderMobileSSAOPass(RenderPass* renderPass, RenderInfo& renderInfo)
+void renderMobileSSAOPass(RenderPass* renderPass, RenderInfo& renderInfo, AORenderContext& context)
 {
 	depthPrePass(renderInfo);
 
-	horisonSearchIntegral(renderInfo);
+	horisonSearchIntegral(renderInfo, context);
 }
 
 FrameBuffer* getDepthPrePassFrameBuffer()

@@ -17,6 +17,8 @@ struct PointLightData;
 struct SpotLightData;
 struct SunLightData;
 
+struct AORenderContext;
+
 enum SceneRendererPasses
 {
     SUNLIGHT_SHADOW_PASS,
@@ -63,6 +65,8 @@ private:
     bool m_renderSpotLights;
 
     glm::vec3 m_boundColor;
+
+    AORenderContext* m_aoRenderContext;
 
     Uniform* m_sunLightShadowPassModelUniform;
     Uniform* m_sunLightShadowPassViewUniform;

@@ -6,6 +6,9 @@ uniform sampler2D u_texture_0;
 uniform sampler2D u_texture_1;
 uniform sampler2D u_texture_2;
 uniform mat4 u_projectionMatrix;
+uniform float u_aoRadius;
+uniform float u_aoBias;
+uniform int u_aoKernels;
 
 uniform vec3 u_samples[64];
 
@@ -77,10 +80,6 @@ vec3 screenToViewSpace(vec2 uv, float SceneDepth)
 }
 
 const vec2 noiseScale = vec2(800.0/4.0, 600.0/4.0);
-
-int kernelSize = 64;
-float radius = 2.5;
-float bias = 0.025;
 
 void main()
 {
@@ -180,12 +179,10 @@ void main()
     // Calculate occlusion value
 	float occlusion = 0.0f;
 	// remove banding
-	const float bias = 0.025f;
-
-    for(int i = 0; i < kernelSize; i++)
+    for(int i = 0; i < u_aoKernels; i++)
 	{		
 		vec3 samplePos = TBN * u_samples[i].xyz; 
-		samplePos = fragPos + samplePos * radius; 
+		samplePos = fragPos + samplePos * u_aoRadius; 
 		
 		// project
 		vec4 offset = vec4(samplePos, 1.0f);
@@ -195,10 +192,10 @@ void main()
 		
 		float sampleDepth = -texture(u_texture_0, offset.xy).w; 
 
-		float rangeCheck = smoothstep(0.0f, 1.0f, radius / abs(fragPos.z - sampleDepth));
-		occlusion += (sampleDepth >= samplePos.z + bias ? 1.0f : 0.0f) * rangeCheck;           
+		float rangeCheck = smoothstep(0.0f, 1.0f, u_aoRadius / abs(fragPos.z - sampleDepth));
+		occlusion += (sampleDepth >= samplePos.z + u_aoBias ? 1.0f : 0.0f) * rangeCheck;           
 	}
-	occlusion = 1.0 - (occlusion / float(kernelSize));
+	occlusion = 1.0 - (occlusion / float(u_aoKernels));
 
     vec3 fColor = vec3(occlusion);
 
