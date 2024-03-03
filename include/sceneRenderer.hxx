@@ -22,6 +22,7 @@ enum SceneRendererPasses
     SUNLIGHT_SHADOW_PASS,
     SPOTLIGHT_SHADOW_PASS,
     POINTLIGHT_SHADOW_PASS,
+    MOBILE_SSAO_PASS,
     BASE_PASS,
     FORWARD_BASE_PASS,
     BOUND_PASS,
@@ -51,6 +52,7 @@ private:
     void constructLightsData(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, SunLightData& sunLightData);
     
 private:
+    bool m_renderMobileSSAOPass;
     bool m_renderBasePass;
     bool m_renderBoundPass;
     bool m_renderLightObjectsPass;

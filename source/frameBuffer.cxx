@@ -26,6 +26,16 @@ Texture* FrameBuffer::getColorTexture()
     return m_colorTexture;
 }
 
+void FrameBuffer::setColorTexture1(Texture* texture)
+{
+    m_colorTexture1 = texture;
+}
+
+Texture* FrameBuffer::getColorTexture1()
+{
+    return m_colorTexture1;
+}
+
 void FrameBuffer::setDepthTexture(Texture* texture)
 {
     m_depthTexture = texture;

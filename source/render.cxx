@@ -255,6 +255,13 @@ void Render::setUniformVec3(Uniform* uniform, glm::vec3& value)
     glUniform3f(id, value.x, value.y, value.z);
 }
 
+void Render::setUniformVec4(Uniform* uniform, glm::vec4& value)
+{
+    GLint id = uniform->get_OpenGL_uniformID();
+
+    glUniform4f(id, value.x, value.y, value.z, value.w);
+}
+
 void Render::setUniformMatrix4x4(Uniform* uniform, glm::mat4& matrix)
 {
     GLint id = uniform->get_OpenGL_uniformID();
@@ -353,6 +360,85 @@ FrameBuffer* Render::createFrameBuffer()
     frameBuffer->set_openGL_FBO(fbo);
     frameBuffer->setColorTexture(texture);
     
+    return frameBuffer;
+}
+
+FrameBuffer* Render::createCustomFrameBuffer(unsigned int width, unsigned int height)
+{
+    Texture* texture = Render::createTexture();
+
+    FrameBuffer* frameBuffer = new FrameBuffer();
+
+    unsigned int fbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    unsigned int format = GL_RGBA16F;
+    unsigned int chanels = GL_RGBA;
+    unsigned int dataFormat = GL_FLOAT;
+
+    unsigned int frameBufferTexture = texture->get_OpenGL_Texture();
+    Render::useTexture(texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
+    Render::unUseTexture();
+
+
+    Texture* color1 = Render::createTexture();
+    frameBufferTexture = color1->get_OpenGL_Texture();
+    Render::useTexture(color1);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, chanels, dataFormat, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, frameBufferTexture, 0);
+    Render::unUseTexture();
+
+    Texture* depthMapTexture = Render::createTexture();
+
+    unsigned int depthMap = depthMapTexture->get_OpenGL_Texture();
+    Render::useTexture(depthMapTexture);
+
+    unsigned int depthFormat = GL_DEPTH_COMPONENT;
+    unsigned int depthTextureFormat = GL_FLOAT;
+    unsigned int wrapMode = GL_CLAMP_TO_EDGE;
+
+    glTexImage2D(GL_TEXTURE_2D, 0, depthFormat, width, height, 0, GL_DEPTH_COMPONENT, depthTextureFormat, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+
+    unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+    glDrawBuffers(3, attachments);
+
+    Render::unUseTexture();
+
+    int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+    if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+    {
+        std::cout << "Framebuffer error:" << fboStatus << std::endl;
+    }
+
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    Render::unUseTexture();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    frameBuffer->set_openGL_FBO(fbo);
+    frameBuffer->setColorTexture(texture);
+    frameBuffer->setColorTexture1(color1);
+    frameBuffer->setDepthTexture(depthMapTexture);
+
     return frameBuffer;
 }
 
@@ -557,6 +643,57 @@ void Render::bindCubeMapTexture(Texture* texture)
 void Render::unBindCubeMapTexture()
 {
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+
+Texture* Render::makeNoiseLinearTexture(std::vector<glm::vec3>& data)
+{
+    Texture* texture = Render::createTexture();
+
+    Render::useTexture(texture);
+
+    unsigned int noiseTexture = texture->get_OpenGL_Texture();
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 4, 4, 0, GL_RGB, GL_FLOAT, data.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    Render::unUseTexture();
+
+    return texture;
+}
+
+Texture* Render::make3DTextureFloat(std::vector<float>& data, size_t width, size_t height, size_t depth)
+{
+    Texture* texture = createTexture();
+
+    Render::bind3DTexture(texture);
+
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    float* pixels = data.data();
+
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_R16F, width, height, height, 0, GL_RED, GL_FLOAT, pixels);
+
+    Render::unBind3DTexture(texture);
+
+    return texture;
+}
+
+void Render::bind3DTexture(Texture* texture)
+{
+    unsigned int oglTexture = texture->get_OpenGL_Texture();
+    glBindTexture(GL_TEXTURE_3D, oglTexture);
+}
+
+void Render::unBind3DTexture(Texture* texture)
+{
+    glBindTexture(GL_TEXTURE_3D, 0);
 }
 
 void Render::setFrameBufferCubeSideRender(FrameBuffer* frameBuffer, unsigned int side)

@@ -16,6 +16,7 @@
 #include "pointLightShadow.hxx"
 
 #include "forwardBasePass.hxx"
+#include "mobileSSAOPass.hxx"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -59,14 +60,14 @@ m_basePassSpecularStrength(0.5),
 m_basePassCameraPosition(nullptr),
 m_sceneColor(glm::vec3(.0))
 {
-    
-    m_renderPointLights = true;
-    m_renderSpotLights = true;
+    m_renderPointLights = false;
+    m_renderSpotLights = false;
     m_renderSunLighShadowMap = false;
 
+    m_renderMobileSSAOPass = true;
     m_renderBoundPass = false;
-    m_renderBasePass = true;
-    m_renderLightObjectsPass = true;
+    m_renderBasePass = false;
+    m_renderLightObjectsPass = false;
 
     // SunLight shadow Pass
 
@@ -171,6 +172,11 @@ void SceneRenderer::init()
         if (pass == POINTLIGHT_SHADOW_PASS)
         {
             renderPass = registerPointLightShadowPass();
+        }
+
+        if (pass == MOBILE_SSAO_PASS)
+        {
+            renderPass = registerMobileSSAOORenderPass();
         }
 
         if (pass == BASE_PASS)
@@ -405,6 +411,8 @@ void SceneRenderer::init()
     m_lightObjectMesh = loadMesh("light.mesh");
     m_spotLightMesh = loadMesh("spot.mesh");
     m_sunLightMesh = loadMesh("sun.mesh");
+
+    initMobileSSAOPassData();
 }
 
 void SceneRenderer::finish()
@@ -758,6 +766,7 @@ void SceneRenderer::renderLightObjectsPass(std::vector<PointLightData>& lights, 
 
 void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
 {
+    Render::setViewport(0, 0, 800, 600);
     RenderPass* renderPass = m_renderPasses[SceneRendererPasses::POSTPROCESSING_PASS];
     ScreenRenderPass* pass = dynamic_cast<ScreenRenderPass*>(renderPass);
 
@@ -767,7 +776,8 @@ void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
     m_postProcessShowShadowMapUniform->setInt(showShadowMap);
     
     //Texture* texture = m_frameBuffer->getColorTexture();
-    Texture* texture = getForwardBasePassFrameBuffer()->getColorTexture();
+    //Texture* texture = getForwardBasePassFrameBuffer()->getColorTexture();
+    Texture* texture = getDepthPrePassFrameBuffer()->getColorTexture();
     //Texture* sunLightTexture = m_sunLightShadowFrameBuffer->getColorTexture();
     Texture* sunLightTexture = getSpotLightShadowMapColorTexture()[0];
     m_sceneTextureUniform->setTexture(texture, 0);
@@ -813,14 +823,18 @@ void SceneRenderer::render(RenderInfo& renderInfo)
 
     // Render SunLight Shadow Pass
 
-    Render::setViewport(0, 0, m_depthMapWidht, m_depthMapHeight);
-    Render::useFrameBuffer(m_sunLightShadowFrameBuffer);
-    
-    Render::clearView(0.0, 0.0, 0.0, 1.0);
+    if (m_renderSunLighShadowMap)
+    {
 
-    renderSunLightShadowPass(sunLightData, renderInfo);
+        Render::setViewport(0, 0, m_depthMapWidht, m_depthMapHeight);
+        Render::useFrameBuffer(m_sunLightShadowFrameBuffer);
 
-    Render::unUseFrameBuffer();
+        Render::clearView(0.0, 0.0, 0.0, 1.0);
+
+        renderSunLightShadowPass(sunLightData, renderInfo);
+
+        Render::unUseFrameBuffer();
+    }
 
     // Render SpotLight Shadow Pass
 
@@ -842,6 +856,12 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     {
         RenderPass* renderPass = m_renderPasses[SceneRendererPasses::FORWARD_BASE_PASS];
         renderForwardBasePass(m_frameWidth, m_frameHeight, renderPass, renderInfo);
+    }
+
+    if (m_renderMobileSSAOPass)
+    {
+        RenderPass* renderPass = m_renderPasses[SceneRendererPasses::MOBILE_SSAO_PASS];
+        renderMobileSSAOPass(renderPass, renderInfo);
     }
 
     //// Render Base Pass

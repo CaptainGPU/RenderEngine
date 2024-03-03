@@ -28,6 +28,11 @@ void Uniform::setVec3(glm::vec3& value)
     Render::setUniformVec3(this, value);
 }
 
+void Uniform::setVec4(glm::vec4& value)
+{
+    Render::setUniformVec4(this, value);
+}
+
 void Uniform::setMatrix4x4(glm::mat4& matrix)
 {
     Render::setUniformMatrix4x4(this, matrix);

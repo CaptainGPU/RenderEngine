@@ -79,6 +79,7 @@ public:
     
     static Uniform* getUniformFromPassProgramm(std::string uniformName, PassProgramm* programm);
 	static void setUniformVec3(Uniform* uniform, glm::vec3& value);
+	static void setUniformVec4(Uniform* uniform, glm::vec4& value);
     static void setUniformMatrix4x4(Uniform* uniform, glm::mat4& matrix);
 	static void setUniformFloatValue(Uniform* uniform, float& value);
     static void setUniformIntValue(Uniform* uniform, int& value);
@@ -87,9 +88,11 @@ public:
     
     static FrameBuffer* createFrameBuffer();
 
+	static FrameBuffer* createCustomFrameBuffer(unsigned int width, unsigned int height);
+
 	static FrameBuffer* createDepthMapFrameBuffer(unsigned int width, unsigned int height);
 	static FrameBuffer* createDepthCubeMapFrameBuffer(unsigned int width, unsigned int height);
-    
+
     static Texture* createTexture();
     static void useTexture(Texture* texture);
     static void unUseTexture();
@@ -97,6 +100,12 @@ public:
 
 	static void bindCubeMapTexture(Texture* texture);
 	static void unBindCubeMapTexture();
+
+	static Texture* makeNoiseLinearTexture(std::vector<glm::vec3>& data);
+
+	static Texture* make3DTextureFloat(std::vector<float>& data, size_t width, size_t height, size_t depth);
+	static void bind3DTexture(Texture* texture);
+	static void unBind3DTexture(Texture* texture);
 
 	static void setFrameBufferCubeSideRender(FrameBuffer* frameBuffer, unsigned int side);
 

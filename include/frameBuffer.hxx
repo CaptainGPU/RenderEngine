@@ -15,6 +15,9 @@ public:
     void setColorTexture(Texture* texture);
     Texture* getColorTexture();
 
+    void setColorTexture1(Texture* texture);
+    Texture* getColorTexture1();
+
     void setDepthTexture(Texture* texture);
     Texture* getDepthTexture();
     
@@ -30,6 +33,7 @@ public:
 private:
     unsigned int m_openGL_FBO;
     Texture* m_colorTexture;
+    Texture* m_colorTexture1;
     Texture* m_depthTexture;
     Texture* m_cubeMapTexture;
     Texture* m_cubeDepthTexture;
