@@ -41,6 +41,8 @@ void mountFileSystemEmscripten()
         "/shaders/WebGL/HSIAOPass.frag",
         "/shaders/WebGL/depthPrePass.vert",
         "/shaders/WebGL/depthPrePass.frag",
+        "/shaders/WebGL/AOBlurPass.vert",
+        "/shaders/WebGL/AOBlurPass.frag",
         "/Models/monkey.mesh",
         "/Models/monkey_hd.mesh",
         "/Models/quad.mesh",
