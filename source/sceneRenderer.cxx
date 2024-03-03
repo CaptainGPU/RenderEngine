@@ -417,7 +417,7 @@ void SceneRenderer::init()
     m_aoRenderContext = new AORenderContext();
     m_aoRenderContext->radius = 0.5f;
     m_aoRenderContext->bias = 0.03;
-    m_aoRenderContext->kernels = 64;
+    m_aoRenderContext->kernels = 1;
 }
 
 void SceneRenderer::finish()

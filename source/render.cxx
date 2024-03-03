@@ -377,6 +377,12 @@ FrameBuffer* Render::createCustomFrameBuffer(unsigned int width, unsigned int he
     unsigned int chanels = GL_RGBA;
     unsigned int dataFormat = GL_FLOAT;
 
+#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
+    format = GL_SRGB8_ALPHA8;
+    chanels = GL_RGBA;
+    dataFormat = GL_UNSIGNED_BYTE;
+#endif
+
     unsigned int frameBufferTexture = texture->get_OpenGL_Texture();
     Render::useTexture(texture);
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, chanels, dataFormat, nullptr);
@@ -409,6 +415,12 @@ FrameBuffer* Render::createCustomFrameBuffer(unsigned int width, unsigned int he
     unsigned int depthFormat = GL_DEPTH_COMPONENT;
     unsigned int depthTextureFormat = GL_FLOAT;
     unsigned int wrapMode = GL_CLAMP_TO_EDGE;
+
+#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
+    wrapMode = GL_CLAMP_TO_EDGE;
+    depthFormat = GL_DEPTH_COMPONENT16;
+    depthTextureFormat = GL_UNSIGNED_SHORT;
+#endif
 
     glTexImage2D(GL_TEXTURE_2D, 0, depthFormat, width, height, 0, GL_DEPTH_COMPONENT, depthTextureFormat, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -607,6 +619,7 @@ FrameBuffer* Render::createDepthCubeMapFrameBuffer(unsigned int width, unsigned 
 
 Texture* Render::createTexture()
 {
+    printf("Render: create Texture \n");
     Texture* texture = new Texture();
     
     unsigned int oglTexture;
@@ -653,7 +666,11 @@ Texture* Render::makeNoiseLinearTexture(std::vector<glm::vec3>& data)
 
     unsigned int noiseTexture = texture->get_OpenGL_Texture();
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 4, 4, 0, GL_RGB, GL_FLOAT, data.data());
+    unsigned int format = GL_SRGB8_ALPHA8;
+    unsigned int chanels = GL_RGBA;
+    unsigned int dataFormat = GL_UNSIGNED_BYTE;
+
+    glTexImage2D(GL_TEXTURE_2D, 0, format, 4, 4, 0, chanels, dataFormat, data.data());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

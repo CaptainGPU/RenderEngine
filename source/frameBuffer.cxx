@@ -4,6 +4,7 @@
 //
 
 #include "frameBuffer.hxx"
+#include <stdio.h>
 
 
 FrameBuffer::FrameBuffer():
@@ -13,7 +14,7 @@ m_depthTexture(nullptr),
 m_cubeMapTexture(nullptr),
 m_cubeDepthTexture(nullptr)
 {
-    
+    printf("Render: create Frame Buffer \n");
 }
 
 void FrameBuffer::setColorTexture(Texture* texture)
