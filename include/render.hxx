@@ -70,6 +70,8 @@ public:
     static void deletePassProgramm(PassProgramm* programm);
 	static void usePassProgramm(PassProgramm* programm);
 	static void unUsePassProgramm();
+
+	static void useFrameBufferAttachment(FrameBuffer* frameBuffer);
     
     static void useFrameBuffer(FrameBuffer* frameBuffer);
     static void unUseFrameBuffer();
@@ -88,7 +90,7 @@ public:
     
     static FrameBuffer* createFrameBuffer();
 
-	static FrameBuffer* createCustomFrameBuffer(unsigned int width, unsigned int height);
+	static FrameBuffer* createCustomFrameBuffer(unsigned int width, unsigned int height, const unsigned int colorAttachents);
 
 	static FrameBuffer* createDepthMapFrameBuffer(unsigned int width, unsigned int height);
 	static FrameBuffer* createDepthCubeMapFrameBuffer(unsigned int width, unsigned int height);

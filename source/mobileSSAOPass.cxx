@@ -24,12 +24,19 @@ namespace MobileSSAOPass
 	Uniform* depthPrePassViewMatrixUniform = nullptr;
 	Uniform* depthPrePassProjectionMatrixUniform = nullptr;
 
+	ScreenRenderPass* AOBlurPass = nullptr;
+	FrameBuffer* AOBlurFrameBuffer = nullptr;
+	Uniform* AOBlurTextureUniform = nullptr;
+	Uniform* AOBlurSamplesUniform = nullptr;
+	Uniform* AOBWorldColorTextureUniform = nullptr;
+
 	Texture* GTAOPreIntegratedTexture = nullptr;
 
 	ScreenRenderPass* horizonSerchIntegralPass = nullptr;
 	FrameBuffer* HSIPassFrameBuffer = nullptr;
 	Uniform* HSI_worldPositionTextureUniform = nullptr;
 	Uniform* HSI_worldNormalTextureUniform = nullptr;
+
 	std::vector<glm::vec3> HSI_kernel;
 	std::vector<glm::vec3> HSI_noise;
 	Texture* HSI_noiseTexture = nullptr;
@@ -178,7 +185,7 @@ RenderPass* registerMobileSSAOORenderPass()
 	MobileSSAOPass::depthPrePassViewMatrixUniform = MobileSSAOPass::depthPrePass->getUniform(depthPrePassUniformNames[1]);
 	MobileSSAOPass::depthPrePassProjectionMatrixUniform = MobileSSAOPass::depthPrePass->getUniform(depthPrePassUniformNames[2]);
 
-	MobileSSAOPass::depthPrePassFrameBuffer = Render::createCustomFrameBuffer(800, 600);
+	MobileSSAOPass::depthPrePassFrameBuffer = Render::createCustomFrameBuffer(800, 600, 3);
 
 	// Horison Search Integrall Pass
 
@@ -200,6 +207,7 @@ RenderPass* registerMobileSSAOORenderPass()
 	MobileSSAOPass::HSI_worldPositionTextureUniform = MobileSSAOPass::horizonSerchIntegralPass->getUniform(HSIPassUniformNames[0]);
 	MobileSSAOPass::HSI_worldNormalTextureUniform = MobileSSAOPass::horizonSerchIntegralPass->getUniform(HSIPassUniformNames[1]);
 	MobileSSAOPass::HSI_noiseTextureUniform = MobileSSAOPass::horizonSerchIntegralPass->getUniform(HSIPassUniformNames[2]);
+
 	MobileSSAOPass::HSI_projectionMatrixUniform = MobileSSAOPass::horizonSerchIntegralPass->getUniform(HSIPassUniformNames[3]);
 	MobileSSAOPass::HSI_AORadiusUniform = MobileSSAOPass::horizonSerchIntegralPass->getUniform(HSIPassUniformNames[4]);
 	MobileSSAOPass::HSI_AOBiasUniform = MobileSSAOPass::horizonSerchIntegralPass->getUniform(HSIPassUniformNames[5]);
@@ -215,7 +223,21 @@ RenderPass* registerMobileSSAOORenderPass()
 		MobileSSAOPass::HSI_samplesUniform.push_back(uniform);
 	}
 
-	MobileSSAOPass::HSIPassFrameBuffer = Render::createCustomFrameBuffer(800, 600);
+	MobileSSAOPass::HSIPassFrameBuffer = Render::createCustomFrameBuffer(800, 600, 1);
+
+	// Blur
+
+	std::vector<std::string> BlurPassUniformNames = { "u_texture_0", "u_texture_1", "u_blurRange"};
+
+	MobileSSAOPass::AOBlurPass = new ScreenRenderPass();
+	MobileSSAOPass::AOBlurPass->makeProgram("AOBlurPass", "AOBlurPass");
+	MobileSSAOPass::AOBlurPass->registerUniforms(BlurPassUniformNames);
+
+	MobileSSAOPass::AOBlurTextureUniform = MobileSSAOPass::AOBlurPass->getUniform(BlurPassUniformNames[0]);
+	MobileSSAOPass::AOBWorldColorTextureUniform = MobileSSAOPass::AOBlurPass->getUniform(BlurPassUniformNames[1]);
+	MobileSSAOPass::AOBlurSamplesUniform = MobileSSAOPass::AOBlurPass->getUniform(BlurPassUniformNames[2]);
+
+	MobileSSAOPass::AOBlurFrameBuffer = Render::createCustomFrameBuffer(800, 600, 1);
 
 	return renderPass;
 }
@@ -263,6 +285,7 @@ void depthPrePass(RenderInfo& renderInfo)
 {
 	Render::setViewport(0, 0, 800, 600);
 	Render::useFrameBuffer(MobileSSAOPass::depthPrePassFrameBuffer);
+	Render::useFrameBufferAttachment(MobileSSAOPass::depthPrePassFrameBuffer);
 
 	Render::startRenderPass(MobileSSAOPass::depthPrePass, renderInfo);
 
@@ -311,6 +334,7 @@ void horisonSearchIntegral(RenderInfo& renderInfo, AORenderContext& context)
 {
 	Render::setViewport(0, 0, 800, 600);
 	Render::useFrameBuffer(MobileSSAOPass::HSIPassFrameBuffer);
+	Render::useFrameBufferAttachment(MobileSSAOPass::HSIPassFrameBuffer);
 
 	Render::startRenderPass(MobileSSAOPass::horizonSerchIntegralPass, renderInfo);
 
@@ -323,14 +347,46 @@ void horisonSearchIntegral(RenderInfo& renderInfo, AORenderContext& context)
 	Render::unUseFrameBuffer();
 }
 
+void AOBlurRender(RenderInfo& renderInfo, AORenderContext& context)
+{
+	Texture* texture = MobileSSAOPass::HSIPassFrameBuffer->getColorTexture();
+	Texture* colorTexure = MobileSSAOPass::depthPrePassFrameBuffer->getColorTexture2();
+	
+	MobileSSAOPass::AOBlurTextureUniform->setTexture(texture, 0);
+	MobileSSAOPass::AOBWorldColorTextureUniform->setTexture(colorTexure, 1);
+
+	MobileSSAOPass::AOBlurSamplesUniform->setInt(context.blurSamples);
+	
+	MobileSSAOPass::AOBlurPass->draw(renderInfo);
+}
+
+void AOBlur(RenderInfo& renderInfo, AORenderContext& context)
+{
+	Render::setViewport(0, 0, 800, 600);
+	Render::useFrameBuffer(MobileSSAOPass::AOBlurFrameBuffer);
+	Render::useFrameBufferAttachment(MobileSSAOPass::AOBlurFrameBuffer);
+
+	Render::startRenderPass(MobileSSAOPass::AOBlurPass, renderInfo);
+
+	Render::clearView(1.0, 1.0, 1.0, 1.0);
+
+	AOBlurRender(renderInfo, context);
+
+	Render::endRenderPass(MobileSSAOPass::AOBlurPass);
+
+	Render::unUseFrameBuffer();
+}
+
 void renderMobileSSAOPass(RenderPass* renderPass, RenderInfo& renderInfo, AORenderContext& context)
 {
 	depthPrePass(renderInfo);
 
 	horisonSearchIntegral(renderInfo, context);
+
+	AOBlur(renderInfo, context);
 }
 
 FrameBuffer* getDepthPrePassFrameBuffer()
 {
-	return MobileSSAOPass::HSIPassFrameBuffer;
+	return MobileSSAOPass::AOBlurFrameBuffer;
 }

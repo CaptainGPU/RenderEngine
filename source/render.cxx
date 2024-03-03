@@ -107,6 +107,12 @@ void Render::unUsePassProgramm()
 	glUseProgram(0);
 }
 
+void Render::useFrameBufferAttachment(FrameBuffer* frameBuffer)
+{
+    unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+    glDrawBuffers(frameBuffer->getAttachmentCount(), attachments);
+}
+
 void Render::useFrameBuffer(FrameBuffer* frameBuffer)
 {
     unsigned int fbo = frameBuffer->get_openGL_FBO();
@@ -363,10 +369,8 @@ FrameBuffer* Render::createFrameBuffer()
     return frameBuffer;
 }
 
-FrameBuffer* Render::createCustomFrameBuffer(unsigned int width, unsigned int height)
+FrameBuffer* Render::createCustomFrameBuffer(unsigned int width, unsigned int height, unsigned int colorAttachents)
 {
-    Texture* texture = Render::createTexture();
-
     FrameBuffer* frameBuffer = new FrameBuffer();
 
     unsigned int fbo;
@@ -377,35 +381,46 @@ FrameBuffer* Render::createCustomFrameBuffer(unsigned int width, unsigned int he
     unsigned int chanels = GL_RGBA;
     unsigned int dataFormat = GL_FLOAT;
 
-#if CURRENT_PLATFORM == PLATFORM_EMSCRIPTEN
-    format = GL_SRGB8_ALPHA8;
-    chanels = GL_RGBA;
-    dataFormat = GL_UNSIGNED_BYTE;
-#endif
+    for (size_t i = 0; i < colorAttachents; i++)
+    {
+        Texture* texture = Render::createTexture();
+        unsigned int frameBufferTexture = texture->get_OpenGL_Texture();
+        Render::useTexture(texture);
 
-    unsigned int frameBufferTexture = texture->get_OpenGL_Texture();
-    Render::useTexture(texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, chanels, dataFormat, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, chanels, dataFormat, nullptr);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
-    Render::unUseTexture();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, frameBufferTexture, 0);
+        Render::unUseTexture();
+        
 
-    Texture* color1 = Render::createTexture();
-    frameBufferTexture = color1->get_OpenGL_Texture();
-    Render::useTexture(color1);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, chanels, dataFormat, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        switch (i)
+        {
+        case 0: 
+        {
+            frameBuffer->setColorTexture(texture); 
+            break;
+        }
+        case 1:
+        {
+            frameBuffer->setColorTexture1(texture);
+            break;
+        }
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, frameBufferTexture, 0);
-    Render::unUseTexture();
+        case 2:
+        {
+            frameBuffer->setColorTexture2(texture);
+            break;
+        }
+
+        default:
+            break;
+        }
+    }
 
     Texture* depthMapTexture = Render::createTexture();
 
@@ -430,9 +445,6 @@ FrameBuffer* Render::createCustomFrameBuffer(unsigned int width, unsigned int he
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
 
-    unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-    glDrawBuffers(3, attachments);
-
     Render::unUseTexture();
 
     int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -447,9 +459,8 @@ FrameBuffer* Render::createCustomFrameBuffer(unsigned int width, unsigned int he
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     frameBuffer->set_openGL_FBO(fbo);
-    frameBuffer->setColorTexture(texture);
-    frameBuffer->setColorTexture1(color1);
     frameBuffer->setDepthTexture(depthMapTexture);
+    frameBuffer->setAttachmentCount(colorAttachents);
 
     return frameBuffer;
 }

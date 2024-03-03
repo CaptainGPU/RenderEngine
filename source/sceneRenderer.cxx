@@ -415,9 +415,10 @@ void SceneRenderer::init()
     initMobileSSAOPassData();
 
     m_aoRenderContext = new AORenderContext();
-    m_aoRenderContext->radius = 0.5f;
-    m_aoRenderContext->bias = 0.03;
-    m_aoRenderContext->kernels = 1;
+    m_aoRenderContext->radius = 1.5f;
+    m_aoRenderContext->bias = 0.06;
+    m_aoRenderContext->kernels = 64;
+    m_aoRenderContext->blurSamples = 0;
 }
 
 void SceneRenderer::finish()
@@ -918,10 +919,11 @@ void SceneRenderer::drawDebugUI()
     ImGui::SliderFloat("SSAO Radius", &m_aoRenderContext->radius, 0.1, 5.0);
     ImGui::SliderFloat("SSAO Bias", &m_aoRenderContext->bias, 0.01, 0.5);
     ImGui::SliderInt("SSAO Kernels", &m_aoRenderContext->kernels, 1, 64);
+    ImGui::SliderInt("SSAO Blur", &m_aoRenderContext->blurSamples, 0, 4);
     
     ImGui::End();
 
-    ImGui::Begin("Scene Renderer");
+   /* ImGui::Begin("Scene Renderer");
     ImGui::Checkbox("Base Pass", &m_renderBasePass);
     ImGui::Checkbox("Bound Pass", &m_renderBoundPass);
     ImGui::Checkbox("Show Lights", &m_renderLightObjectsPass);
@@ -984,7 +986,7 @@ void SceneRenderer::drawDebugUI()
         camera->setShadowDistance(shadowDistance);
     }
 
-    ImGui::End();
+    ImGui::End();*/
 }
 
 void SceneRenderer::constructLightsData(std::vector<PointLightData>& lights, std::vector<SpotLightData>& spots, SunLightData& sunLightData)

@@ -20,6 +20,7 @@
 #include "tiny_gltf.hxx"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <random>
 
 #include "gameObject.hxx"
 #include "scene.hxx"
@@ -381,6 +382,7 @@ Mesh* registerMesh(std::string modelFilePath, std::vector<Vertex>& vertices, std
 	int POS_LOC = 0;
 	int UV_LOC = 1;
 	int NORMAL_LOC = 2;
+	int COLOR_LOC = 3;
 
 	size_t NumFloats = 0;
 
@@ -398,6 +400,11 @@ Mesh* registerMesh(std::string modelFilePath, std::vector<Vertex>& vertices, std
 	// normals
 	glEnableVertexAttribArray(NORMAL_LOC);
 	glVertexAttribPointer(NORMAL_LOC, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(NumFloats * sizeof(float)));
+	NumFloats += 3;
+
+	// colors
+	glEnableVertexAttribArray(COLOR_LOC);
+	glVertexAttribPointer(COLOR_LOC, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(NumFloats * sizeof(float)));
 	NumFloats += 3;
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -548,6 +555,13 @@ Mesh* parseGLTFMesh(const tinygltf::Model& model, const tinygltf::Mesh& mesh, co
 
 	MeshBound* bound = new MeshBound();
 
+	std::random_device rd;
+	std::mt19937 gen(rd());
+
+	std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+
+	glm::vec3 meshColor = glm::vec3(dis(gen), dis(gen), dis(gen));
+
 	for (size_t j = 0; j < mesh.primitives.size(); j++)
 	{
 
@@ -580,6 +594,8 @@ Mesh* parseGLTFMesh(const tinygltf::Model& model, const tinygltf::Mesh& mesh, co
 			vert.pos = glm::vec3(glm::make_vec3(&bufferPos[v * posByteStride]));
 
 			vert.normal = glm::normalize(glm::vec3(bufferNormals ? glm::make_vec3(&bufferNormals[v * normByteStride]) : glm::vec3(0.0f)));
+
+			vert.color = meshColor;
 
 			vertices.push_back(vert);
 			bound->updateBound(vert);
@@ -625,9 +641,7 @@ Mesh* parseGLTFMesh(const tinygltf::Model& model, const tinygltf::Mesh& mesh, co
 			}
 
 			default:
-				//std::cerr << "Index component type " << accessor.componentType << " not supported!" << std::endl;
 				return nullptr;
-
 			}
 		}
 
@@ -639,10 +653,6 @@ Mesh* parseGLTFMesh(const tinygltf::Model& model, const tinygltf::Mesh& mesh, co
 	Mesh* meshModel = registerMesh(modelFilePath, vertices, indices);
 	meshModel->setMaterial(new Material());
 	meshModel->setMeshBound(bound);
-	/*if (meshModel)
-	{
-		
-	}*/
 
 	return meshModel;
 }

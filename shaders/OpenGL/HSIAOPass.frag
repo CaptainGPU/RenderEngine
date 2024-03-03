@@ -14,7 +14,7 @@ uniform vec3 u_samples[64];
 
 uniform vec4 View_InvDeviceZToWorldZTransform;
 
-out vec4 color;
+layout (location = 0) out vec4 color;
 
 const float PI = 3.14159265359;
 
@@ -168,7 +168,12 @@ void main()
 	ivec2 texDim = textureSize(u_texture_0, 0); 
 	ivec2 noiseDim = textureSize(u_texture_2, 0);
 
-    vec2 noiseUV = vec2(float(texDim.x)/float(noiseDim.x), float(texDim.y)/(noiseDim.y)) * texCoord;
+    float a = float(texDim.x);
+    float b = float(noiseDim.x);
+    float d = float(texDim.y);
+    float c = float(noiseDim.y);
+
+    vec2 noiseUV = vec2(a / b, d/c) * texCoord;
     vec3 randomVec = texture(u_texture_2, noiseUV).xyz * 2.0 - 1.0;
 
     // Create TBN matrix

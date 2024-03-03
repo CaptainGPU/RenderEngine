@@ -14,6 +14,7 @@ struct AORenderContext
 	float radius;
 	float bias;
 	int kernels;
+	int blurSamples;
 };
 
 void initMobileSSAOPassData();
