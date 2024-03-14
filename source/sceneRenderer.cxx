@@ -775,7 +775,6 @@ void SceneRenderer::renderLightObjectsPass(std::vector<PointLightData>& lights, 
 
 void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
 {
-    Render::setViewport(0, 0, 800, 600);
     RenderPass* renderPass = m_renderPasses[SceneRendererPasses::POSTPROCESSING_PASS];
     ScreenRenderPass* pass = dynamic_cast<ScreenRenderPass*>(renderPass);
 
@@ -901,6 +900,8 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     //Render::unUseFrameBuffer();
 
     // Render PostProcess Pass
+    
+    Render::setViewport(0, 0, m_frameWidth, m_frameHeight);
     
     Render::clearView(164.0f / 256.0f, 189.0f / 256.0f, 191.0f / 256.0f, 1.0);
     

@@ -153,7 +153,7 @@ vec3 calculatePointLight(int index, vec3 normal, vec3 viewDir, vec3 ambientColor
     float E = clamp(D, 0.0, 1.0);
     float F = E * E;
 
-    attenuation *= F;
+    attenuation = F;
 
     //float LightRadiusMask = Square(E);
 
