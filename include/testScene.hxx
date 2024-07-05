@@ -4,12 +4,12 @@
 //
 #pragma once
 
-#include "scene.hxx"
+#include "scenes/scene2D.hxx"
 
 class PoinLightGameObject;
 class SpotLight;
 
-class TestScene : public Scene {
+class TestScene : public Scene2D {
     
 public:
     TestScene();

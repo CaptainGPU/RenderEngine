@@ -18,6 +18,7 @@ public:
 
 	glm::mat4& getProjectionMatrix();
 	glm::mat4& getViewMatrix();
+    glm::mat4& getOrthoMatrix();
 
 	glm::vec3& getFrontVector();
 	glm::vec3& getRightVector();
@@ -42,12 +43,14 @@ private:
 private:
 	glm::mat4 m_projectionMatrix;
 	glm::mat4 m_viewMatrix;
+    glm::mat4 m_orthoMatrix;
 
 	glm::vec3 m_front;
 	glm::vec3 m_up;
 	glm::vec3 m_right;
 
 	bool m_dirtyProjectionMatrix;
+    bool m_dirtOrthoMatrix;
 	bool m_dirtyViewMatrix;
 
 protected:

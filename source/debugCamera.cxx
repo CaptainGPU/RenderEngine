@@ -8,7 +8,7 @@
 
 DebugCamera::DebugCamera() :
 Camera("DebugCamera", 45.0f, 0.1, 100.0f),
-m_speed(10),
+m_speed(100),
 m_turnSpeed(.2f)
 {
 }

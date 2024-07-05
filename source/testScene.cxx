@@ -3,18 +3,22 @@
 // https://twitter.com/CaptainGPU
 //
 #include "testScene.hxx"
+
 #include "testGameObject.hxx"
 #include "debugCamera.hxx"
+#include "gameObjects/cameras/camera2D.hxx"
 #include "pointLightGameObject.hxx"
 #include "spotLight.hxx"
 #include "sunLight.hxx"
 
 #include "meshLoader.hxx"
 
+#include "gameObjects/tileMap.hxx"
+
 #define TWO_PI 6.283
 
 TestScene::TestScene()
-:Scene("TestScene"),
+: Scene2D("TestScene"),
 m_time(.0f),
 m_whiteLight(nullptr),
 m_sun(nullptr)
@@ -27,17 +31,18 @@ TestScene::~TestScene()
 
 void TestScene::construct()
 {
-    Scene::construct();
+    Scene2D::construct();
 
     TestGameObject* quadColor = new TestGameObject("");
     //quadColor->setScale(glm::vec3(10.0));
     addGameObject(quadColor);
 
-    DebugCamera* camera = new DebugCamera();
+    Camera* camera = new Camera2D();
     addGameObject(camera);
     setCamera(camera);
-    camera->setPosition(glm::vec3(0.0f, 22.0, 30.5f));
-    camera->setPitch(-34.65f);
+    //camera->setPosition(glm::vec3(0.0f, 22.0, 30.5f));
+    camera->setPosition(glm::vec3(0.0f, 0.0f, 30.5f));
+    //camera->setPitch(-34.65f);
     camera->setYaw(-90.0f);
 
     SunLight* sun = new SunLight();
@@ -117,8 +122,13 @@ void TestScene::construct()
     m_spot2->generateBound();
     m_spot3->generateBound();
 
-    loadGLTFtoScene(this, "gltf/CubeGLTF.gltf");
-
+    //loadGLTFtoScene(this, "gltf/CubeGLTF.gltf");
+    
+    TileMap* tileMap = new TileMap("test", 32, 800, 600);
+    //tileMap->setScale(glm::vec3(32.));
+    addGameObject(tileMap);
+    addTileMap(tileMap);
+    //tileMap->setPositionX(0.25);
 
     return;
 
@@ -215,5 +225,5 @@ void TestScene::update(float deltaTime)
 
 void TestScene::startPlay()
 {
-    Scene::startPlay();
+    Scene2D::startPlay();
 }

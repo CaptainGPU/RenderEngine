@@ -17,6 +17,7 @@
 
 #include "forwardBasePass.hxx"
 #include "mobileSSAOPass.hxx"
+#include "graphics/renderers/tileMapRenderer.hxx"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -64,7 +65,8 @@ m_sceneColor(glm::vec3(.0))
     m_renderSpotLights = false;
     m_renderSunLighShadowMap = false;
 
-    m_renderMobileSSAOPass = true;
+    m_renderMobileSSAOPass = false;
+    m_renderTileMapPass = true;
     m_renderBoundPass = false;
     m_renderBasePass = false;
     m_renderLightObjectsPass = false;
@@ -177,6 +179,11 @@ void SceneRenderer::init()
         if (pass == MOBILE_SSAO_PASS)
         {
             renderPass = registerMobileSSAOORenderPass();
+        }
+        
+        if (pass == TILEMAP_PASS)
+        {
+            renderPass = registerTileMapRenderPass();
         }
 
         if (pass == BASE_PASS)
@@ -785,7 +792,8 @@ void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
     
     //Texture* texture = m_frameBuffer->getColorTexture();
     //Texture* texture = getForwardBasePassFrameBuffer()->getColorTexture();
-    Texture* texture = getDepthPrePassFrameBuffer()->getColorTexture();
+    //Texture* texture = getDepthPrePassFrameBuffer()->getColorTexture();
+    Texture* texture = getTileMapPassFrameBuffer()->getColorTexture();
     //Texture* sunLightTexture = m_sunLightShadowFrameBuffer->getColorTexture();
     Texture* sunLightTexture = getSpotLightShadowMapColorTexture()[0];
     m_sceneTextureUniform->setTexture(texture, 0);
@@ -870,6 +878,12 @@ void SceneRenderer::render(RenderInfo& renderInfo)
     {
         RenderPass* renderPass = m_renderPasses[SceneRendererPasses::MOBILE_SSAO_PASS];
         renderMobileSSAOPass(renderPass, renderInfo, *m_aoRenderContext);
+    }
+    
+    if (m_renderTileMapPass)
+    {
+        RenderPass* renderPass = m_renderPasses[SceneRendererPasses::MOBILE_SSAO_PASS];
+        renderTileMapPass(renderPass, renderInfo);
     }
 
     //// Render Base Pass

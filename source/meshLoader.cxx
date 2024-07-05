@@ -807,3 +807,71 @@ void loadGLTFtoScene(Scene* wscene, const std::string& modelName)
 
 	//return subMeshes;
 }
+
+
+void addQuad(float x, float y, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
+{
+    size_t count = vertices.size();
+    
+    Vertex a = Vertex();
+    Vertex b = Vertex();
+    Vertex c = Vertex();
+    Vertex d = Vertex();
+    
+    a.pos = glm::vec3(0.0, 0.0, 0.0);
+    a.color = glm::vec3(0.0, 0.0, 0.0);
+    
+    b.pos = glm::vec3( 1.0, 0.0, 0.0);
+    b.color = glm::vec3(1.0, 0.0, 0.0);
+    
+    c.pos = glm::vec3(0.0, 1.0, 0.0);
+    c.color = glm::vec3(0.0, 1.0, 0.0);
+    
+    d.pos = glm::vec3(1.0, 1.0, 0.0);
+    d.color = glm::vec3(1.0, 1.0, 0.0);
+    
+    a.pos.x += x;
+    b.pos.x += x;
+    c.pos.x += x;
+    d.pos.x += x;
+    
+    a.pos.y += y;
+    b.pos.y += y;
+    c.pos.y += y;
+    d.pos.y += y;
+    
+    vertices.push_back(a);
+    vertices.push_back(b);
+    vertices.push_back(c);
+    vertices.push_back(d);
+    
+    std::vector<uint32_t> newIndices;
+    newIndices.reserve(6);
+    
+    newIndices.push_back(0 + count);
+    newIndices.push_back(1 + count);
+    newIndices.push_back(2 + count);
+    newIndices.push_back(1 + count);
+    newIndices.push_back(3 + count);
+    newIndices.push_back(2 + count);
+    
+    indices.insert(indices.end(), newIndices.begin(), newIndices.end());
+}
+
+Mesh* createQuad()
+{
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+    
+    for (size_t i = 0; i < 25; i++)
+    {
+        for (size_t j = 0; j < 19; j++)
+        {
+            addQuad((float)i, float(j), vertices, indices);
+        }
+    }
+    
+    Mesh* mesh = registerMesh("create_quad", vertices, indices);
+    
+    return mesh;
+}

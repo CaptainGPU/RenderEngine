@@ -60,6 +60,12 @@ glm::mat4 GameObject::getModelMatrix()
         m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, .0f));
         m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, .0f));
         m_modelMatrix = glm::scale(m_modelMatrix, m_scale);
+        
+        glm::mat4 m = glm::mat4(1.0f);
+        m = glm::translate(m, glm::vec3(0.25, 0.0, 0.0));
+        
+        //m_modelMatrix = m * m_modelMatrix;
+        
         m_isDirtyTransform = false;
     }
     

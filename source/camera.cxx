@@ -14,8 +14,10 @@ Camera::Camera(std::string name, float fov, float nearZ, float farZ):
 GameObject(name),
 m_projectionMatrix(glm::mat4(1.0f)),
 m_viewMatrix(glm::mat4(1.0f)),
+m_orthoMatrix(glm::mat4(1.0f)),
 m_dirtyProjectionMatrix(true),
 m_dirtyViewMatrix(true),
+m_dirtOrthoMatrix(true),
 m_front(.0f),
 m_right(.0f),
 m_up(.0f),
@@ -159,6 +161,17 @@ glm::mat4& Camera::getProjectionMatrix()
 	return m_projectionMatrix;
 }
 
+glm::mat4& Camera::getOrthoMatrix()
+{
+    if (m_dirtOrthoMatrix)
+    {
+        m_orthoMatrix = glm::ortho(0.0, 800.0, 0.0, 600.0);
+        m_dirtOrthoMatrix = false;
+    }
+    
+    return m_orthoMatrix;
+}
+
 glm::mat4& Camera::getViewMatrix()
 {
 	calculateCameraVectors();
@@ -166,6 +179,8 @@ glm::mat4& Camera::getViewMatrix()
 	glm::vec3 position = getPosition();
 	
 	m_viewMatrix = glm::lookAt(position, position + m_front, m_up);
+    
+    m_viewMatrix = glm::mat4(1.0f);
 
 	return m_viewMatrix;
 }
