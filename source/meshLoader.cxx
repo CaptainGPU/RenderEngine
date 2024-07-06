@@ -809,7 +809,7 @@ void loadGLTFtoScene(Scene* wscene, const std::string& modelName)
 }
 
 
-void addQuad(float x, float y, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
+void addQuad(int index, float x, float y, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
 {
     size_t count = vertices.size();
     
@@ -840,6 +840,11 @@ void addQuad(float x, float y, std::vector<Vertex>& vertices, std::vector<uint32
     c.pos.y += y;
     d.pos.y += y;
     
+	a.uv.x = index;
+	b.uv.x = index;
+	c.uv.x = index;
+	d.uv.x = index;
+
     vertices.push_back(a);
     vertices.push_back(b);
     vertices.push_back(c);
@@ -863,11 +868,13 @@ Mesh* createQuad()
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
     
-    for (size_t i = 0; i < 25; i++)
+	int index = 0;
+    for (int i = -1; i < 26; i++)
     {
-        for (size_t j = 0; j < 19; j++)
+        for (int j = -1; j < 20; j++)
         {
-            addQuad((float)i, float(j), vertices, indices);
+            addQuad(index, (float)i, float(j), vertices, indices);
+			index++;
         }
     }
     

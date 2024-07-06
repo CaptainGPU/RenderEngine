@@ -84,6 +84,7 @@ public:
 	static void setUniformVec4(Uniform* uniform, glm::vec4& value);
     static void setUniformMatrix4x4(Uniform* uniform, glm::mat4& matrix);
 	static void setUniformFloatValue(Uniform* uniform, float& value);
+	static void setUniformFloatArrayValue(Uniform* uniform, float* array, uint32_t size);
     static void setUniformIntValue(Uniform* uniform, int& value);
     static void setUniformTexture(Uniform* uniform, Texture* texture, unsigned int slot);
 	static void setUniformCubeTexture(Uniform* uniform, Texture* texture, unsigned int slot);

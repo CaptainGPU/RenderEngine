@@ -31,6 +31,7 @@ public:
     void setVec4(glm::vec4& value);
     void setMatrix4x4(glm::mat4& matrix);
     void setFloat(float& value);
+    void setFloatArray(float* array, uint32_t size);
     void setInt(int& value);
     void setTexture(Texture* texture, unsigned int slot);
     void setCubeTexture(Texture* texture, unsigned int slot);

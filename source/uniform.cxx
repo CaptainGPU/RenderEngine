@@ -43,6 +43,11 @@ void Uniform::setFloat(float& value)
     Render::setUniformFloatValue(this, value);
 }
 
+void Uniform::setFloatArray(float* array, uint32_t size)
+{
+    Render::setUniformFloatArrayValue(this, array, size);
+}
+
 void Uniform::setInt(int& value)
 {
     Render::setUniformIntValue(this, value);

@@ -285,6 +285,16 @@ void Render::setUniformFloatValue(Uniform* uniform, float& value)
     glUniform1f(id, value);
 }
 
+void Render::setUniformFloatArrayValue(Uniform* uniform, float* array, uint32_t size)
+{
+    GLint id = uniform->get_OpenGL_uniformID();
+    if (array == nullptr)
+    {
+        return;
+    }
+    glUniform1fv(id, size, array);
+}
+
 void Render::setUniformIntValue(Uniform* uniform, int& value)
 {
     GLint id = uniform->get_OpenGL_uniformID();

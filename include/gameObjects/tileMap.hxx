@@ -15,7 +15,11 @@ public:
             uint32_t screenHeight);
     
     uint32_t getTileSize();
+    float* getIndexes();
+    uint32_t getIndexesCount();
     
 private:
     uint32_t m_tileSize;
+    float* m_indexesInPalletes;
+    uint32_t m_indexesCount;
 };

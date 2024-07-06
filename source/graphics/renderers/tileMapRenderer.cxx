@@ -19,11 +19,12 @@ namespace TileMapPass
     Uniform* tileMapPassModelMatrixUniform = nullptr;
     Uniform* tileMapPassViewMatrixUniform = nullptr;
     Uniform* tileMapPassProjectionMatrixUniform = nullptr;
+    Uniform* tileMapCellPalleteIndexUniform = nullptr;
 }
 
 RenderPass* registerTileMapRenderPass()
 {
-    std::vector<std::string> depthPrePassUniformNames = { "u_modelMatrix", "u_viewMatrix", "u_projectionMatrix" };
+    std::vector<std::string> depthPrePassUniformNames = { "u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "u_cellPalleteIndex"};
 
     TileMapPass::tileMapPass = new RenderPass();
     TileMapPass::tileMapPass->makeProgram("tileMap", "tileMap");
@@ -32,6 +33,7 @@ RenderPass* registerTileMapRenderPass()
     TileMapPass::tileMapPassModelMatrixUniform = TileMapPass::tileMapPass->getUniform(depthPrePassUniformNames[0]);
     TileMapPass::tileMapPassViewMatrixUniform = TileMapPass::tileMapPass->getUniform(depthPrePassUniformNames[1]);
     TileMapPass::tileMapPassProjectionMatrixUniform = TileMapPass::tileMapPass->getUniform(depthPrePassUniformNames[2]);
+    TileMapPass::tileMapCellPalleteIndexUniform = TileMapPass::tileMapPass->getUniform(depthPrePassUniformNames[3]);
 
     TileMapPass::tileMapPassFrameBuffer = Render::createCustomFrameBuffer(800, 600, 3);
     
@@ -59,55 +61,37 @@ void TileMapRender(RenderInfo& renderInfo)
         }
         
         glm::mat4 viewMatrix = glm::mat4(1.0);
-        glm::vec3 pos = camera->getPosition();
-        viewMatrix = glm::translate(viewMatrix, glm::vec3(-pos.x, -pos.y, 0));
+        glm::vec3 cameraPos = camera->getPosition();
+
+        float tileSize = (float)tileMap->getTileSize();
+
+        float x = fmod(cameraPos.x, tileSize);
+        float y = fmod(cameraPos.y, tileSize);
+
+        glm::vec3 position = glm::vec3(-x, -y, 0.0f);
+
+
+        viewMatrix = glm::translate(viewMatrix, glm::vec3(position.x, position.y, 0));
         TileMapPass::tileMapPassViewMatrixUniform->setMatrix4x4(viewMatrix);
         
         glm::mat4& projection_matrix = scene->getCamera()->getOrthoMatrix();
         TileMapPass::tileMapPassProjectionMatrixUniform->setMatrix4x4(projection_matrix);
         
         glm::mat4 modelMatrix = glm::mat4(1.0);
-        glm::vec3 scale = glm::vec3((float)tileMap->getTileSize());
+        glm::vec3 scale = glm::vec3(tileSize);
         modelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
         
         TileMapPass::tileMapPassModelMatrixUniform->setMatrix4x4(modelMatrix);
+
+        float* cellPalleteIndexArray = tileMap->getIndexes();
+        uint32_t cellPalleteIndexCount = tileMap->getIndexesCount();
+        TileMapPass::tileMapCellPalleteIndexUniform->setFloatArray(cellPalleteIndexArray, cellPalleteIndexCount);
         
         Mesh* mesh = tileMap->getMesh(0);
         
         Render::drawMesh(mesh, renderInfo);
         
     }
-
-    /*size_t numGameObject = scene->getGameObjectCount();
-
-    
-    
-    
-    
-
-   
-
-
-    for (size_t i = 0; i < numGameObject; i++)
-    {
-        GameObject* gameObject = scene->getGameObject(i);
-        unsigned int meshCount = gameObject->getMeshCount();
-
-        if (meshCount == 0 || !gameObject->isRenderingObject())
-        {
-            continue;
-        }
-
-        glm::mat4 modelMatrix = gameObject->getModelMatrix();
-        TileMapPass::tileMapPassModelMatrixUniform->setMatrix4x4(modelMatrix);
-
-        for (size_t j = 0; j < meshCount; j++)
-        {
-            Mesh* mesh = gameObject->getMesh(j);
-
-            Render::drawMesh(mesh, renderInfo);
-        }
-    }*/
 }
 
 void renderTileMapPass(RenderPass* renderPass, RenderInfo& renderInfo)

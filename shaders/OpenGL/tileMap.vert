@@ -8,19 +8,24 @@ layout (location = 3) in vec3 a_color;
 uniform mat4 u_modelMatrix;
 uniform mat4 u_viewMatrix;
 uniform mat4 u_projectionMatrix;
+uniform float u_cellPalleteIndex[567];
 
-out vec3 v_worldPos;
-out vec3 v_worldNormal;
-out vec3 v_vertexColor;
+out float v_cellIndex;
+out float v_test;
 
 void main()
 {
-    v_worldPos = vec3(u_viewMatrix * u_modelMatrix * vec4(a_position, 1.0));
+    v_cellIndex = a_textcoord.x;
+    int cellIndex = int(v_cellIndex);
+    v_test = u_cellPalleteIndex[cellIndex];
 
-    mat3 normalMatrix = transpose(inverse(mat3(u_viewMatrix * u_modelMatrix)));
-	v_worldNormal = normalMatrix * a_normal;
+    vec3 position = a_position;
+    int test = int(v_test);
 
-    v_vertexColor = a_color;
+    if (test == 0)
+    {
+        position = vec3(0.0);
+    }
 
-    gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(a_position, 1.0f);
+    gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(position, 1.0f);
 }
