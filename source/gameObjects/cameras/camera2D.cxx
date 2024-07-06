@@ -8,7 +8,7 @@
 
 Camera2D::Camera2D()
 : Camera("DebugCamera", 45.0f, 0.1, 100.0f),
-m_speed(100)
+m_speed(250)
 {
     
 }
