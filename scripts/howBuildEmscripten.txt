@@ -1,0 +1,4 @@
+emsdk_env.bat
+emmake cmake ./
+cmake --build .
+python -m http.server

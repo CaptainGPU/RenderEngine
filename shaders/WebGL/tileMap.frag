@@ -1,6 +1,8 @@
-#version 330
+#version 300 es
 
-layout (location = 0) out vec4 gColor;
+precision highp float;
+
+out vec4 color;
 in float v_cellIndex;
 in float v_test;
 
@@ -22,7 +24,7 @@ float linearDepth(float depth)
 void main()
 {
     vec3 colorCell = vec3(1.0);
-
+    
     if (v_test == 1.0)
     {
         //colorCell = vec3(0.454, 0.827, 0.819);
@@ -38,6 +40,8 @@ void main()
     {
         colorCell = vec3(0.650, 0.266, 0.219);
     }
-
-    gColor = vec4(colorCell, 1.0);
+    
+    //gPosition = vec4(v_worldPos, linearDepth(gl_FragCoord.z));
+    //gNormal = vec4(normalize(v_worldNormal) * 0.5 + 0.5, 1.0);
+    color = vec4(colorCell, 1.0);
 }

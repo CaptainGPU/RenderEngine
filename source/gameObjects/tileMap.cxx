@@ -26,7 +26,7 @@ m_posY(posY)
     
     for (size_t i = 0; i < m_count; i++)
     {
-        m_palleteIndexes[i] = rand() % 2;
+        m_palleteIndexes[i] = rand() % 4;
     }
 }
 
@@ -84,16 +84,17 @@ m_tileSize(tileSize)
     bool b = true;
     for (size_t i = 0; i < m_indexesCount; i++)
     {
-        m_indexesInPalletes[i] = rand() % 2;
+        m_indexesInPalletes[i] = rand() % 3;
         b = !b;
     }
     
+    int32_t chunkSize = 100;
     uint32_t index = 0;
     for (int i = -10; i < 10; i++)
     {
         for (int j = -10; j < 10; j++)
         {
-            TileMapChunk* chunk = new TileMapChunk(index, i * 10, j * 10, 10, 10);
+            TileMapChunk* chunk = new TileMapChunk(index, i * chunkSize, j * chunkSize, chunkSize, chunkSize);
             m_chunks.push_back(chunk);
             index++;
         }

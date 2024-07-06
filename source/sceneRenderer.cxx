@@ -924,6 +924,7 @@ void SceneRenderer::render(RenderInfo& renderInfo)
 
 void SceneRenderer::drawDebugUI()
 {  
+    return;
     ImGui::Begin("Post-processing settings");
     
     ImGui::SliderFloat("Chromatic Aberrations", &m_chAberrPower, .0f, 4.0f);

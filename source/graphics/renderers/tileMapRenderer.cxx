@@ -101,7 +101,7 @@ void renderTileMapPass(RenderPass* renderPass, RenderInfo& renderInfo)
 
     Render::startRenderPass(TileMapPass::tileMapPass, renderInfo);
 
-    Render::clearView(0.1, 0.1, 0.1, 1.0);
+    Render::clearView(0.0f, 0.0f, 0.0f, 1.0);
 
     TileMapRender(renderInfo);
 
