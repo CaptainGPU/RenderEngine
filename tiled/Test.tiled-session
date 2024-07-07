@@ -3,42 +3,64 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "test.tmx",
+    "activeFile": "test_level_tilemap.tmx",
     "expandedProjectPaths": [
+        "."
     ],
     "fileStates": {
         "test.tmx": {
             "scale": 0.3766,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 845.7249070631971,
-                "y": 17407.063197026022
+                "x": 9500.79660116835,
+                "y": 9418.481147105682
             }
+        },
+        "test_level_tilemap.tmx": {
+            "scale": 0.25,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 552,
+                "y": 26044
+            }
+        },
+        "test_level_tilemap.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "test_level_tilemap_64.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
         },
         "tilemap_packed.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1.47
         }
     },
-    "last.imagePath": "/Users/captain/MyMac/Projects/RenderEngine/tiled",
-    "map.height": 1000,
+    "last.imagePath": "D:/Projects/RenderEngine/textures",
+    "map.height": 400,
     "map.lastUsedFormat": "tmx",
-    "map.renderOrder": "1",
-    "map.tileHeight": 18,
-    "map.tileWidth": 18,
-    "map.width": 1000,
+    "map.renderOrder": "0",
+    "map.tileHeight": 64,
+    "map.tileWidth": 64,
+    "map.width": 400,
     "openFiles": [
         "test.tmx",
-        "tilemap_packed.tsx"
+        "tilemap_packed.tsx",
+        "test_level_tilemap.tmx",
+        "test_level_tilemap_64.tsx"
     ],
     "project": "Test.tiled-project",
     "recentFiles": [
+        "test.tmx",
         "tilemap_packed.tsx",
-        "test.tmx"
+        "test_level_tilemap_64.tsx",
+        "test_level_tilemap.tmx",
+        "test_level_tilemap.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
-        "height": 18,
-        "width": 18
+        "height": 64,
+        "width": 64
     }
 }

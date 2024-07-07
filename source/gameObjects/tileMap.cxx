@@ -103,7 +103,7 @@ m_palleteHeight(palleteHeight)
         }
     }
 
-    m_palleteTexture = loadTexture("test_level_tilemap.png");
+    m_palleteTexture = loadTexture("test_level_tilemap_32.png");
 }
 
 void TileMap:: update(float deltaTime)
