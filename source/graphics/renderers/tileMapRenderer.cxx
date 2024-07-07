@@ -20,11 +20,14 @@ namespace TileMapPass
     Uniform* tileMapPassViewMatrixUniform = nullptr;
     Uniform* tileMapPassProjectionMatrixUniform = nullptr;
     Uniform* tileMapCellPalleteIndexUniform = nullptr;
+    Uniform* tileMapPalleteTextureUniform = nullptr;
+    Uniform* tileMapPalleteWidthUniform = nullptr;
+    Uniform* tileMapPalleteHeightUniform = nullptr;
 }
 
 RenderPass* registerTileMapRenderPass()
 {
-    std::vector<std::string> depthPrePassUniformNames = { "u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "u_cellPalleteIndex"};
+    std::vector<std::string> depthPrePassUniformNames = { "u_modelMatrix", "u_viewMatrix", "u_projectionMatrix", "u_cellPalleteIndex", "u_palleteTexture", "u_palleteWidth", "u_palleteHeight"};
 
     TileMapPass::tileMapPass = new RenderPass();
     TileMapPass::tileMapPass->makeProgram("tileMap", "tileMap");
@@ -34,8 +37,11 @@ RenderPass* registerTileMapRenderPass()
     TileMapPass::tileMapPassViewMatrixUniform = TileMapPass::tileMapPass->getUniform(depthPrePassUniformNames[1]);
     TileMapPass::tileMapPassProjectionMatrixUniform = TileMapPass::tileMapPass->getUniform(depthPrePassUniformNames[2]);
     TileMapPass::tileMapCellPalleteIndexUniform = TileMapPass::tileMapPass->getUniform(depthPrePassUniformNames[3]);
+    TileMapPass::tileMapPalleteTextureUniform = TileMapPass::tileMapPass->getUniform(depthPrePassUniformNames[4]);
+    TileMapPass::tileMapPalleteWidthUniform = TileMapPass::tileMapPass->getUniform(depthPrePassUniformNames[5]);
+    TileMapPass::tileMapPalleteHeightUniform = TileMapPass::tileMapPass->getUniform(depthPrePassUniformNames[6]);
 
-    TileMapPass::tileMapPassFrameBuffer = Render::createCustomFrameBuffer(800, 600, 3);
+    TileMapPass::tileMapPassFrameBuffer = Render::createCustomFrameBuffer(800, 600, 1);
     
     return TileMapPass::tileMapPass;
 }
@@ -86,10 +92,24 @@ void TileMapRender(RenderInfo& renderInfo)
         float* cellPalleteIndexArray = tileMap->getIndexes();
         uint32_t cellPalleteIndexCount = tileMap->getIndexesCount();
         TileMapPass::tileMapCellPalleteIndexUniform->setFloatArray(cellPalleteIndexArray, cellPalleteIndexCount);
+
+        Texture* palleteTexture = tileMap->getPalleteTexture();
+        TileMapPass::tileMapPalleteTextureUniform->setTexture(palleteTexture, 0);
+
+        float palleteSize = 16.0f;
+        TileMapPass::tileMapPalleteWidthUniform->setFloat(palleteSize);
+        TileMapPass::tileMapPalleteHeightUniform->setFloat(palleteSize);
         
         Mesh* mesh = tileMap->getMesh(0);
         
         Render::drawMesh(mesh, renderInfo);
+
+        float index = 215.0f;
+
+        float py = floorf(index / 16.0f);
+        float px = fmodf(index, 16.0f);
+
+        int a = 12;
         
     }
 }

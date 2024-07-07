@@ -44,7 +44,7 @@ m_filmGrain(0.0),
 m_vignetteUniform(nullptr),
 m_vignette(0.0),
 m_postProcessGammaUniform(nullptr),
-m_gamma(2.2),
+m_gamma(1.0),
 m_basePassGammaUniform(nullptr),
 m_basePassMaterialBaseColorUniform(nullptr),
 m_basePassAlbedo(glm::vec3(1.0)),
@@ -149,6 +149,11 @@ void SceneRenderer::init()
 
     for (size_t i = 0; i < SceneRendererPasses::PASS_COUNT; i++)
     {
+        if (i != SceneRendererPasses::TILEMAP_PASS && i != SceneRendererPasses::POSTPROCESSING_PASS)
+        {
+            continue;
+        }
+
         RenderPass* renderPass = nullptr;
 
         SceneRendererPasses pass = static_cast<SceneRendererPasses>(i);
@@ -413,13 +418,13 @@ void SceneRenderer::init()
     }
     
     m_frameBuffer = Render::createFrameBuffer();
-    m_sunLightShadowFrameBuffer = Render::createDepthMapFrameBuffer(1024, 1024);
+    //m_sunLightShadowFrameBuffer = Render::createDepthMapFrameBuffer(1024, 1024);
 
-    m_lightObjectMesh = loadMesh("light.mesh");
-    m_spotLightMesh = loadMesh("spot.mesh");
-    m_sunLightMesh = loadMesh("sun.mesh");
+    //m_lightObjectMesh = loadMesh("light.mesh");
+    //m_spotLightMesh = loadMesh("spot.mesh");
+    //m_sunLightMesh = loadMesh("sun.mesh");
 
-    initMobileSSAOPassData();
+    //initMobileSSAOPassData();
 
     m_aoRenderContext = new AORenderContext();
     m_aoRenderContext->radius = 1.5f;
@@ -795,9 +800,10 @@ void SceneRenderer::renderPostProcessingPass(RenderInfo& renderInfo)
     //Texture* texture = getDepthPrePassFrameBuffer()->getColorTexture();
     Texture* texture = getTileMapPassFrameBuffer()->getColorTexture();
     //Texture* sunLightTexture = m_sunLightShadowFrameBuffer->getColorTexture();
-    Texture* sunLightTexture = getSpotLightShadowMapColorTexture()[0];
+    
+    Texture* sunLightTexture = nullptr; //getSpotLightShadowMapColorTexture()[0];
     m_sceneTextureUniform->setTexture(texture, 0);
-    m_sunLightShadowTextureUniform->setTexture(sunLightTexture, 1);
+    //m_sunLightShadowTextureUniform->setTexture(sunLightTexture, 1);
     
     float aberrationPower = 0.0;
     float sepia = .0;

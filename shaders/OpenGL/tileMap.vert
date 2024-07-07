@@ -9,18 +9,28 @@ uniform mat4 u_modelMatrix;
 uniform mat4 u_viewMatrix;
 uniform mat4 u_projectionMatrix;
 uniform float u_cellPalleteIndex[567];
+uniform float u_palleteWidth;
+uniform float u_palleteHeight;
 
-out float v_cellIndex;
-out float v_test;
+out vec2 v_palleteUV;
 
 void main()
 {
-    v_cellIndex = a_textcoord.x;
-    int cellIndex = int(v_cellIndex);
-    v_test = u_cellPalleteIndex[cellIndex];
+    int cellIndex = int(a_normal.x);
+    float cellIndexInPallete = u_cellPalleteIndex[cellIndex];
+
+    vec2 palleteCellSize = vec2(1.0) / vec2(u_palleteWidth, u_palleteHeight);
+
+    float pY = floor(cellIndexInPallete/u_palleteWidth);
+    float pX = mod(cellIndexInPallete, u_palleteWidth);
+
+    float sX = pX * palleteCellSize.x;
+    float sY = pY * palleteCellSize.y;
+
+    v_palleteUV = vec2(sX, sY) + (a_textcoord * palleteCellSize); //a_textcoord * palleteCellSize;
 
     vec3 position = a_position;
-    int test = int(v_test);
+    int test = int(cellIndexInPallete);
 
     if (test == 0)
     {

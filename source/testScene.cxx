@@ -33,9 +33,9 @@ void TestScene::construct()
 {
     Scene2D::construct();
 
-    TestGameObject* quadColor = new TestGameObject("");
+    //TestGameObject* quadColor = new TestGameObject("");
     //quadColor->setScale(glm::vec3(10.0));
-    addGameObject(quadColor);
+    //addGameObject(quadColor);
 
     Camera* camera = new Camera2D();
     addGameObject(camera);
@@ -45,7 +45,7 @@ void TestScene::construct()
     //camera->setPitch(-34.65f);
     camera->setYaw(-90.0f);
 
-    SunLight* sun = new SunLight();
+    /*SunLight* sun = new SunLight();
     setSunLight(sun);
     sun->setIntensity(0.0f);
     sun->setColor(glm::vec3(1.0f));
@@ -54,10 +54,10 @@ void TestScene::construct()
     //sun->SetRotateY(45.0f);
     addGameObject(sun);
 
-    m_sun = sun;
+    m_sun = sun;*/
 
 
-    PoinLightGameObject* pointLight = nullptr;
+    /*PoinLightGameObject* pointLight = nullptr;
 
     pointLight = new PoinLightGameObject();
     pointLight->setColor(glm::vec3(1.0f, 0.0f, 0.0f));
@@ -87,13 +87,13 @@ void TestScene::construct()
     addGameObject(m_whiteLight);
 
     //m_plane = new TestGameObject("test_color_quad.mesh");
-    //addGameObject(m_plane);
+    //addGameObject(m_plane); */
 
-    /*/m_plane->setScale(glm::vec3(50.0));
+    /*m_plane->setScale(glm::vec3(50.0));
     m_plane->setPosition(glm::vec3(0.0, -1.0, 0.0));*/
 
 
-    m_spot1 = new SpotLight();
+    /*m_spot1 = new SpotLight();
     m_spot1->setColor(glm::vec3(1.0f, 0.0f, 0.0f));
     m_spot1->addRotationZ(-45.0f);
     m_spot1->setPositionZ(-10.5);
@@ -120,45 +120,23 @@ void TestScene::construct()
     m_whiteLight->generateBound();
     m_spot1->generateBound();
     m_spot2->generateBound();
-    m_spot3->generateBound();
+    m_spot3->generateBound();*/
 
     //loadGLTFtoScene(this, "gltf/CubeGLTF.gltf");
     
-    TileMap* tileMap = new TileMap("test", 32, 800, 600);
+    TileMap* tileMap = new TileMap("test", 32, 800, 600, 16, 16);
     //tileMap->setScale(glm::vec3(32.));
     addGameObject(tileMap);
     addTileMap(tileMap);
     //tileMap->setPositionX(0.25);
 
     return;
-
-    float dist = 3.0;
-    
-    float count = .0;
-    
-    for (size_t i = 0; i < 10; i++)
-    {
-        for (size_t j = 0; j < 10; j++)
-        {
-            count += 1.0;
-            
-            TestGameObject* gameObject = new TestGameObject("monkey.mesh");
-            
-            gameObject->setPositionX((i * dist) - (4.5 * dist) );
-            gameObject->setPositionZ((j * dist) - (4.5 * dist));
-            
-            gameObject->addRotationY((360.0f / 10.0) * i * j);
-            
-            addGameObject(gameObject);
-            
-            m_meshes.push_back(gameObject);
-        }
-    }
 }
 
 void TestScene::update(float deltaTime)
 {
-    m_time += deltaTime;
+    
+    //m_time += deltaTime;
 
     
     
@@ -169,6 +147,7 @@ void TestScene::update(float deltaTime)
         gameObject->addRotationY(deltaTime * 100.0);
     }*/
     
+    /*
     int index = 0;
     for (GameObject* gameObject : m_lights)
     {
@@ -219,7 +198,7 @@ void TestScene::update(float deltaTime)
 
     m_sun->addRotationY(sunMove);
 
-    getDefaultCamera()->addRotationY(sunMove);
+    getDefaultCamera()->addRotationY(sunMove);*/
 }
 
 

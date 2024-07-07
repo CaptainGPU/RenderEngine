@@ -93,9 +93,11 @@ void generateStaticMeshBound(MeshBound* bound)
 Mesh* loadMesh(std::string modelName)
 {
     std::string modelFolder = "../Models/";
+	std::string materialFolder = modelFolder;
     
 #if CURRENT_PLATFORM == PLATFORM_MAC
     modelFolder = "../../Models/";
+	materialFolder = modelFolder;
 #endif
     
 	std::string modelFilePath = modelFolder + modelName;
@@ -126,7 +128,7 @@ Mesh* loadMesh(std::string modelName)
 	std::vector<tinyobj::material_t> materials;
 	std::string warn, err;
 
-	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelFilePath.c_str()))
+	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelFilePath.c_str(), materialFolder.c_str()))
 	{
 		printf("failLoad: %s\n", modelFilePath.c_str());
 		return nullptr;
@@ -820,15 +822,19 @@ void addQuad(int index, float x, float y, std::vector<Vertex>& vertices, std::ve
     
     a.pos = glm::vec3(0.0, 0.0, 0.0);
     a.color = glm::vec3(0.0, 0.0, 0.0);
+	a.uv = glm::vec2(0.0f, 0.0f);
     
     b.pos = glm::vec3( 1.0, 0.0, 0.0);
     b.color = glm::vec3(1.0, 0.0, 0.0);
+	b.uv = glm::vec2(1.0f, 0.0f);
     
     c.pos = glm::vec3(0.0, 1.0, 0.0);
     c.color = glm::vec3(0.0, 1.0, 0.0);
+	c.uv = glm::vec2(0.0f, 1.0f);
     
     d.pos = glm::vec3(1.0, 1.0, 0.0);
     d.color = glm::vec3(1.0, 1.0, 0.0);
+	d.uv = glm::vec2(1.0f, 1.0f);
     
     a.pos.x += x;
     b.pos.x += x;
@@ -840,10 +846,10 @@ void addQuad(int index, float x, float y, std::vector<Vertex>& vertices, std::ve
     c.pos.y += y;
     d.pos.y += y;
     
-	a.uv.x = index;
-	b.uv.x = index;
-	c.uv.x = index;
-	d.uv.x = index;
+	a.normal.x = index;
+	b.normal.x = index;
+	c.normal.x = index;
+	d.normal.x = index;
 
     vertices.push_back(a);
     vertices.push_back(b);

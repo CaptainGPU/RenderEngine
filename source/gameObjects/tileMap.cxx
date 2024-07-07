@@ -9,8 +9,9 @@
 #include "engine.hxx"
 #include "scenes/scene2D.hxx"
 #include "gameObjects/cameras/camera2D.hxx"
+#include "graphics/textureLoader.hxx"
 
-#include <cstdlib> // 
+#include <cstdlib> 
 
 
 TileMapChunk::TileMapChunk(uint32_t index, int32_t posX, int32_t posY, int32_t width, int32_t height) :
@@ -23,10 +24,10 @@ m_posY(posY)
     
     m_count = width * height;
     m_palleteIndexes = new uint32_t[m_count];
-    
+
     for (size_t i = 0; i < m_count; i++)
     {
-        m_palleteIndexes[i] = rand() % 4;
+        m_palleteIndexes[i] = rand() % 255;
     }
 }
 
@@ -35,7 +36,7 @@ uint32_t TileMapChunk::getPalleteIndex(int32_t posX, int32_t posY)
     int32_t lX = posX - m_posX;
     int32_t lY = posY - m_posY;
     
-    int32_t index = lX * m_width + lY;
+    int32_t index = lY * m_width + lX;
     
     return m_palleteIndexes[index];
 }
@@ -69,9 +70,13 @@ bool TileMapChunk::inChunk(int32_t posX, int32_t posY)
 TileMap::TileMap(std::string name, 
                  uint32_t tileSize,
                  uint32_t screenWidth,
-                 uint32_t screenHeight)
+                 uint32_t screenHeight,
+                 uint32_t palleteWidth,
+                 uint32_t palleteHeight)
 :GameObject(name),
-m_tileSize(tileSize)
+m_tileSize(tileSize),
+m_palleteWidth(palleteWidth),
+m_palleteHeight(palleteHeight)
 {
     srand(10);
     Mesh* mesh = createQuad();
@@ -81,18 +86,16 @@ m_tileSize(tileSize)
 
     m_indexesInPalletes = new float[m_indexesCount];
 
-    bool b = true;
     for (size_t i = 0; i < m_indexesCount; i++)
     {
         m_indexesInPalletes[i] = rand() % 3;
-        b = !b;
     }
     
     int32_t chunkSize = 100;
     uint32_t index = 0;
-    for (int i = -10; i < 10; i++)
+    for (int i = 0; i < 1; i++)
     {
-        for (int j = -10; j < 10; j++)
+        for (int j = 0; j < 1; j++)
         {
             TileMapChunk* chunk = new TileMapChunk(index, i * chunkSize, j * chunkSize, chunkSize, chunkSize);
             m_chunks.push_back(chunk);
@@ -100,6 +103,7 @@ m_tileSize(tileSize)
         }
     }
 
+    m_palleteTexture = loadTexture("test_level_tilemap.png");
 }
 
 void TileMap:: update(float deltaTime)
@@ -171,4 +175,19 @@ float* TileMap::getIndexes()
 uint32_t TileMap::getIndexesCount()
 {
     return m_indexesCount;
+}
+
+Texture* TileMap::getPalleteTexture()
+{
+    return m_palleteTexture;
+}
+
+uint32_t TileMap::getPalleteWidht()
+{
+    return m_palleteWidth;
+}
+
+uint32_t TileMap::getPalleteHeight()
+{
+    return m_palleteHeight;
 }

@@ -6,21 +6,6 @@ out vec4 color;
 in float v_cellIndex;
 in float v_test;
 
-/*in vec3 v_worldPos;
-in vec3 v_worldNormal;
-in vec3 v_vertexColor;
-
-
-
-float farPlane = 100.0f;
-float nearPlane = 0.1f;
-
-float linearDepth(float depth)
-{
-	float z = depth * 2.0f - 1.0f; 
-	return (2.0f * nearPlane * farPlane) / (farPlane + nearPlane - z * (farPlane - nearPlane));	
-}*/
-
 void main()
 {
     vec3 colorCell = vec3(1.0);

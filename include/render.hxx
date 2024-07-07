@@ -100,6 +100,7 @@ public:
     static void useTexture(Texture* texture);
     static void unUseTexture();
     static void activateTexture(Texture* texure, unsigned int slot);
+	static void loadDataToTexture(Texture* texture, int width, int height, unsigned char* data);
 
 	static void bindCubeMapTexture(Texture* texture);
 	static void unBindCubeMapTexture();
