@@ -3,19 +3,54 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "demo.tmx",
     "expandedProjectPaths": [
+        "."
     ],
+    "file.lastUsedOpenFilter": "Всі файли (*)",
     "fileStates": {
+        "demo.tmx": {
+            "scale": 0.33,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 745.4545454545455,
+                "y": 5524.242424242424
+            }
+        },
+        "demo_map.tmx": {
+            "scale": 0.25,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 348,
+                "y": 3168
+            }
+        },
+        "test_level_tilemap.tsx": {
+            "scaleInDock": 0.33,
+            "scaleInEditor": 1
+        }
     },
+    "last.exportedFilePath": "D:/Projects/RenderEngine/resources/TiledMaps",
     "last.imagePath": "D:/Projects/RenderEngine/textures",
     "map.height": 100,
+    "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
     "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 64,
+    "map.tileWidth": 64,
     "map.width": 200,
     "openFiles": [
+        "test_level_tilemap.tsx",
+        "demo.tmx"
     ],
     "project": "TiledProject.tiled-project",
     "recentFiles": [
+        "test_level_tilemap.tsx",
+        "demo.tmx",
+        "demo_map.tmx"
     ],
-    "tileset.lastUsedFormat": "tsx"
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 64,
+        "width": 64
+    }
 }
