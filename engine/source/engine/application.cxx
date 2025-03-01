@@ -1,5 +1,7 @@
 #include "engine/application.hxx"
 #include <istream>
+
+#define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
 
 void startApplication()
@@ -12,6 +14,7 @@ void startApplication()
     {
         printf("GLFW: Init error!\n");
     }
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     
     window = glfwCreateWindow(800, 600, "Render Engine GLFW", nullptr, nullptr);
     
@@ -25,9 +28,6 @@ void startApplication()
     
     while (!glfwWindowShouldClose(window))
     {
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        glfwSwapBuffers(window);
         glfwPollEvents();
     }
     
