@@ -34,6 +34,7 @@ set(ENGINE_SOURCE_PATH "${PROJECT_SOURCE_DIR}/engine/source")
 set(ENGINE_INCLUDE_PATH "${PROJECT_SOURCE_DIR}/engine/include")
 set(ENGINE_GENERATE_INCLUDE_PATH "${PROJECT_SOURCE_DIR}/generated")
 
+add_subdirectory(thirdparty/metal-cpp)
 add_subdirectory(engine)
 add_subdirectory(thirdparty/glfw)
 
