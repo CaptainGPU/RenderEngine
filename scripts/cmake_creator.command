@@ -1,5 +1,8 @@
 #!/bin/bash
 
+PLATFORM_ID=$1
+GENERATOR=$2
+
 build_folder_path="../build"
 
 if [ -d "$build_folder_path" ]; then
