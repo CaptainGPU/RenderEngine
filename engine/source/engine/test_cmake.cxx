@@ -3,5 +3,5 @@
 
 void printTest()
 {
-    std::cout << "Hello CMAKE";
+    std::cout << "Hello MacOS" << std::endl;
 }

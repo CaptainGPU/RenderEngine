@@ -36,4 +36,3 @@ add_executable(${PROJECT_NAME} "${ENGINE_SOURCE_PATH}/main.cpp")
 add_subdirectory(engine)
 
 target_link_libraries(${PROJECT_NAME} Engine)
-target_include_directories(${PROJECT_NAME} PRIVATE ${Engine_SOURCE_DIR}/include())
