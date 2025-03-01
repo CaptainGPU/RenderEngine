@@ -13,4 +13,4 @@ mkdir "$build_folder_path"
 
 cmake ../ -DDEPLOY_PLATFORM="$1" -G "$2" -B"$build_folder_path"
 
-# echo "Final, try Visual Visual Studio 17 2022 in ${project_dir}/build folder"
+echo "Final, try Xcode in ${project_dir}/build folder"

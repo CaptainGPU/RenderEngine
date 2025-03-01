@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./cmake_creator.command Win "Xcode"
+./cmake_creator.command MacOS "Xcode"
