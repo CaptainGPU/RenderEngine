@@ -55,7 +55,7 @@ void startApplication()
 {
     printf("Start Engine!\n");
     
-    EngineApplication* application = new EngineApplication(800, 600, false);
+    EngineApplication* application = new EngineApplication(640, 480, false);
     application->run();
     
     return;

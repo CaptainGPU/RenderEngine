@@ -1,8 +1,14 @@
 #include <cassert>
 
+#include "engine/defines.hxx"
+
 #include "engine/graphics/render.hxx"
 
+#if GRAPHICS_API == GRAPHICS_API_METAL
 #include "engine/graphics/backends/metal/renderAPIMetal.hxx"
+#else
+#include "engine/graphics/renderAPI.hxx"
+#endif
 
 Render* Render::mRender = nullptr;
 
@@ -25,7 +31,11 @@ Render* Render::get()
 
 Render::Render()
 {
+#if GRAPHICS_API == GRAPHICS_API_METAL
     mRenderAPI = new RenderAPIMetal();
+#else
+    mRenderAPI = new RenderAPI();
+#endif
 }
 
 void Render::setWindow(Window* window)
