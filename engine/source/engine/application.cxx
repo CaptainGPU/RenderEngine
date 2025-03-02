@@ -1,79 +1,62 @@
+#include <iostream>
+
 #include "engine/application.hxx"
-#include <istream>
+#include "engine/graphics/render.hxx"
 
-#define GLFW_INCLUDE_NONE
-#include "GLFW/glfw3.h"
+#include "engine/window/backends/glfw/glfwWindow.hxx"
 
-#define NS_PRIVATE_IMPLEMENTATION
-#define MTL_PRIVATE_IMPLEMENTATION
-#define CA_PRIVATE_IMPLEMENTATION
+EngineApplication::EngineApplication(uint32_t widht, uint32_t height, bool isSeparateSimulation)
+{
+    mWidht = widht;
+    mHeight = height;
+}
 
-#include <Foundation/Foundation.hpp>
-#include <Metal/Metal.hpp>
-#include <QuartzCore/QuartzCore.hpp>
-#include <AppKit/AppKit.hpp>
+void EngineApplication::initStage()
+{
+    printf("EngineApplication: initialize\n");
+    
+    Render::initRenderAPI();
+    
+    mWindow = new GLFWWindow(mWidht, mHeight);
+    Render::get()->setWindow(mWindow);
+}
 
-#include "engine/adapters/glfw_adapter.h"
+void EngineApplication::workStage()
+{
+    printf("EngineApplication: working\n");
+    
+    while (!mWindow->isShouldClose())
+    {
+        simulate();
+    }
+}
+
+void EngineApplication::simulate()
+{
+    mWindow->frame();
+    
+    Render::get()->renderFrame();
+}
+
+void EngineApplication::finalStage()
+{
+    mWindow->close();
+    mWindow = nullptr;
+}
+
+void EngineApplication::run()
+{
+    initStage();
+    workStage();
+    finalStage();
+}
 
 void startApplication()
 {
-    printf("start engine!\n");
+    printf("Start Engine!\n");
     
-    GLFWwindow* window = nullptr;
+    EngineApplication* application = new EngineApplication(800, 600, false);
+    application->run();
     
-    if (!glfwInit()) 
-    {
-        printf("GLFW: Init error!\n");
-    }
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    
-    window = glfwCreateWindow(800, 600, "Render Engine GLFW", nullptr, nullptr);
-    
-    if (!window)
-    {
-        printf("GLFW: Create window problem\n");
-        glfwTerminate();
-    }
-    
-    MTL::Device* device = MTL::CreateSystemDefaultDevice();
-    
-    CA::MetalLayer* metalLayer = CA::MetalLayer::layer()->retain();
-    metalLayer->setDevice(device);
-    metalLayer->setPixelFormat(MTL::PixelFormat::PixelFormatBGRA8Unorm);
-    
-    NS::Window* nsWindow = get_ns_window(window, metalLayer);
-    
-    CA::MetalDrawable* metalDrawable;
-    MTL::CommandQueue* commandQueue = device->newCommandQueue()->retain();
-    
-    while (!glfwWindowShouldClose(window))
-    {
-        glfwPollEvents();
-        
-        NS::AutoreleasePool* pool = NS::AutoreleasePool::alloc()->init();
-        
-        metalDrawable = metalLayer->nextDrawable();
-        MTL::CommandBuffer* commandBuffer = commandQueue->commandBuffer();
-        MTL::RenderPassDescriptor* renderPass = MTL::RenderPassDescriptor::alloc()->init();
-        MTL::RenderPassColorAttachmentDescriptor* colorAttachments = renderPass->colorAttachments()->object(0);
-        colorAttachments->setTexture(metalDrawable->texture());
-        colorAttachments->setLoadAction(MTL::LoadAction::LoadActionClear);
-        colorAttachments->setClearColor(MTL::ClearColor(0.75f, 0.25f, 0.25f, 1.0f));
-        colorAttachments->setStoreAction(MTL::StoreAction::StoreActionStore);
-        
-        MTL::RenderCommandEncoder* renderCommandEncouder = commandBuffer->renderCommandEncoder(renderPass);
-        renderCommandEncouder->endEncoding();
-        
-        commandBuffer->presentDrawable(metalDrawable);
-        commandBuffer->commit();
-        commandBuffer->waitUntilCompleted();
-        
-        pool->release();
-    }
-    
-    commandQueue->release();
-    nsWindow->release();
-    metalLayer->release();
-    
-    glfwTerminate();
+    return;
 }

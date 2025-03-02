@@ -4,19 +4,35 @@ project(Engine VERSION 1.0.0)
 set(ENGINE_HEADER_FILES
 include/engine/test_cmake.hxx
 include/engine/application.hxx
+include/engine/window/window.hxx
+include/engine/graphics/render.hxx
+include/engine/graphics/renderAPI.hxx
 )
 
 set(ENGINE_SOURCE_FILES
 source/engine/test_cmake.cxx
 source/engine/application.cxx
+source/engine/window/window.cxx
+source/engine/graphics/render.cxx
+source/engine/graphics/renderAPI.cxx
 )
 
-# Add macOs glfw adapters to Metal+GLFW
+# Metal graphics backend
+list (APPEND ENGINE_HEADER_FILES
+include/engine/graphics/backends/metal/renderAPIMetal.hxx
+)
+list(APPEND ENGINE_SOURCE_FILES
+source/engine/graphics/backends/metal/renderAPIMetal.cxx
+)
+
+# GLFW window backend
 list (APPEND ENGINE_HEADER_FILES
     include/engine/adapters/glfw_adapter.h
+    include/engine/window/backends/glfw/glfwWindow.hxx
 )
 list(APPEND ENGINE_SOURCE_FILES
     source/engine/adapters/glfw_adapter.mm
+    source/engine/window/backends/glfw/glfwWindow.cxx
 )
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
