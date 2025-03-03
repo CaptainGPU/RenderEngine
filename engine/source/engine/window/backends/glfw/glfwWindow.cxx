@@ -2,7 +2,13 @@
 
 #include "engine/window/backends/glfw/glfwWindow.hxx"
 
+#include "engine/defines.hxx"
+
+#if GRAPHICS_API == GRAPHICS_API_METAL
 #define GLFW_INCLUDE_NONE
+#elif GRAPHICS_API == GRAPHICS_API_VULKAN
+#define GLFW_INCLUDE_VULKAN
+#endif
 #include "GLFW/glfw3.h"
 
 

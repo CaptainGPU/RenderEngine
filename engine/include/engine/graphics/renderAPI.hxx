@@ -6,6 +6,7 @@ class RenderAPI
 {
 public:
     RenderAPI();
+    virtual ~RenderAPI();
     
     virtual void setWindow(Window* window);
     virtual void renderFrame();

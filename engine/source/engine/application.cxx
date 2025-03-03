@@ -15,9 +15,10 @@ void EngineApplication::initStage()
 {
     printf("EngineApplication: initialize\n");
     
+    mWindow = new GLFWWindow(mWidht, mHeight);
+
     Render::initRenderAPI();
     
-    mWindow = new GLFWWindow(mWidht, mHeight);
     Render::get()->setWindow(mWindow);
 }
 
@@ -40,6 +41,8 @@ void EngineApplication::simulate()
 
 void EngineApplication::finalStage()
 {
+    Render::get()->shootDownRenderAPI();
+
     mWindow->close();
     mWindow = nullptr;
 }

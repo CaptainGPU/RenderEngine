@@ -5,6 +5,10 @@ RenderAPI::RenderAPI()
     
 }
 
+RenderAPI::~RenderAPI()
+{
+}
+
 void RenderAPI::setWindow(Window* window)
 {
     

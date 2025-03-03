@@ -6,6 +6,8 @@
 
 #if GRAPHICS_API == GRAPHICS_API_METAL
 #include "engine/graphics/backends/metal/renderAPIMetal.hxx"
+#elif GRAPHICS_API == GRAPHICS_API_VULKAN
+#include "engine/graphics/backends/vulkan/renderAPIVulkan.hxx"
 #else
 #include "engine/graphics/renderAPI.hxx"
 #endif
@@ -33,6 +35,8 @@ Render::Render()
 {
 #if GRAPHICS_API == GRAPHICS_API_METAL
     mRenderAPI = new RenderAPIMetal();
+#elif GRAPHICS_API == GRAPHICS_API_VULKAN
+    mRenderAPI = new RenderAPIVulkan();
 #else
     mRenderAPI = new RenderAPI();
 #endif
@@ -46,4 +50,10 @@ void Render::setWindow(Window* window)
 void Render::renderFrame()
 {
     mRenderAPI->renderFrame();
+}
+
+void Render::shootDownRenderAPI()
+{
+    delete mRenderAPI;
+    mRenderAPI = nullptr;
 }

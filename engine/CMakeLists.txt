@@ -10,6 +10,9 @@ get_property(PLATFORM_WIN DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY PLATFORM_WIN)
 get_property(PLATFORM_MACOS DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY PLATFORM_MACOS)
 get_property(PLATFORM_EMSCRIPTEN DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY PLATFORM_EMSCRIPTEN)
 
+get_property(GRAPHICS_API_METAL DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY GRAPHICS_API_METAL)
+get_property(GRAPHICS_API_VULKAN DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY GRAPHICS_API_VULKAN)
+
 # Configure defines.hxx
 get_property(ENGINE_PLATFORM_ID DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY CURRENT_PLATFORM_ID)
 get_property(ENGINE_GRAPHICS_API DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY CURRENT_GRAPHICS_API)
@@ -38,13 +41,23 @@ set(ENGINE_SOURCE_FILES
 )
 
 if (${ENGINE_PLATFORM_ID} EQUAL ${PLATFORM_MACOS})
-# Metal graphics backend
-list (APPEND ENGINE_HEADER_FILES
-    include/engine/graphics/backends/metal/renderAPIMetal.hxx
-)
-list(APPEND ENGINE_SOURCE_FILES
-    source/engine/graphics/backends/metal/renderAPIMetal.cxx
-)
+    # Metal graphics backend
+    list (APPEND ENGINE_HEADER_FILES
+        include/engine/graphics/backends/metal/renderAPIMetal.hxx
+    )
+    list(APPEND ENGINE_SOURCE_FILES
+        source/engine/graphics/backends/metal/renderAPIMetal.cxx
+    )
+endif()
+
+if (${ENGINE_GRAPHICS_API} EQUAL ${GRAPHICS_API_VULKAN})
+    # Metal graphics backend
+    list (APPEND ENGINE_HEADER_FILES
+        include/engine/graphics/backends/vulkan/renderAPIVulkan.hxx
+    )
+    list(APPEND ENGINE_SOURCE_FILES
+        source/engine/graphics/backends/vulkan/renderAPIVulkan.cxx
+    )
 endif()
 
 # GLFW window backend
@@ -57,12 +70,21 @@ list(APPEND ENGINE_SOURCE_FILES
 
 # GLFW Metal/Cocoa Adapter
 if (${ENGINE_PLATFORM_ID} EQUAL ${PLATFORM_MACOS})
-list (APPEND ENGINE_HEADER_FILES
-    include/engine/adapters/glfw_adapter.h
-)
-list(APPEND ENGINE_SOURCE_FILES
-    source/engine/adapters/glfw_adapter.mm
-)
+    list (APPEND ENGINE_HEADER_FILES
+        include/engine/adapters/glfw_adapter.h
+    )
+    list(APPEND ENGINE_SOURCE_FILES
+        source/engine/adapters/glfw_adapter.mm
+    )
+endif()
+
+if (${ENGINE_GRAPHICS_API} EQUAL ${GRAPHICS_API_VULKAN})
+    find_package(Vulkan REQUIRED)
+    if(Vulkan_FOUND)
+        include_directories(${Vulkan_INCLUDE_DIRS})
+    else()
+        message(FATAL_ERROR "Vulkan SDK not found.")
+    endif()
 endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -72,7 +94,13 @@ add_library(Engine STATIC
     ${ENGINE_SOURCE_FILES}
 )
 
-if (${ENGINE_PLATFORM_ID} EQUAL ${PLATFORM_MACOS})
+if (${ENGINE_GRAPHICS_API} EQUAL ${GRAPHICS_API_VULKAN})
+    if(Vulkan_FOUND)
+        target_link_libraries(Engine PUBLIC ${Vulkan_LIBRARIES})
+    endif()
+endif()
+
+if (${ENGINE_GRAPHICS_API} EQUAL ${GRAPHICS_API_METAL})
     target_link_libraries(Engine PUBLIC METAL_CPP)
 endif()
 target_link_libraries(Engine PRIVATE glfw)

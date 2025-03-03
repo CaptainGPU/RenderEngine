@@ -51,7 +51,10 @@ set_property(DIRECTORY PROPERTY CURRENT_GRAPHICS_API ${CURRENT_GRAPHICS_API})
 set_property(DIRECTORY PROPERTY GRAPHICS_API_METAL ${GRAPHICS_API_METAL})
 set_property(DIRECTORY PROPERTY GRAPHICS_API_VULKAN ${GRAPHICS_API_VULKAN})
 
+if (${CURRENT_GRAPHICS_API} EQUAL ${GRAPHICS_API_METAL})
 add_subdirectory(thirdparty/metal-cpp)
+endif()
+
 add_subdirectory(engine)
 add_subdirectory(thirdparty/glfw)
 
@@ -59,7 +62,9 @@ add_executable(${PROJECT_NAME} "${ENGINE_SOURCE_PATH}/main.cpp")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Engine)
 
-if (${CURRENT_PLATFORM_ID} EQUAL ${PLATFORM_MACOS})
-    find_package(OpenGL REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
-endif()
+# if (${CURRENT_PLATFORM_ID} EQUAL ${PLATFORM_MACOS})
+#     find_package(OpenGL REQUIRED)
+#     target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
+# endif()
+
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT RenderEngine)

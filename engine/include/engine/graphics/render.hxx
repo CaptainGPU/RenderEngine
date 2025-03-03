@@ -14,6 +14,8 @@ private:
 public:
     void setWindow(Window* window);
     void renderFrame();
+
+    void shootDownRenderAPI();
     
 public:
     static void initRenderAPI();
