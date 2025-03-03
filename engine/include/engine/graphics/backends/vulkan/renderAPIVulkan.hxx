@@ -11,7 +11,12 @@ public:
 	~RenderAPIVulkan();
 
 	virtual void setWindow(Window* window);
+    
+private:
+    void createInstance();
+    void createDebugCallback();
 
 private:
-	VkInstance mInstance;
+	VkInstance mInstance = VK_NULL_HANDLE;
+    VkDebugUtilsMessengerEXT mDebugMessenger = VK_NULL_HANDLE;
 };

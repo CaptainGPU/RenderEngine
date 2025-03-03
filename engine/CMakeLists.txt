@@ -54,9 +54,11 @@ if (${ENGINE_GRAPHICS_API} EQUAL ${GRAPHICS_API_VULKAN})
     # Metal graphics backend
     list (APPEND ENGINE_HEADER_FILES
         include/engine/graphics/backends/vulkan/renderAPIVulkan.hxx
+        include/engine/graphics/backends/vulkan/vulkanUtils.hxx
     )
     list(APPEND ENGINE_SOURCE_FILES
         source/engine/graphics/backends/vulkan/renderAPIVulkan.cxx
+        source/engine/graphics/backends/vulkan/vulkanUtils.cxx
     )
 endif()
 
