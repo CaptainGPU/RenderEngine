@@ -8,6 +8,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include "engine/defines.hxx"
+
 RenderAPIVulkan::RenderAPIVulkan()
 {
 	printf("RenderAPIVulkan: initialization\n");
@@ -28,10 +30,28 @@ RenderAPIVulkan::RenderAPIVulkan()
 	const char** glfwExtensions;
 
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-	createInfo.enabledExtensionCount = glfwExtensionCount;
-	createInfo.ppEnabledExtensionNames = glfwExtensions;
+#if CURRENT_PLATFORM == PLATFORM_MAC
+    uint32_t enableExtensionCount = glfwExtensionCount + 2;
+#else
+    uint32_t enableExtensionCount = glfwExtensionCount;
+#endif
+    
+    const char** ppEnableExtensionNames = (const char**)malloc(enableExtensionCount * sizeof(char*));
+    
+    uint32_t offset = 0;
+    for (; offset < glfwExtensionCount; offset++)
+    {
+        ppEnableExtensionNames[offset] = glfwExtensions[offset];
+    }
+    
+#if CURRENT_PLATFORM == PLATFORM_MAC
+    ppEnableExtensionNames[offset++] = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME;
+    ppEnableExtensionNames[offset++] = VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME;
+#endif
+	createInfo.enabledExtensionCount = enableExtensionCount;
+	createInfo.ppEnabledExtensionNames = ppEnableExtensionNames;
 	createInfo.enabledLayerCount = 0;
+    createInfo.flags = VkInstanceCreateFlagBits::VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 
 	VkResult result = vkCreateInstance(&createInfo, nullptr, &mInstance);
 	if (result != VK_SUCCESS)

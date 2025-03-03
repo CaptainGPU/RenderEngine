@@ -22,7 +22,7 @@ mWindow(nullptr)
     }
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     
-    mWindow = glfwCreateWindow(width, height, "Render Engine GLFW", nullptr, nullptr);
+    mWindow = glfwCreateWindow(width, height, "Промінь", nullptr, nullptr);
     
     if (!mWindow)
     {

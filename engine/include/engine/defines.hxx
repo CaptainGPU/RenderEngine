@@ -16,6 +16,6 @@
 
 // Identifier of the current platform for which compilation occurs
 // Set from CMAKE
-#define CURRENT_PLATFORM 1
+#define CURRENT_PLATFORM 2
 
 #define GRAPHICS_API 2

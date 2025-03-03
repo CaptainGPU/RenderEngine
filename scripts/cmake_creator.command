@@ -14,6 +14,6 @@ fi
 
 mkdir "$build_folder_path"
 
-cmake ../ -DDEPLOY_PLATFORM="$1" -G "$2" -B"$build_folder_path"
+cmake ../ -DDEPLOY_PLATFORM="$1" -DDEPLOY_GRAPHICS_API=Vulkan -G "$2" -B"$build_folder_path"
 
 echo "Final, try Xcode in ${project_dir}/build folder"

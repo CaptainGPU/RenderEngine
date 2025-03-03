@@ -1,4 +1,6 @@
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 #include "engine/application.hxx"
 #include "engine/graphics/render.hxx"
@@ -26,9 +28,22 @@ void EngineApplication::workStage()
 {
     printf("EngineApplication: working\n");
     
+    const int targetFPS = 60; // TODO: Implement RenderEngine config target FPS parameter
+    
+    const std::chrono::duration<double> targetFrameDuration = std::chrono::duration<double>(1.0 / targetFPS);
+    
     while (!mWindow->isShouldClose())
     {
+        std::chrono::time_point<std::chrono::high_resolution_clock> frameStart = std::chrono::high_resolution_clock::now();
+        
         simulate();
+        
+        std::chrono::time_point<std::chrono::high_resolution_clock> frameEnd = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::nano> frameDuration = frameEnd - frameStart;
+        if (frameDuration < targetFrameDuration) 
+        {
+            std::this_thread::sleep_for(targetFrameDuration - frameDuration);
+        }
     }
 }
 

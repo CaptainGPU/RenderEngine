@@ -40,7 +40,7 @@ set(ENGINE_SOURCE_FILES
     source/engine/graphics/renderAPI.cxx
 )
 
-if (${ENGINE_PLATFORM_ID} EQUAL ${PLATFORM_MACOS})
+if (${ENGINE_PLATFORM_ID} EQUAL ${PLATFORM_MACOS} AND ${ENGINE_GRAPHICS_API} EQUAL ${GRAPHICS_API_METAL})
     # Metal graphics backend
     list (APPEND ENGINE_HEADER_FILES
         include/engine/graphics/backends/metal/renderAPIMetal.hxx
@@ -69,7 +69,7 @@ list(APPEND ENGINE_SOURCE_FILES
 )
 
 # GLFW Metal/Cocoa Adapter
-if (${ENGINE_PLATFORM_ID} EQUAL ${PLATFORM_MACOS})
+if (${ENGINE_PLATFORM_ID} EQUAL ${PLATFORM_MACOS} AND ${ENGINE_GRAPHICS_API} EQUAL ${GRAPHICS_API_METAL})
     list (APPEND ENGINE_HEADER_FILES
         include/engine/adapters/glfw_adapter.h
     )
