@@ -1,3 +1,5 @@
+#include "engine/defines.hxx"
+
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -71,6 +73,12 @@ void EngineApplication::run()
 
 void startApplication()
 {
+#ifdef CURRENT_PLATFORM == PLATFORM_WIN
+    printf("Hello Windows64\n");
+#else
+    printf("Hello MacOS\n");
+#endif
+
     printf("Start Engine!\n");
     
     EngineApplication* application = new EngineApplication(640, 480, false);

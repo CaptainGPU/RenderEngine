@@ -55,7 +55,7 @@ RenderAPIVulkan::~RenderAPIVulkan()
     {
         printf("RenderAPIVulkan: Cannot find address of vkDestroyDebugUtilsMessengerEXT\n");
     }
-    vkDestroyDebugUtilsMessenger(mInstance, mDebugMessenger, NULL);
+    vkDestroyDebugUtilsMessenger(mInstance, mDebugMessenger, nullptr);
     
 	vkDestroyInstance(mInstance, nullptr);
 }
@@ -68,7 +68,9 @@ void RenderAPIVulkan::setWindow(Window* window)
     {
         throw std::runtime_error("RenderAPIVulkan: Error creating GLFW Window Surface\n");
     }
-    printf("RenderAPIVulkan: GLFW Window Surface created\n");
+    printf("RenderAPIVulkan: Window Surface created\n");
+
+    mPhysicalDevices.init(mInstance, mWindowSurface);
 }
 
 void RenderAPIVulkan::createInstance()
@@ -120,7 +122,9 @@ void RenderAPIVulkan::createInstance()
     
     createInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
     createInfo.ppEnabledLayerNames = layers.data();
+#if CURRENT_PLATFORM == PLATFORM_MAC
     createInfo.flags = VkInstanceCreateFlagBits::VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
 
     VkResult result = vkCreateInstance(&createInfo, nullptr, &mInstance);
     if (result != VK_SUCCESS)

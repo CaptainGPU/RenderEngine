@@ -4,6 +4,5 @@
 
 void printTest()
 {
-    std::cout << "Hello MacOS" << std::endl;
     startApplication();
 }

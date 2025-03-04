@@ -52,3 +52,35 @@ const char* GetDebugType(VkDebugUtilsMessageTypeFlagsEXT Type)
 
     return "NO SUCH TYPE!";
 }
+
+
+void printImageUsageFlags(const VkImageUsageFlags& flags)
+{
+    if (flags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) {
+        printf("VulkanPhysicalDevices: Image usage transfer src is supported\n");
+    }
+
+    if (flags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) {
+        printf("VulkanPhysicalDevices: Image usage transfer dest is supported\n");
+    }
+
+    if (flags & VK_IMAGE_USAGE_SAMPLED_BIT) {
+        printf("VulkanPhysicalDevices: Image usage sampled is supported\n");
+    }
+
+    if (flags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) {
+        printf("VulkanPhysicalDevices: Image usage color attachment is supported\n");
+    }
+
+    if (flags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+        printf("VulkanPhysicalDevices: Image usage depth stencil attachment is supported\n");
+    }
+
+    if (flags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) {
+        printf("VulkanPhysicalDevices: Image usage transient attachment is supported\n");
+    }
+
+    if (flags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT) {
+        printf("VulkanPhysicalDevices: Image usage input attachment is supported\n");
+    }
+}
