@@ -55,10 +55,12 @@ if (${ENGINE_GRAPHICS_API} EQUAL ${GRAPHICS_API_VULKAN})
     list (APPEND ENGINE_HEADER_FILES
         include/engine/graphics/backends/vulkan/renderAPIVulkan.hxx
         include/engine/graphics/backends/vulkan/vulkanUtils.hxx
+        include/engine/graphics/backends/vulkan/vulkanPhysicalDevice.hxx
     )
     list(APPEND ENGINE_SOURCE_FILES
         source/engine/graphics/backends/vulkan/renderAPIVulkan.cxx
         source/engine/graphics/backends/vulkan/vulkanUtils.cxx
+        source/engine/graphics/backends/vulkan/vulkanPhysicalDevice.cxx
     )
 endif()
 

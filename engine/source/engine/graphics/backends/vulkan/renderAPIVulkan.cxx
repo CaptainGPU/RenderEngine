@@ -1,7 +1,7 @@
 #include "engine/graphics/backends/vulkan/renderAPIVulkan.hxx"
 #include "engine/graphics/backends/vulkan/vulkanUtils.hxx"
+#include "engine/window/backends/glfw/glfwWindow.hxx"
 
-//#include "engine/window/backends/glfw/glfwWindow.hxx"
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
 
@@ -41,6 +41,14 @@ RenderAPIVulkan::RenderAPIVulkan()
 
 RenderAPIVulkan::~RenderAPIVulkan()
 {
+    PFN_vkDestroySurfaceKHR vkDestroySurface = VK_NULL_HANDLE;
+    vkDestroySurface = (PFN_vkDestroySurfaceKHR)vkGetInstanceProcAddr(mInstance, "vkDestroySurfaceKHR");
+    if (!vkDestroySurface)
+    {
+        printf("RenderAPIVulkan: Cannot find address of vkDestroySurfaceKHR\n");
+    }
+    vkDestroySurface(mInstance, mWindowSurface, nullptr);
+    
     PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessenger = VK_NULL_HANDLE;
     vkDestroyDebugUtilsMessenger = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(mInstance, "vkDestroyDebugUtilsMessengerEXT");
     if (!vkDestroyDebugUtilsMessenger) 
@@ -54,7 +62,13 @@ RenderAPIVulkan::~RenderAPIVulkan()
 
 void RenderAPIVulkan::setWindow(Window* window)
 {
-	//GLFWWindow* glfwWindow = dynamic_cast<GLFWWindow*>(window);
+	GLFWWindow* glfwWindow = dynamic_cast<GLFWWindow*>(window);
+    
+    if (glfwCreateWindowSurface(mInstance, glfwWindow->getGLFLWindow(), nullptr, &mWindowSurface))
+    {
+        throw std::runtime_error("RenderAPIVulkan: Error creating GLFW Window Surface\n");
+    }
+    printf("RenderAPIVulkan: GLFW Window Surface created\n");
 }
 
 void RenderAPIVulkan::createInstance()
