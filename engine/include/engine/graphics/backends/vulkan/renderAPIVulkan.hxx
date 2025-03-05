@@ -16,6 +16,7 @@ private:
     void createInstance();
     void createDebugCallback();
     void setWindow(Window* window);
+    void createDevice();
 
 private:
 	VkInstance mInstance = VK_NULL_HANDLE;
@@ -23,4 +24,5 @@ private:
     VkSurfaceKHR mWindowSurface;
     VulkanPhysicalDevices mPhysicalDevices;
     uint32_t mQueueFamily = 0;
+    VkDevice mDevice = VK_NULL_HANDLE;
 };

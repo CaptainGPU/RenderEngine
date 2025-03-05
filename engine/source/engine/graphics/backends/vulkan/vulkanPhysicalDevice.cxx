@@ -133,6 +133,7 @@ void VulkanPhysicalDevices::init(const VkInstance& instance, const VkSurfaceKHR&
 
         printf("VulkanPhysicalDevices: Num heap types %d\n", mDevices[i].mMemoryProperties.memoryHeapCount);
 
+        vkGetPhysicalDeviceFeatures(physDevice, &mDevices[i].mFeatures);
     }
 }
 
@@ -158,7 +159,7 @@ int32_t VulkanPhysicalDevices::selectDevice(VkQueueFlags requiredQueueType, bool
     return 0;
 }
 
-const PhysicalDevice& VulkanPhysicalDevices::select() const
+const PhysicalDevice& VulkanPhysicalDevices::selected() const
 {
     if (mDeviceIndex < 0)
     {

@@ -41,10 +41,13 @@ RenderAPI(window)
     setWindow(window);
     mPhysicalDevices.init(mInstance, mWindowSurface);
     mQueueFamily = mPhysicalDevices.selectDevice(VK_QUEUE_GRAPHICS_BIT, true);
+    createDevice();
 }
 
 RenderAPIVulkan::~RenderAPIVulkan()
 {
+    vkDestroyDevice(mDevice, nullptr);
+
     PFN_vkDestroySurfaceKHR vkDestroySurface = VK_NULL_HANDLE;
     vkDestroySurface = (PFN_vkDestroySurfaceKHR)vkGetInstanceProcAddr(mInstance, "vkDestroySurfaceKHR");
     if (!vkDestroySurface)
@@ -73,6 +76,54 @@ void RenderAPIVulkan::setWindow(Window* window)
         throw std::runtime_error("RenderAPIVulkan: Error creating GLFW Window Surface\n");
     }
     printf("RenderAPIVulkan: Window Surface created\n");
+}
+
+void RenderAPIVulkan::createDevice()
+{
+    float queuePriorities[] = { 1.0f };
+
+    VkDeviceQueueCreateInfo queueCreateInfo{};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.pNext = nullptr;
+    queueCreateInfo.flags = 0;
+    queueCreateInfo.queueFamilyIndex = mQueueFamily;
+    queueCreateInfo.queueCount = 1;
+    queueCreateInfo.pQueuePriorities = &queuePriorities[0];
+
+    std::vector<const char*> deviceExtensions = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME
+    };
+
+    if (mPhysicalDevices.selected().mFeatures.geometryShader == VK_FALSE)
+    {
+        throw std::runtime_error("RenderAPIVulkan: Device is not support Geometry Shaders!\n");
+    }
+
+    if (mPhysicalDevices.selected().mFeatures.tessellationShader == VK_FALSE)
+    {
+        throw std::runtime_error("RenderAPIVulkan: Device is not support Tesselation Shaders!\n");
+    }
+
+
+    VkDeviceCreateInfo deviceCreateInfo{};
+    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    deviceCreateInfo.pNext = nullptr;
+    deviceCreateInfo.flags = 0;
+    deviceCreateInfo.queueCreateInfoCount = 1;
+    deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
+    deviceCreateInfo.enabledLayerCount = 0;             // DEPRECATED!
+    deviceCreateInfo.ppEnabledLayerNames = nullptr;     // DEPRECATED!
+    deviceCreateInfo.enabledExtensionCount = (uint32_t)deviceExtensions.size();
+    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();;
+    deviceCreateInfo.pEnabledFeatures = nullptr;
+
+    VkResult result = vkCreateDevice(mPhysicalDevices.selected().mDevice, &deviceCreateInfo, nullptr, &mDevice);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("RenderAPIVulkan: Creating Device problem\n");
+    }
+    printf("RenderAPIVulkan: Device Created\n");
 }
 
 void RenderAPIVulkan::createInstance()
