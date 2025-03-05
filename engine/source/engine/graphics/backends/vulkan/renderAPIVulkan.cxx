@@ -91,14 +91,19 @@ void RenderAPIVulkan::createDevice()
     queueCreateInfo.pQueuePriorities = &queuePriorities[0];
 
     std::vector<const char*> deviceExtensions = {
+#if CURRENT_PLATFORM == PLATFORM_MAC
+        "VK_KHR_portability_subset",
+#endif
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
         VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME
     };
 
+#if CURRENT_PLATFORM != PLATFORM_MAC
     if (mPhysicalDevices.selected().mFeatures.geometryShader == VK_FALSE)
     {
         throw std::runtime_error("RenderAPIVulkan: Device is not support Geometry Shaders!\n");
     }
+#endif
 
     if (mPhysicalDevices.selected().mFeatures.tessellationShader == VK_FALSE)
     {
