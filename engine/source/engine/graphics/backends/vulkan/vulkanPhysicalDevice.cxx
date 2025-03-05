@@ -94,6 +94,7 @@ void VulkanPhysicalDevices::init(const VkInstance& instance, const VkSurfaceKHR&
         {
             const VkSurfaceFormatKHR& surfaceFormat = mDevices[i].mSurfaceFormats[j];
             printf("VulkanPhysicalDevices: Format % x color space %x\n", surfaceFormat.format, surfaceFormat.colorSpace);
+            printf("VulkanPhysicalDevices: Format %x color space %x\n", surfaceFormat.format, surfaceFormat.colorSpace);
         }
 
         result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physDevice, surface, &(mDevices[i].mSurfaceCapabilities));

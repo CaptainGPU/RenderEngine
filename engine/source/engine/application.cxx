@@ -73,7 +73,7 @@ void EngineApplication::run()
 
 void startApplication()
 {
-#ifdef CURRENT_PLATFORM == PLATFORM_WIN
+#if CURRENT_PLATFORM == PLATFORM_WIN
     printf("Hello Windows64\n");
 #else
     printf("Hello MacOS\n");
