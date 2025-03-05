@@ -3,7 +3,7 @@
 #include "engine/adapters/glfw_adapter.h"
 #include "engine/window/backends/glfw/glfwWindow.hxx"
 
-RenderAPIMetal::RenderAPIMetal()
+RenderAPIMetal::RenderAPIMetal(Window* window)
 {
     mDevice = MTL::CreateSystemDefaultDevice();
     
@@ -13,6 +13,7 @@ RenderAPIMetal::RenderAPIMetal()
     
     mCommandQueue = mDevice->newCommandQueue();
     
+    setWindow(window);
 }
 
 

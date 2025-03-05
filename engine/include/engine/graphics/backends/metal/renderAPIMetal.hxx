@@ -16,11 +16,13 @@ class Window;
 class RenderAPIMetal : public RenderAPI
 {
 public:
-    RenderAPIMetal();
+    RenderAPIMetal(Window* window);
     ~RenderAPIMetal();
     
-    void setWindow(Window* window) override;
     void renderFrame() override;
+
+private:
+    void setWindow(Window* window);
 private:
     MTL::Device* mDevice = nullptr;
     CA::MetalLayer* mMetalLayer = nullptr;

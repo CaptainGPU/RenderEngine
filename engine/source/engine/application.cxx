@@ -21,9 +21,7 @@ void EngineApplication::initStage()
     
     mWindow = new GLFWWindow(mWidht, mHeight);
 
-    Render::initRenderAPI();
-    
-    Render::get()->setWindow(mWindow);
+    Render::initRenderAPI(mWindow);
 }
 
 void EngineApplication::workStage()

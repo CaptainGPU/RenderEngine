@@ -14,11 +14,11 @@
 
 Render* Render::mRender = nullptr;
 
-void Render::initRenderAPI()
+void Render::initRenderAPI(Window* window)
 {
     if (!mRender)
     {
-        mRender = new Render();
+        mRender = new Render(window);
     }
     else
     {
@@ -31,20 +31,15 @@ Render* Render::get()
     return Render::mRender;
 }
 
-Render::Render()
+Render::Render(Window* window)
 {
 #if GRAPHICS_API == GRAPHICS_API_METAL
-    mRenderAPI = new RenderAPIMetal();
+    mRenderAPI = new RenderAPIMetal(window);
 #elif GRAPHICS_API == GRAPHICS_API_VULKAN
-    mRenderAPI = new RenderAPIVulkan();
+    mRenderAPI = new RenderAPIVulkan(window);
 #else
     mRenderAPI = new RenderAPI();
 #endif
-}
-
-void Render::setWindow(Window* window)
-{
-    mRenderAPI->setWindow(window);
 }
 
 void Render::renderFrame()

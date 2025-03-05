@@ -6,19 +6,18 @@ class Window;
 class Render
 {
 private:
-    Render();
+    Render(Window* window);
 
 private:
     RenderAPI* mRenderAPI = nullptr;
     
 public:
-    void setWindow(Window* window);
     void renderFrame();
 
     void shootDownRenderAPI();
     
 public:
-    static void initRenderAPI();
+    static void initRenderAPI(Window* window);
     static Render* get();
     
 private:

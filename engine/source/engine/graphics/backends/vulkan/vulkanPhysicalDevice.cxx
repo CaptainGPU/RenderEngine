@@ -135,3 +135,35 @@ void VulkanPhysicalDevices::init(const VkInstance& instance, const VkSurfaceKHR&
 
     }
 }
+
+int32_t VulkanPhysicalDevices::selectDevice(VkQueueFlags requiredQueueType, bool supportsPresents)
+{
+    for (uint32_t i = 0; i < mDevices.size(); i++)
+    {
+        for (uint32_t j = 0; j < mDevices[i].mFamilyProperties.size(); j++)
+        {
+            const VkQueueFamilyProperties& qFamilyProperties = mDevices[i].mFamilyProperties[j];
+            
+            if ((qFamilyProperties.queueFlags & requiredQueueType) && ((bool)mDevices[i].mQueueSupportPresents[j] == supportsPresents))
+            {
+                mDeviceIndex = i;
+                uint32_t queueFamily = j;
+                printf("VulkanPhysicalDevices: Using device %d and queue family %d\n", mDeviceIndex, queueFamily);
+                return queueFamily;
+            }
+        }
+    }
+
+    throw std::runtime_error("VulkanPhysicalDevices: Required queue type %d and queue family not found\n");
+    return 0;
+}
+
+const PhysicalDevice& VulkanPhysicalDevices::select() const
+{
+    if (mDeviceIndex < 0)
+    {
+        throw std::runtime_error("VulkanPhysicalDevices: Physical Device not been selected\n");
+    }
+
+    return mDevices[mDeviceIndex];
+}

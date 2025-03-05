@@ -31,12 +31,16 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityF
     return VK_FALSE;
 }
 
-RenderAPIVulkan::RenderAPIVulkan()
+RenderAPIVulkan::RenderAPIVulkan(Window* window) :
+RenderAPI(window)
 {
 	printf("RenderAPIVulkan: initialization\n");
     
     createInstance();
     createDebugCallback();
+    setWindow(window);
+    mPhysicalDevices.init(mInstance, mWindowSurface);
+    mQueueFamily = mPhysicalDevices.selectDevice(VK_QUEUE_GRAPHICS_BIT, true);
 }
 
 RenderAPIVulkan::~RenderAPIVulkan()
@@ -69,8 +73,6 @@ void RenderAPIVulkan::setWindow(Window* window)
         throw std::runtime_error("RenderAPIVulkan: Error creating GLFW Window Surface\n");
     }
     printf("RenderAPIVulkan: Window Surface created\n");
-
-    mPhysicalDevices.init(mInstance, mWindowSurface);
 }
 
 void RenderAPIVulkan::createInstance()
