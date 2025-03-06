@@ -42,10 +42,18 @@ RenderAPI(window)
     mPhysicalDevices.init(mInstance, mWindowSurface);
     mQueueFamily = mPhysicalDevices.selectDevice(VK_QUEUE_GRAPHICS_BIT, true);
     createDevice();
+    createSwapchain();
 }
 
 RenderAPIVulkan::~RenderAPIVulkan()
 {
+    for (size_t i = 0; i < mSwapchainImageViews.size(); i++)
+    {
+        vkDestroyImageView(mDevice, mSwapchainImageViews[i], nullptr);
+    }
+
+    vkDestroySwapchainKHR(mDevice, mSwapchain, nullptr);
+
     vkDestroyDevice(mDevice, nullptr);
 
     PFN_vkDestroySurfaceKHR vkDestroySurface = VK_NULL_HANDLE;
@@ -129,6 +137,69 @@ void RenderAPIVulkan::createDevice()
         throw std::runtime_error("RenderAPIVulkan: Creating Device problem\n");
     }
     printf("RenderAPIVulkan: Device Created\n");
+}
+
+void RenderAPIVulkan::createSwapchain()
+{
+    const VkSurfaceCapabilitiesKHR& surfaceCapabilities = mPhysicalDevices.selected().mSurfaceCapabilities;
+
+    uint32_t numImages = chooseNumImages(surfaceCapabilities);
+    
+    const std::vector<VkPresentModeKHR>& presentModes = mPhysicalDevices.selected().mPresentModes;
+    VkPresentModeKHR presentMode = choosePresentMode(presentModes);
+
+    mSwapchainSurfaceFormat = chooseSurfaceFormatAndColorSpace(mPhysicalDevices.selected().mSurfaceFormats);
+
+    VkSwapchainCreateInfoKHR swapchainCreateInfo{};
+    swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    swapchainCreateInfo.pNext = nullptr;
+    swapchainCreateInfo.flags = 0;
+    swapchainCreateInfo.surface = mWindowSurface;
+    swapchainCreateInfo.minImageCount = numImages;
+    swapchainCreateInfo.imageFormat = mSwapchainSurfaceFormat.format;
+    swapchainCreateInfo.imageColorSpace = mSwapchainSurfaceFormat.colorSpace;
+    swapchainCreateInfo.imageExtent = surfaceCapabilities.currentExtent;
+    swapchainCreateInfo.imageArrayLayers = 1;
+    swapchainCreateInfo.imageUsage = (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+    swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    swapchainCreateInfo.queueFamilyIndexCount = 1;
+    swapchainCreateInfo.pQueueFamilyIndices = &mQueueFamily;
+    swapchainCreateInfo.preTransform = surfaceCapabilities.currentTransform;
+    swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    swapchainCreateInfo.presentMode = presentMode;
+    swapchainCreateInfo.clipped = VK_TRUE;
+
+    VkResult result = vkCreateSwapchainKHR(mDevice, &swapchainCreateInfo, nullptr, &mSwapchain);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("RenderAPIVulkan: Creating Swapchain problem\n");
+    }
+    printf("RenderAPIVulkan: Swapchain created\n");
+
+    uint32_t numSwapchainImages = 0;
+    result = vkGetSwapchainImagesKHR(mDevice, mSwapchain, &numSwapchainImages, nullptr);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("RenderAPIVulkan: Get Swapchain num images problem\n");
+    }
+
+    printf("RenderAPIVulkan: Num of swapchain images: %d\n", numSwapchainImages);
+    mSwapchainImages.resize(numSwapchainImages);
+    mSwapchainImageViews.resize(numSwapchainImages);
+
+    result = vkGetSwapchainImagesKHR(mDevice, mSwapchain, &numSwapchainImages, mSwapchainImages.data());
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("RenderAPIVulkan: Get Swapchain images problem\n");
+    }
+
+    int32_t layerCount = 1;
+    int32_t mipLevels = 1;
+    for (uint32_t i = 0; i < numSwapchainImages; i++)
+    {
+        mSwapchainImageViews[i] = CreateImageView(mDevice, mSwapchainImages[i], mSwapchainSurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_VIEW_TYPE_2D, layerCount, mipLevels);
+    }
+    printf("RenderAPIVulkan: Created %d Swapchain ImageViews\n", numSwapchainImages);
 }
 
 void RenderAPIVulkan::createInstance()

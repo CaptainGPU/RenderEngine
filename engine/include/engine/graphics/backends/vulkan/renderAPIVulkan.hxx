@@ -17,6 +17,7 @@ private:
     void createDebugCallback();
     void setWindow(Window* window);
     void createDevice();
+    void createSwapchain();
 
 private:
 	VkInstance mInstance = VK_NULL_HANDLE;
@@ -25,4 +26,8 @@ private:
     VulkanPhysicalDevices mPhysicalDevices;
     uint32_t mQueueFamily = 0;
     VkDevice mDevice = VK_NULL_HANDLE;
+    VkSurfaceFormatKHR mSwapchainSurfaceFormat;
+    VkSwapchainKHR mSwapchain;
+    std::vector<VkImage> mSwapchainImages;
+    std::vector<VkImageView> mSwapchainImageViews;
 };
