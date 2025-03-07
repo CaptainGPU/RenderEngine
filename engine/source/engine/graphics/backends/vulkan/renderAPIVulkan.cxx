@@ -43,6 +43,8 @@ RenderAPI(window)
     mQueueFamily = mPhysicalDevices.selectDevice(VK_QUEUE_GRAPHICS_BIT, true);
     createDevice();
     createSwapchain();
+    createCommandBufferPool();
+    createCommandBuffers();
 }
 
 RenderAPIVulkan::~RenderAPIVulkan()
@@ -183,7 +185,8 @@ void RenderAPIVulkan::createSwapchain()
         throw std::runtime_error("RenderAPIVulkan: Get Swapchain num images problem\n");
     }
 
-    printf("RenderAPIVulkan: Num of swapchain images: %d\n", numSwapchainImages);
+    mNumSwapchainImages = numSwapchainImages;
+    printf("RenderAPIVulkan: Num of swapchain images: %d\n", mNumSwapchainImages);
     mSwapchainImages.resize(numSwapchainImages);
     mSwapchainImageViews.resize(numSwapchainImages);
 
@@ -200,6 +203,41 @@ void RenderAPIVulkan::createSwapchain()
         mSwapchainImageViews[i] = CreateImageView(mDevice, mSwapchainImages[i], mSwapchainSurfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_VIEW_TYPE_2D, layerCount, mipLevels);
     }
     printf("RenderAPIVulkan: Created %d Swapchain ImageViews\n", numSwapchainImages);
+}
+
+void RenderAPIVulkan::createCommandBufferPool()
+{
+    VkCommandPoolCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    createInfo.flags = 0;
+    createInfo.queueFamilyIndex = mQueueFamily;
+
+    VkResult result = vkCreateCommandPool(mDevice, &createInfo, nullptr, &mCommandPool);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("RenderAPIVulkan: Create Command Pool problem\n");
+    }
+    printf("RenderAPIVulkan: Command Pool created\n");
+}
+
+void RenderAPIVulkan::createCommandBuffers()
+{
+    mCommandBuffers.resize(mNumSwapchainImages);
+
+    VkCommandBufferAllocateInfo allocateInfo{};
+    allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocateInfo.pNext = nullptr;
+    allocateInfo.commandPool = mCommandPool;
+    allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocateInfo.commandBufferCount = mNumSwapchainImages;
+
+    VkResult result = vkAllocateCommandBuffers(mDevice, &allocateInfo, mCommandBuffers.data());
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("RenderAPIVulkan: Create Command Buffers problem\n");
+    }
+
+    printf("RenderAPIVulkan: Created %d Command Buffers\n", mNumSwapchainImages);
 }
 
 void RenderAPIVulkan::createInstance()

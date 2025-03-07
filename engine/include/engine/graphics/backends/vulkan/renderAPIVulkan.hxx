@@ -18,6 +18,8 @@ private:
     void setWindow(Window* window);
     void createDevice();
     void createSwapchain();
+    void createCommandBufferPool();
+    void createCommandBuffers();
 
 private:
 	VkInstance mInstance = VK_NULL_HANDLE;
@@ -28,6 +30,9 @@ private:
     VkDevice mDevice = VK_NULL_HANDLE;
     VkSurfaceFormatKHR mSwapchainSurfaceFormat;
     VkSwapchainKHR mSwapchain;
+    uint32_t mNumSwapchainImages = 0;
     std::vector<VkImage> mSwapchainImages;
     std::vector<VkImageView> mSwapchainImageViews;
+    std::vector<VkCommandBuffer> mCommandBuffers;
+    VkCommandPool mCommandPool;
 };
