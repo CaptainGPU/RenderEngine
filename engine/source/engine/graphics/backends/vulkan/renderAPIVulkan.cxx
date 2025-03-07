@@ -45,6 +45,7 @@ RenderAPI(window)
     createSwapchain();
     createCommandBufferPool();
     createCommandBuffers();
+    recordCommandBuffers();
 }
 
 RenderAPIVulkan::~RenderAPIVulkan()
@@ -238,6 +239,43 @@ void RenderAPIVulkan::createCommandBuffers()
     }
 
     printf("RenderAPIVulkan: Created %d Command Buffers\n", mNumSwapchainImages);
+}
+
+void RenderAPIVulkan::recordCommandBuffers()
+{
+    VkClearColorValue clearColor = { 0.0f, 0.25f, 0.5f, 1.0f };
+
+    VkImageSubresourceRange imageRange{};
+    imageRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    imageRange.baseMipLevel = 0;
+    imageRange.levelCount = 1;
+    imageRange.baseArrayLayer = 0;
+    imageRange.layerCount = 1;
+
+    for (uint32_t i = 0; i < mCommandBuffers.size(); i++)
+    {
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.pNext = nullptr;
+        beginInfo.flags = 0;
+        beginInfo.pInheritanceInfo = nullptr;
+
+        VkResult result = vkBeginCommandBuffer(mCommandBuffers[i], &beginInfo);
+        if (result != VK_SUCCESS)
+        {
+            throw std::runtime_error("RenderAPIVulkan: Begin Command Buffers problem\n");
+        }
+
+        vkCmdClearColorImage(mCommandBuffers[i], mSwapchainImages[i], VK_IMAGE_LAYOUT_GENERAL, &clearColor, 1, &imageRange);
+
+        result = vkEndCommandBuffer(mCommandBuffers[i]);
+        if (result != VK_SUCCESS)
+        {
+            throw std::runtime_error("RenderAPIVulkan: End Command Buffers problem\n");
+        }
+    }
+
+    printf("RenderAPIVulkan: Command Buffers recorded\n");
 }
 
 void RenderAPIVulkan::createInstance()

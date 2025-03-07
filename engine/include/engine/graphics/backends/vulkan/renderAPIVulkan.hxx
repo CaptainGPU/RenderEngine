@@ -20,6 +20,7 @@ private:
     void createSwapchain();
     void createCommandBufferPool();
     void createCommandBuffers();
+    void recordCommandBuffers();
 
 private:
 	VkInstance mInstance = VK_NULL_HANDLE;
