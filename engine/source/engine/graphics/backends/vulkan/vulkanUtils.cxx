@@ -160,3 +160,19 @@ VkImageView CreateImageView(VkDevice device, VkImage image, VkFormat format, VkI
 
     return ImageView;
 }
+
+VkSemaphore createSemaphore(VkDevice device)
+{
+    VkSemaphoreCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    createInfo.pNext = nullptr;
+    createInfo.flags = 0;
+    
+    VkSemaphore semaphore;
+    VkResult result = vkCreateSemaphore(device, &createInfo, nullptr, &semaphore);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("RenderAPIVulkan: Create Semaphore problem\n");
+    }
+    return semaphore;
+}

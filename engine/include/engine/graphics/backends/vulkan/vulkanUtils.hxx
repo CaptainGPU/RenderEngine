@@ -10,3 +10,4 @@ uint32_t chooseNumImages(const VkSurfaceCapabilitiesKHR& capabilities);
 VkPresentModeKHR choosePresentMode(const std::vector<VkPresentModeKHR>& presentModes);
 VkSurfaceFormatKHR chooseSurfaceFormatAndColorSpace(const std::vector<VkSurfaceFormatKHR>& surfaceFormats);
 VkImageView CreateImageView(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageViewType viewType, uint32_t layerCount, uint32_t mipLevels);
+VkSemaphore createSemaphore(VkDevice device);

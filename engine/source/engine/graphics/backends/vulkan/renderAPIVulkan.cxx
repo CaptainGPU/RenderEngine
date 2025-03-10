@@ -46,10 +46,15 @@ RenderAPI(window)
     createCommandBufferPool();
     createCommandBuffers();
     recordCommandBuffers();
+    createQueues();
 }
 
 RenderAPIVulkan::~RenderAPIVulkan()
 {
+    mQueue.destroy();
+
+    vkDestroyCommandPool(mDevice, mCommandPool, nullptr);
+
     for (size_t i = 0; i < mSwapchainImageViews.size(); i++)
     {
         vkDestroyImageView(mDevice, mSwapchainImageViews[i], nullptr);
@@ -76,6 +81,13 @@ RenderAPIVulkan::~RenderAPIVulkan()
     vkDestroyDebugUtilsMessenger(mInstance, mDebugMessenger, nullptr);
     
 	vkDestroyInstance(mInstance, nullptr);
+}
+
+void RenderAPIVulkan::renderFrame()
+{
+    uint32_t imageIndex = mQueue.acquireNextImage();
+    mQueue.submitAsync(mCommandBuffers[imageIndex]);
+    mQueue.present(imageIndex);
 }
 
 void RenderAPIVulkan::setWindow(Window* window)
@@ -254,10 +266,34 @@ void RenderAPIVulkan::recordCommandBuffers()
 
     for (uint32_t i = 0; i < mCommandBuffers.size(); i++)
     {
+        VkImageMemoryBarrier presentToClearBarrier{};
+        presentToClearBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        presentToClearBarrier.pNext = nullptr;
+        presentToClearBarrier.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        presentToClearBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        presentToClearBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        presentToClearBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        presentToClearBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        presentToClearBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        presentToClearBarrier.image = mSwapchainImages[i];
+        presentToClearBarrier.subresourceRange = imageRange;
+
+        VkImageMemoryBarrier clearToPresentBarrier{};
+        clearToPresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        clearToPresentBarrier.pNext = nullptr;
+        clearToPresentBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        clearToPresentBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+        clearToPresentBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        clearToPresentBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        clearToPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        clearToPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        clearToPresentBarrier.image = mSwapchainImages[i];
+        clearToPresentBarrier.subresourceRange = imageRange;
+
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.pNext = nullptr;
-        beginInfo.flags = 0;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
         beginInfo.pInheritanceInfo = nullptr;
 
         VkResult result = vkBeginCommandBuffer(mCommandBuffers[i], &beginInfo);
@@ -266,7 +302,19 @@ void RenderAPIVulkan::recordCommandBuffers()
             throw std::runtime_error("RenderAPIVulkan: Begin Command Buffers problem\n");
         }
 
-        vkCmdClearColorImage(mCommandBuffers[i], mSwapchainImages[i], VK_IMAGE_LAYOUT_GENERAL, &clearColor, 1, &imageRange);
+        vkCmdPipelineBarrier(mCommandBuffers[i], VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+            0,
+            0, nullptr,
+            0, nullptr,
+            1, &presentToClearBarrier);
+
+        vkCmdClearColorImage(mCommandBuffers[i], mSwapchainImages[i], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearColor, 1, &imageRange);
+
+        vkCmdPipelineBarrier(mCommandBuffers[i], VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+            0,
+            0, nullptr,
+            0, nullptr,
+            1, &clearToPresentBarrier);
 
         result = vkEndCommandBuffer(mCommandBuffers[i]);
         if (result != VK_SUCCESS)
@@ -276,6 +324,11 @@ void RenderAPIVulkan::recordCommandBuffers()
     }
 
     printf("RenderAPIVulkan: Command Buffers recorded\n");
+}
+
+void RenderAPIVulkan::createQueues()
+{
+    mQueue.init(mDevice, mSwapchain, mQueueFamily, 0);
 }
 
 void RenderAPIVulkan::createInstance()

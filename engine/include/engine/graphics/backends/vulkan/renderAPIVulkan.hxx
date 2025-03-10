@@ -5,12 +5,16 @@
 
 #include "engine/graphics/renderAPI.hxx"
 #include "engine/graphics/backends/vulkan/vulkanPhysicalDevice.hxx"
+#include "engine/graphics/backends/vulkan/vulkanQueue.hxx"
 
 class RenderAPIVulkan : public RenderAPI
 {
 public:
 	RenderAPIVulkan(Window* window);
 	~RenderAPIVulkan();
+
+public:
+    void renderFrame() override;
 
 private:
     void createInstance();
@@ -21,6 +25,7 @@ private:
     void createCommandBufferPool();
     void createCommandBuffers();
     void recordCommandBuffers();
+    void createQueues();
 
 private:
 	VkInstance mInstance = VK_NULL_HANDLE;
@@ -36,4 +41,5 @@ private:
     std::vector<VkImageView> mSwapchainImageViews;
     std::vector<VkCommandBuffer> mCommandBuffers;
     VkCommandPool mCommandPool;
+    VulkanQueue mQueue;
 };
