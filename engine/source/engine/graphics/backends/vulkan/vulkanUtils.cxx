@@ -120,7 +120,7 @@ VkSurfaceFormatKHR chooseSurfaceFormatAndColorSpace(const std::vector<VkSurfaceF
 {
     for (size_t i = 0; i < surfaceFormats.size(); i++)
     {
-        if ((surfaceFormats[i].format == VK_FORMAT_B8G8R8A8_SRGB) && (surfaceFormats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR))
+        if ((surfaceFormats[i].format == VK_FORMAT_B8G8R8A8_UNORM) && (surfaceFormats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR))
         {
             return surfaceFormats[i];
         }

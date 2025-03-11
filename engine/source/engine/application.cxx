@@ -82,5 +82,8 @@ void startApplication()
     EngineApplication* application = new EngineApplication(640, 480, false);
     application->run();
     
+    delete application;
+    application = nullptr;
+    
     return;
 }

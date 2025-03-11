@@ -255,7 +255,7 @@ void RenderAPIVulkan::createCommandBuffers()
 
 void RenderAPIVulkan::recordCommandBuffers()
 {
-    VkClearColorValue clearColor = { 0.0f, 0.25f, 0.5f, 1.0f };
+    VkClearColorValue clearColor = { 0.0f, 0.5f, 1.0f, 1.0f };
 
     VkImageSubresourceRange imageRange{};
     imageRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
