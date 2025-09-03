@@ -2,8 +2,9 @@
 
 #include <test.hxx>
 
-void main()
+int main()
 {
-	std::cout << "Hello Game" << std::endl;
+	printf("Hello World!\n");
 	test_engine_call();
+	return 0;
 }
