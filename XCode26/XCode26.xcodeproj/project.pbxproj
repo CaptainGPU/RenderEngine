@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		E40408452F29781900B25FC3 /* XCode26.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XCode26.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E40408452F29781900B25FC3 /* Game.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Game.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -40,7 +40,7 @@
 		E40408462F29781900B25FC3 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E40408452F29781900B25FC3 /* XCode26.app */,
+				E40408452F29781900B25FC3 /* Game.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +48,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E40408442F29781900B25FC3 /* XCode26 */ = {
+		E40408442F29781900B25FC3 /* Game */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E404085D2F29781B00B25FC3 /* Build configuration list for PBXNativeTarget "XCode26" */;
+			buildConfigurationList = E404085D2F29781B00B25FC3 /* Build configuration list for PBXNativeTarget "Game" */;
 			buildPhases = (
 				E40408412F29781900B25FC3 /* Sources */,
 				E40408422F29781900B25FC3 /* Frameworks */,
@@ -63,11 +63,11 @@
 			fileSystemSynchronizedGroups = (
 				E40408472F29781900B25FC3 /* Game */,
 			);
-			name = XCode26;
+			name = Game;
 			packageProductDependencies = (
 			);
 			productName = RenderEngine;
-			productReference = E40408452F29781900B25FC3 /* XCode26.app */;
+			productReference = E40408452F29781900B25FC3 /* Game.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -98,7 +98,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				E40408442F29781900B25FC3 /* XCode26 */,
+				E40408442F29781900B25FC3 /* Game */,
 			);
 		};
 /* End PBXProject section */
@@ -317,7 +317,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E404085D2F29781B00B25FC3 /* Build configuration list for PBXNativeTarget "XCode26" */ = {
+		E404085D2F29781B00B25FC3 /* Build configuration list for PBXNativeTarget "Game" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E404085E2F29781B00B25FC3 /* Debug */,

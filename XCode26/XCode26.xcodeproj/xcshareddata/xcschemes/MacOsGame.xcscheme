@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "E40408442F29781900B25FC3"
-               BuildableName = "XCode26.app"
-               BlueprintName = "XCode26"
+               BuildableName = "Game.app"
+               BlueprintName = "Game"
                ReferencedContainer = "container:XCode26.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,8 +46,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E40408442F29781900B25FC3"
-            BuildableName = "XCode26.app"
-            BlueprintName = "XCode26"
+            BuildableName = "Game.app"
+            BlueprintName = "Game"
             ReferencedContainer = "container:XCode26.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -63,8 +63,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E40408442F29781900B25FC3"
-            BuildableName = "XCode26.app"
-            BlueprintName = "XCode26"
+            BuildableName = "Game.app"
+            BlueprintName = "Game"
             ReferencedContainer = "container:XCode26.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
